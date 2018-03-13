@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.voucher.CpaVoucherPostilDao">
+   	
+	<!-- 新增批注 -->
+	<insert id="insert">
+		insert into cpa_voucher_postil(
+			id ,voucher_id, book_id, postil ,  create_by , create_date
+		) values (
+			#{id}, #{voucherId}, #{bookId}, #{postil}, #{createBy.id}, #{createDate}
+		)
+	</insert>
+
+	<!-- 通过凭证id查询批注 -->
+	<select id="findListByVoucherId" parameterType="string" resultType="CpaVoucherPostil">
+		select  
+				t.id , t.voucher_id voucherId ,t.book_id bookId , t.postil , 
+				t1.id userId ,t1.login_name loginName ,t1.name userName ,t.create_date createDate
+ 			from 
+ 				cpa_voucher_postil t 
+ 				left join sys_user t1 on t.create_by = t1.id
+ 			where voucher_id = #{voucherId} order by t.create_date
+	</select>
+	
+	<!-- 根据id删除批注 -->
+	<delete id="deleteById">
+		delete from cpa_voucher_postil where id = #{id}
+	</delete>
+</mapper>

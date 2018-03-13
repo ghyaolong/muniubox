@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaCustomerAssistingDao">
+    
+	<sql id="cpaCustomerAssistingColumns">
+		a.id AS "id",
+		a.account_id AS "accountId",
+		a.template_id AS "templateId",
+		a.catalog_name AS "catalogName",
+		a.is_custom AS "isCustom",
+		a.sort AS "sort",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.assisting_info_type AS "assistingInfoType"
+	</sql>
+	
+	<sql id="cpaCustomerAssistingJoins">
+		LEFT JOIN cpa_customer_assisting_info c ON c.catalog_id = a.id 
+	</sql>
+    
+	<select id="get" resultType="cpaCustomerAssisting">
+		SELECT 
+			<include refid="cpaCustomerAssistingColumns"/>
+		FROM cpa_customer_assisting a
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 根据名字查找 -->
+	<select id="findByName" parameterType="string" resultType="cpaCustomerAssisting">
+		SELECT 
+			a.id,a.account_id accountId,a.catalog_name catalogName
+		FROM cpa_customer_assisting a
+		WHERE a.catalog_name = #{catalogName}
+		AND 
+			a.account_id = #{accountId}
+	</select>
+	
+    <!-- 根据sort查询最大排序号 -->
+	<select id="findMaxSortByInfoSort" parameterType="string" resultType="string">
+		select MAX(sort) sort  from cpa_customer_assisting where account_id = #{accountId}
+	</select>
+	
+	
+	<!-- 查找所有的辅助核算类型的列表 -->
+	<select id="findList" parameterType="string" resultType="CpaCustomerAssisting">
+		SELECT 
+			<include refid="cpaCustomerAssistingColumns"/>
+		FROM cpa_customer_assisting a where a.account_id = #{accountId} and a.del_flag = 0 order by a.sort asc
+	</select>
+	
+	<!-- 根据科目id,查询科目下所有辅助核算信息 -->
+	<select id="findListBySubjectId" parameterType="string" resultType="CpaCustomerAssisting">
+		select t1.id, t1.catalog_name catalogName , t1.assisting_info_type assistingInfoType from cpa_subject_assisting t
+				left join cpa_customer_assisting t1 on t1.id = t.assistant_id
+			where t.subject_id = #{subjectId} and t1.del_flag = 0 order by t1.sort asc
+	</select>
+	
+	<!-- 新增辅助核算类型 -->
+	<insert id="insert">
+		INSERT INTO cpa_customer_assisting(
+			id,
+			catalog_name,
+			account_id,
+			template_id,
+			is_custom,
+			sort,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			assisting_info_type
+		) VALUES (
+			#{id},
+			#{catalogName},
+			#{accountId},
+			#{templateId},
+			#{isCustom},
+			#{sort},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{assistingInfoType}
+		)
+	</insert>
+	
+	<!-- 遍历辅助核算模板中的数据添加到辅助核算类型这个类中 -->
+	<insert id="insertList">
+		INSERT INTO cpa_customer_assisting(
+			id,
+			account_id,
+			template_id,
+			catalog_name,
+			is_custom,
+			sort,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			assisting_info_type 
+		) VALUES 
+			<foreach collection="findList" item="item" index="index" separator=",">
+				(
+					#{item.id},
+					#{item.accountId},
+					#{item.templateId},
+					#{item.catalogName},
+					#{item.isCustom},
+					#{item.sort},
+					#{item.createBy},
+					#{item.createDate},
+					#{item.updateBy},
+					#{item.updateDate},
+					#{item.remarks},
+					#{item.delFlag},
+					#{item.assistingInfoType}
+				)
+			</foreach>
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_customer_assisting SET 
+			account_id=#{accountId},
+			template_id=#{templateId},
+			catalog_name = #{catalogName},
+			is_custom = #{isCustom},
+			sort = #{sort},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			assisting_info_type = #{assistingInfoType}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据id删除自定义分类项 -->
+	<update id="deleteCustom" parameterType="string" >
+		UPDATE cpa_customer_assisting a SET 
+			del_flag = 1
+		WHERE a.id = #{id}
+	</update>
+	
+</mapper>

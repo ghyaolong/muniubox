@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryTaxrateDao">
+    
+	<sql id="cpaSalaryTaxrateColumns">
+		a.id AS "id",
+		a.series AS "series",
+		a.tax_max AS "taxMax",
+		a.rate AS "rate",
+		a.quick_deduction AS "quickDeduction",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="cpaSalaryTaxrateJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaSalaryTaxrate">
+		SELECT 
+			<include refid="cpaSalaryTaxrateColumns"/>
+		FROM cpa_salary_taxrate a
+		<include refid="cpaSalaryTaxrateJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 根据taxMax的值查找对象的信息 -->
+	<select id="findByTaxBasic"  resultType="CpaSalaryTaxrate">
+		SELECT * FROM cpa_salary_taxrate 
+		WHERE
+		<if test="taxMax != null and taxMax &gt; 8000">
+			tax_max &gt; 8001 OR tax_max = 8001
+		</if>
+		<if test="taxMax != null and taxMax &lt;= 8000">
+			tax_max &gt; #{taxMax} OR tax_max = #{taxMax}
+		</if>
+		ORDER BY tax_max ASC LIMIT 1
+	</select>
+	
+	<select id="findAllList" resultType="CpaSalaryTaxrate">
+		SELECT 
+			<include refid="cpaSalaryTaxrateColumns"/>
+		FROM cpa_salary_taxrate a
+		<include refid="cpaSalaryTaxrateJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_salary_taxrate(
+			id,
+			series,
+			tax_max,
+			rate,
+			quick_deduction,
+			del_flag
+		) VALUES (
+			#{id},
+			#{series},
+			#{taxMax},
+			#{rate},
+			#{quickDeduction},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_salary_taxrate SET 	
+			series = #{series},
+			tax_max = #{taxMax},
+			rate = #{rate},
+			quick_deduction = #{quickDeduction}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cpa_salary_taxrate SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

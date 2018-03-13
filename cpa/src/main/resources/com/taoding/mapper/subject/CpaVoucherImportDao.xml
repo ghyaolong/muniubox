@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.subject.CpaVoucherImportDao">
+	
+	<!-- 根据凭证编号和凭证日期查询 -->
+	<select id="findByVoucherNoAndVoucherDate" parameterType="string" resultType="CpaVoucher">
+		select id from cpa_voucher_history where voucher_no = #{voucherNo} and voucher_date = #{voucherDate}
+	</select>
+	
+	<!-- 根据科目编号查询科目期初 -->
+	<select id="getCpaCustomerSubjectBySubjectNo" parameterType="string" resultType="CpaCustomerSubject">
+		select id from cpa_customer_subject where subject_no = #{subjectNo} and book_id = #{bookId}
+	</select>
+	
+	<!-- 批量新增凭证 -->
+	<insert id="batchInsertCpaVoucher">
+		insert into cpa_voucher_history(
+			id, customer_id, voucher_no, voucher_date, amount_debit, amount_credit, account_capital, book_id, create_by
+		) values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(
+				#{item.id}, #{item.customerId} ,#{item.voucherNo}, #{item.voucherDate} ,
+				#{item.amountDebit}, #{item.amountCredit}, #{item.accountCapital}, #{item.bookId}, #{item.createBy.id}
+			)
+		</foreach>
+	</insert>
+	
+	<!--  批量新增凭证科目 -->
+	<insert id="batchInsertCpaVoucherSubject">
+		insert into cpa_voucher_subject_history(
+			id, voucher_id, voucher_period, abstracts, subject_id, amount_debit, amount_credit, create_by, sort
+		) values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(
+				#{item.id}, #{item.voucherId} ,#{item.voucherPeriod}, #{item.abstracts} ,#{item.subjectId},
+			    #{item.amountDebit}, #{item.amountCredit}, #{item.createBy.id}, #{item.sort}
+			)
+		</foreach>
+	</insert>
+	
+</mapper>

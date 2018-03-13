@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingBalanceDepartmentDao">
+    
+	<sql id="cpaAssistingBalanceDepartmentColumns">
+		a.id AS "id",
+		a.department_no AS "departmentNo",
+		a.department_name AS "departmentName",
+		a.expense_type_id AS "expenseTypeId",
+		a.account_id AS "accountId",
+		et.expense_type_name AS "et.expenseTypeName",
+		a.del_flag AS "delFalg",
+		a.department_name AS "name",
+		a.department_no AS "no"
+	</sql>
+	
+	<sql id="cpaAssistingBalanceDepartmentJoins">
+		LEFT JOIN cpa_assisting_expense_type et ON et.id = a.expense_type_id
+<!-- 		LEFT JOIN cpa_customer_assisting cs ON ct.account_id = a.account_id -->	
+	</sql>
+    
+	<select id="get" resultType="CpaAssistingBalanceDepartment">
+		SELECT 
+			<include refid="cpaAssistingBalanceDepartmentColumns"/>
+		FROM cpa_assisting_balance_department a
+		<include refid="cpaAssistingBalanceDepartmentJoins"/>
+		WHERE a.id = #{id}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 查询所有的部门列表 -->
+	<select id="findList"  resultType="CpaAssistingBalanceDepartment">
+		SELECT 
+			<include refid="cpaAssistingBalanceDepartmentColumns"/>
+		FROM cpa_assisting_balance_department a
+		<include refid="cpaAssistingBalanceDepartmentJoins"/>
+		WHERE
+			a.del_flag = '0'
+		AND 
+			a.account_id = #{accountId}
+	</select>
+	
+	<!-- 根据名字查企业 -->
+	<select id="findByName" parameterType="string" resultType="CpaAssistingBalanceDepartment">
+		SELECT 
+			<include refid="cpaAssistingBalanceDepartmentColumns"/>
+		FROM cpa_assisting_balance_department a
+		<include refid="cpaAssistingBalanceDepartmentJoins"/>
+		WHERE a.department_name = #{departmentName}
+		AND 
+			a.account_id = #{accountId}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 根据No查询最大编号 -->
+	<select id="findMaxNoByInfoNo" parameterType="string" resultType="string">
+		select 
+			MAX(department_no) departmentNo  
+		from
+		    cpa_assisting_balance_department 
+		where 
+			account_id = #{accountId}
+		 
+	</select>
+	
+	<!-- 查找所有的列表 -->
+	<select id="findAllList"  parameterType="java.util.Map" resultType="CpaAssistingBalanceDepartment">
+		SELECT 
+			<include refid="cpaAssistingBalanceDepartmentColumns"/>
+		FROM cpa_assisting_balance_department a
+		<include refid="cpaAssistingBalanceDepartmentJoins"/>
+			WHERE
+			a.del_flag = '0'
+			AND
+			a.account_id = #{accountId}
+			<if test="departmentName != null and departmentName != ''">
+				AND a.department_name LIKE 
+					concat('%',#{departmentName},'%')
+			</if>
+		ORDER BY id DESC		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_assisting_balance_department(
+			id,
+			department_no,
+			department_name,
+			expense_type_id,
+			account_id
+		) VALUES (
+			#{id},
+			#{departmentNo},
+			#{departmentName},
+			#{expenseTypeId},
+			#{accountId}
+		)
+	</insert>
+	
+	<!-- 编辑部门条目的信息 -->
+	<update id="update">
+		UPDATE cpa_assisting_balance_department SET 
+			<if test="null != departmentNo and departmentNo !=''">
+				department_no = #{departmentNo},
+			</if>	
+			<if test="null != departmentName and departmentName !=''">
+				department_name = #{departmentName},
+			</if>
+			<if test="null != expenseTypeId and expenseTypeId !=''">
+				expense_type_id = #{expenseTypeId},
+			</if>
+			<if test="null != accountId and accountId !=''">
+				account_id = #{accountId}
+			</if>
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除部门的条目 -->
+	<update id="delete">
+		UPDATE cpa_assisting_balance_department SET
+			del_flag ='1'		
+		WHERE id = #{id}
+	</update>
+
+</mapper>

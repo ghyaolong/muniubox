@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.subject.CpaSubjectCatalogDao">
+	
+	<!-- 查询全部科目类型 -->
+	<select id="findAllList" resultType="CpaSubjectCatalog" >
+	  	select id, name, sort  from cpa_subject_catalog where del_flag = 0 order by sort asc
+	</select>
+	
+	<!-- 根据id查询科目类型 -->
+	<select id="get" resultType="CpaSubjectCatalog">
+		select * from cpa_subject_catalog where id = #{id} and del_flag = 0
+	</select>
+	
+	<!-- 根据名称查询科目 -->
+	<select id="findByName" resultType="CpaSubjectCatalog">
+		select * from cpa_subject_catalog where name = #{name} and del_flag = 0
+	</select>
+	
+	<!-- 插入科目类型 -->
+	<insert id="insert">
+		insert into cpa_subject_catalog(
+			id, name, sort, create_by, create_date, update_by, update_date, remarks, del_flag
+		) values (
+			#{id}, #{name}, #{sort}, #{createBy.id}, #{createDate}, #{updateBy.id}, #{updateDate}, #{remarks}, #{delFlag}
+		)
+	</insert>
+	
+	<!-- 修改科目类型 -->
+	<update id="update">
+		update cpa_subject_catalog set 
+			name = #{name}
+<!-- 			sort = #{sort}, -->
+<!-- 			create_by = #{createBy.id},  -->
+<!-- 			create_date = #{createDate},  -->
+<!-- 			update_by = #{updateBy.id},  -->
+<!-- 			update_date = #{updateDate},  -->
+<!-- 			remarks = #{remarks} -->
+		where id = #{id}
+	</update>
+	
+	<!-- 根据id删除科目类型 -->
+	<delete id="delete">
+		delete from cpa_subject_catalog where id = #{id}
+	</delete>
+	
+</mapper>

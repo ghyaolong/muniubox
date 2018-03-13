@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.addition.CpaBankDao">
+	<sql id="capBankColumns">
+		a.id AS "id",
+		a.bank_name AS "bankName",
+		a.create_by AS
+		"createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS
+		"delFlag"
+	</sql>
+
+
+	<select id="get" resultType="CpaBank">
+		SELECT
+		<include refid="capBankColumns" />
+		FROM cpa_bank a
+		WHERE a.id = #{id} AND a.del_flag=0
+		<if test="null!=bankName and ''!=bankName">
+		a.bank_name=#{bankName}
+		</if>
+	</select>
+	<!-- 根据银行名称查询 -->
+	<select id="findList" resultType="CpaBank">
+		SELECT
+		<include refid="capBankColumns" />
+		FROM cpa_bank a
+		WHERE a.bank_name = #{bankName}  AND a.del_flag=0
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cpa_bank(
+		id,
+		bank_name,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{bankName},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cpa_bank a
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null != bankName and ''!=bankName">
+				a.bank_name =#{bankName},
+			</if>
+			<if test="null != delFlag and ''!=delFlag">
+				a.del_flag =#{delFlag},
+			</if>
+			<if test="null != remarks and ''!=remarks">
+				a.remarks =#{remarks},
+			</if>
+			<!--<if test="null != createBy.id and ''!=createBy.id"> a.create_by =#{createBy.id}, 
+				</if> <if test="null !=createDate and ''!=createDate"> a.create_date =#{createDate}, 
+				</if> <if test="null != updateBy.id and ''!=updateBy.id"> a.update_by =#{updateBy.id}, 
+				</if> <if test="null != updateDate and ''!=updateDate"> a.update_date =#{updateDate}, 
+				</if> -->
+
+		</trim>
+		WHERE a.id = #{id}
+	</update>
+	<!-- 查询所有银行信息 -->
+	<select id="findAllList" resultType="CpaBank">
+		SELECT
+		<include refid="capBankColumns" />
+		FROM cpa_bank a
+		WHERE a.del_flag=0
+		<if test="null!=bankName and ''!= bankName">
+			AND a.bank_name LIKE CONCAT('%', #{bankName}, '%')
+		</if>
+	</select>
+</mapper>

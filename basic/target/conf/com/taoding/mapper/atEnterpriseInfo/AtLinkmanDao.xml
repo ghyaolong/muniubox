@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.atEnterpriseInfo.AtLinkmanDao">
+    
+	<sql id="atLinkmanColumns">
+		a.id AS "id",
+		a.at_enterprise_info_id AS "atEnterpriseInfoId",
+		a.linkman_name AS "linkmanName",
+		a.linkman_phone AS "linkmanPhone",
+		a.enterprise_marking AS "enterpriseMarking",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="atLinkmanJoins">
+	</sql>
+    
+	<select id="get" resultType="AtLinkman">
+		SELECT 
+			<include refid="atLinkmanColumns"/>
+		FROM at_linkman a
+		<include refid="atLinkmanJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 根据atEnterpriseInfoId获取AtLinkman对象 -->
+	<select id="getByAtEnterpriseInfoId" resultType="AtLinkman">
+		SELECT 
+		DISTINCT 
+			<include refid="atLinkmanColumns"/>
+		FROM at_linkman a
+		<include refid="atLinkmanJoins"/>
+		WHERE a.at_enterprise_info_id = #{atEnterpriseInfoId}
+	</select>
+	
+	<select id="findList" resultType="AtLinkman">
+		SELECT 
+			<include refid="atLinkmanColumns"/>
+		FROM at_linkman a
+		<include refid="atLinkmanJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AtLinkman">
+		SELECT 
+			<include refid="atLinkmanColumns"/>
+		FROM at_linkman a
+		<include refid="atLinkmanJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO at_linkman(
+			id,
+			at_enterprise_info_id,
+			linkman_name,
+			linkman_phone,
+			enterprise_marking,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{atEnterpriseInfoId},
+			#{linkmanName},
+			#{linkmanPhone},
+			#{enterpriseMarking},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- 更新AtLinkman类的信息 -->
+	<update id="update">
+		UPDATE at_linkman 
+			<trim prefix="set" suffixOverrides=",">
+				<if test="atEnterpriseInfoId != null and atEnterpriseInfoId != ''">
+					at_enterprise_info_id = #{atEnterpriseInfoId},
+				</if>	
+				<if test="linkmanName != null and linkmanName != ''">
+					linkman_name = #{linkmanName},
+				</if>	
+				<if test="linkmanPhone != null and linkmanPhone != ''">
+					linkman_phone = #{linkmanPhone},
+				</if>
+				<if test="enterpriseMarking != null and enterpriseMarking != ''">
+					enterprise_marking = #{enterpriseMarking},
+				</if>
+				<if test="updateBy != null and updateBy.id != ''">
+					update_by = #{updateBy.id},
+				</if>
+				<if test="updateDate != null ">
+					update_date = #{updateDate},
+				</if>
+				<if test="remarks != null and remarks != ''">
+					remarks = #{remarks},
+				</if>
+			</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE at_linkman SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

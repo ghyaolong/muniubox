@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryWelfareSettingDao">
+    
+	<sql id="cpaSalaryWelfareSettingColumns">
+		a.id AS "id",
+		a.customer_id AS "customerId",
+		a.project_id AS "projectId",
+		a.welfare_item_type_id AS "welfareItemTypeId",
+		a.company_rate AS "companyRate",
+		a.company_fix AS "companyFix",
+		a.company_round_rule_id AS "companyRoundRuleId",
+		a.individual_rate AS "individualRate",
+		a.individual_fix AS "individualFix",
+		a.individual_round_rule_id AS "individualRoundRuleId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.no AS "no",
+		a.init_flag AS "initFlag",
+		wp.project_name AS "projectName",
+		wt.name AS "name"
+		
+	<!-- 	wp.project_name AS "wp.projectName" -->
+	</sql>
+	
+	<sql id="cpaSalaryWelfareSettingJoins">
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+	</sql>
+	
+	<!-- 根据id查找对象 -->
+	<select id="get" resultType="CpaSalaryWelfareSetting">
+		SELECT 
+			<include refid="cpaSalaryWelfareSettingColumns"/>
+		FROM cpa_salary_welfare_setting a
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+		WHERE 
+			a.del_flag = '0'
+		AND
+			a.id=#{id}
+		AND
+		    a.init_flag = 0
+			
+	</select>
+	
+	<!-- 根据projectId查找集合 -->
+	<select id="findListByName" parameterType="string" resultType="CpaSalaryWelfareSetting">
+		SELECT 
+			<include refid="cpaSalaryWelfareSettingColumns"/>
+		FROM cpa_salary_welfare_setting a
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+		WHERE 
+			a.del_flag = '0'
+		AND
+			a.project_id=#{projectId}
+		AND
+		    a.init_flag = 0
+	</select>
+    
+   	<!-- 根据客户id获取所有的社保/公积金项目 -->
+	<select id="findListByCustomerId" resultType="CpaSalaryWelfareSetting">
+		SELECT 
+			<include refid="cpaSalaryWelfareSettingColumns"/>
+		FROM cpa_salary_welfare_setting a
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+		WHERE 
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+		AND
+			a.customer_id = #{customerId}
+	</select>
+	
+	<!-- 根据客户id查询项目初始化标记最大编号 -->
+	<select id="findMaxInitFlag" parameterType="string" resultType="Integer">
+		SELECT
+			 MAX(init_flag) initFlag 
+		FROM
+		     cpa_salary_welfare_setting a
+		WHERE
+			del_flag=0
+		AND
+			a.customer_id = #{customerId}	
+	</select>
+	
+	<!-- 获取去重后所有的方案名称 -->
+	<select id="findAllName" resultType="CpaSalaryWelfareSetting">
+		SELECT
+			distinct  
+			a.project_id,
+			wp.project_name projectName
+		FROM cpa_salary_welfare_setting a
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+		WHERE
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+	</select>
+	
+	<!-- 根据客户id获取企业的方案信息 -->
+	<select id="findAllNameByCustomerId"  parameterType="string" resultType="CpaSalaryWelfareSetting">
+		SELECT
+			distinct  
+			a.project_id projectId
+		FROM cpa_salary_welfare_setting a
+		WHERE
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+		AND 
+			a.customer_id = #{customerId}
+	</select>
+	
+	<!-- 根据方案名称获取企业的客户社保公积金方案条目 -->
+	<select id="findCustomerIdByWelfareId"  resultType="CpaSalaryWelfareSetting">
+		SELECT 
+			distinct
+			a.customer_id customerId,
+			a.project_id projectId,
+			a.welfare_item_type_id welfareItemTypeId,
+			a.company_rate companyRate,
+			a.company_fix companyFix,
+			a.company_round_rule_id companyRoundRuleId,
+			a.individual_rate individualRate,
+			a.individual_fix individualFix,
+			a.individual_round_rule_id individualRoundRuleId,
+			a.del_flag delFlag,
+			a.init_flag initFlag,
+			wp.project_name projectName,
+			wt.name name
+		FROM cpa_salary_welfare_setting a
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+		WHERE 
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+		AND
+			a.project_id = #{projectId}
+		AND
+			a.customer_id = #{customerId}
+	</select>
+	
+	<!-- 获取所有的社保/公积金项目 -->
+	<select id="findAllList" resultType="CpaSalaryWelfareSetting">
+		SELECT 
+			distinct 
+			<include refid="cpaSalaryWelfareSettingColumns"/>
+		FROM cpa_salary_welfare_setting a
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.project_id
+		LEFT JOIN cpa_salary_welfare_type wt ON wt.id = a.welfare_item_type_id
+		WHERE
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+	</select>
+	
+	<!-- 遍历模板中的数据到社保公积金的配置信息类中 -->
+	<insert id="insertList">
+		INSERT INTO cpa_salary_welfare_setting(
+			id,
+			customer_id,
+			project_id,
+			welfare_item_type_id,
+			company_rate,
+			company_fix,
+			company_round_rule_id,
+			individual_rate,
+			individual_fix,
+			individual_round_rule_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			no	
+		) VALUES 
+			<foreach collection="itemTypeList" item="item" index="index"
+			separator=",">
+				(
+					#{item.id},
+					#{item.customerId},
+					#{item.projectId},
+					#{item.welfareItemTypeId},
+					#{item.companyRate},
+					#{item.companyFix},
+					#{item.companyRoundRuleId},
+					#{item.individualRate},
+					#{item.individualFix},
+					#{item.individualRoundRuleId},
+					#{item.createBy.id},
+					#{item.createDate},
+					#{item.updateBy.id},
+					#{item.updateDate},
+					#{item.remarks},
+					#{item.delFlag},
+					#{item.no}
+				)
+		</foreach>
+	</insert>
+	
+	<!--批量插入缴纳项目的集合 -->
+	<insert id="insertWelfare" >
+		INSERT INTO cpa_salary_welfare_setting(
+			id,
+			customer_id,
+			project_id,
+			welfare_item_type_id,
+			company_rate,
+			company_fix,
+			company_round_rule_id,
+			individual_rate,
+			individual_fix,
+			individual_round_rule_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			no
+		) VALUES 
+			<foreach collection="lists" item="item" index="index"
+			open="" close="" separator=",">
+				(
+					#{item.id},
+					#{item.customerId},
+					#{item.projectId},
+					#{item.welfareItemTypeId},
+					#{item.companyRate},
+					#{item.companyFix},
+					#{item.companyRoundRuleId},
+					#{item.individualRate},
+					#{item.individualFix},
+					#{item.individualRoundRuleId},
+					#{item.createBy.id},
+					#{item.createDate},
+					#{item.updateBy.id},
+					#{item.updateDate},
+					#{item.remarks},
+					#{item.delFlag},
+					#{item.no}
+				)
+		</foreach>
+	</insert>
+	
+	<!-- 插入数据 -->
+	<insert id="insert">
+		INSERT INTO cpa_salary_welfare_setting(
+			id,
+			customer_id,
+			project_id,
+			welfare_item_type_id,
+			company_rate,
+			company_fix,
+			company_round_rule_id,
+			individual_rate,
+			individual_fix,
+			individual_round_rule_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			no
+		) VALUES (
+			#{id},
+			#{customerId},
+			#{projectId},
+			#{welfareItemTypeId},
+			#{companyRate},
+			#{companyFix},
+			#{companyRoundRuleId},
+			#{individualRate},
+			#{individualFix},
+			#{individualRoundRuleId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{no}
+		)
+	</insert>
+	
+ 
+	<!-- 更新数据 -->
+	<update id="update">
+		UPDATE cpa_salary_welfare_setting SET 	
+			<if test="null != customerId and customerId !=''">
+				customer_id = #{customerId},
+			</if>
+			<if test="null != projectId and projectId !=''">
+				project_id = #{projectId},
+			</if>
+			<if test="null != welfareItemTypeId and welfareItemTypeId !=''">
+				welfare_item_type_id = #{welfareItemTypeId},
+			</if>
+			<if test="null != companyRate and companyRate !=''">
+				company_rate = #{companyRate},
+			</if>
+			<if test="null != companyFix and companyFix !=''">
+				company_fix = #{companyFix},
+			</if>
+			<if test="null != companyRoundRuleId and companyRoundRuleId !=''">
+				company_round_rule_id = #{companyRoundRuleId},
+			</if>
+			<if test="null != individualRate and individualRate !=''">
+				individual_rate = #{individualRate},
+			</if>
+			<if test="null != individualFix and individualFix !=''">
+				individual_fix = #{individualFix},
+			</if>
+			<if test="null != individualRoundRuleId and individualRoundRuleId !=''">
+				individual_round_rule_id = #{individualRoundRuleId},
+			</if>
+			<if test="null != createBy and createBy !=''">
+				create_by = #{createBy},
+			</if>
+			<if test="null != updateBy and updateBy !=''">
+				update_date = #{updateDate},
+			</if>
+			<if test="null != updateBy and updateBy !=''">
+				update_by = #{updateBy},
+			</if>	
+			<if test="null != updateDate and updateDate !=''">
+				update_date = #{updateDate},
+			</if>
+			<if test="null != remarks and remarks !=''">
+				remarks = #{remarks},
+			</if>
+			<if test="null != no and no !=''">
+				no = #{no},
+			</if>
+			del_flag = '0'
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 批量保存需要更新的缴纳项目 -->
+	<update id="updateWelfare" >
+		<foreach collection="lists" item="item" index="index" open="" close="" separator=";">
+			UPDATE cpa_salary_welfare_setting a SET 	
+				<if test="null != item.customerId and item.customerId !=''">
+					a.customer_id = #{item.customerId},
+				</if>
+				<if test="null != item.projectId and item.projectId !=''">
+					a.project_id = #{item.projectId},
+				</if>
+				<if test="null != item.welfareItemTypeId and item.welfareItemTypeId !=''">
+					a.welfare_item_type_id = #{item.welfareItemTypeId},
+				</if>
+				<if test="null != item.companyRate and item.companyRate !=''">
+					a.company_rate = #{item.companyRate},
+				</if>
+				<if test="null != item.companyFix and item.companyFix !=''">
+					a.company_fix = #{item.companyFix},
+				</if>
+				<if test="null != item.companyRoundRuleId and item.companyRoundRuleId !=''">
+					a.company_round_rule_id = #{item.companyRoundRuleId},
+				</if>
+				<if test="null != item.individualRate and item.individualRate !=''">
+					a.individual_rate = #{item.individualRate},
+				</if>
+				<if test="null != item.individualFix and item.individualFix !=''">
+					a.individual_fix = #{item.individualFix},
+				</if>
+				<if test="null != item.individualRoundRuleId and item.individualRoundRuleId !=''">
+					a.individual_round_rule_id = #{item.individualRoundRuleId},
+				</if>
+<!-- 				<if test="item.updateDate != null"> -->
+<!-- 					a.update_date = #{item.updateDate}, -->
+<!-- 				</if> -->
+<!-- 				<if test="null != item.updateBy and item.updateBy.id !=''"> -->
+<!-- 					a.update_by = #{item.updateBy.id}, -->
+<!-- 				</if>	 -->
+				a.del_flag = 0
+			WHERE a.id = #{item.id}
+		</foreach>
+	</update>
+	
+	<!-- 根据id删除企业的社保公积金缴纳项目 -->
+	<update id="deleteById">
+		UPDATE cpa_salary_welfare_setting SET 
+			del_flag = '1'
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据方案名称删除方案 -->
+	<update id="deleteByName" parameterType="string">
+		UPDATE cpa_salary_welfare_setting SET 
+			del_flag = '1'
+		WHERE project_id = #{projectId}
+		AND
+			customer_id = #{customerId}
+	</update>
+	  
+	<!--  批量删除缴纳项目的集合 -->
+	 <update id="deleteWelfare">
+	  UPDATE cpa_salary_welfare_setting a SET 
+	        	a.del_flag = '1' 
+	        WHERE a.id in  
+	    <foreach collection="lists" item="item" index="index" open="(" separator="," close=")" >  
+	        #{item.id}
+	    </foreach>        
+ 	 </update> 
+	
+	<!-- 根据客户id删除方案 -->
+	<update id="deleteProjectByCustomerId" parameterType="string">
+		UPDATE cpa_salary_welfare_setting SET 
+			del_flag = '1'
+		WHERE customer_id = #{customerId}
+	</update>
+	
+	<!-- 初始化社保公积金方案 -->
+	<update id="initCpaSalaryWelfareSetting" >
+		UPDATE cpa_salary_welfare_setting SET 
+			init_flag = #{initFlag}
+		WHERE customer_id = #{customerId}
+		AND del_flag = '0'
+	</update>
+	
+</mapper>

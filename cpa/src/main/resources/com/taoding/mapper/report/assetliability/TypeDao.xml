@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.assetliability.TypeDao">
+	<resultMap type="com.taoding.domain.report.assetliability.Type" id="typeMapper">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="type" property="type"/>
+		<result column="accounting_rule_type" property="accountingRuleType"/>
+		<result column="order_no" property="order"/>
+		<collection property="items" ofType="com.taoding.domain.report.assetliability.Item">
+			<id column="item_id" property="id"/>
+			<result column="item_name" property="itemName"/>
+			<result column="line_number" property="lineNumber"/>
+			<result column="parent_id" property="parentId"/>
+			<result column="report_liability_type" property="typeId"/>
+			<collection property="formulaTemplats" ofType="com.taoding.domain.report.assetliability.ItemFormulaTemplate">
+				<id column="formula_id" property="id"/>
+				<result column="operand_source" property="operationSourceId"/>
+				<result column="operation" property="operation"/>
+				<result column="asset_liability_item_id" property="itemId"/>
+				<result column="subject_id" property="subjectId"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="com.taoding.domain.report.assetliability.Catalogue" id="customerTypeMapper">
+		<id column="catalogue_id" property="id"/>
+		<result column="catalogue_name" property="name"/>
+		<result column="accumulation_name" property="accumulationName"/>
+		<collection property="typeList" ofType="com.taoding.domain.report.assetliability.Type">
+			<id column="type_id" property="id"/>
+			<result column="name" property="name"/>
+			<result column="type" property="type"/>
+			<result column="accounting_rule_type" property="accountingRuleType"/>
+			<result column="order_no" property="order"/>
+			<collection property="items" ofType="com.taoding.domain.report.assetliability.Item">
+				<id column="item_id" property="id"/>
+				<result column="item_name" property="itemName"/>
+				<result column="line_number" property="lineNumber"/>
+				<result column="parent_id" property="parentId"/>
+				<result column="item_operation" property="operation"/>
+				<result column="accumulation_type" property="accumulationType"/>
+				<result column="report_liability_type" property="typeId"/>
+				<collection property="formulas" ofType="com.taoding.domain.report.assetliability.ItemFormula">
+					<id column="formula_id" property="id"/>
+					<result column="operand_source" property="operationSourceId"/>
+					<result column="operation" property="operation"/>
+					<result column="asset_liability_item_id" property="itemId"/>
+					<result column="subject_id" property="subjectId"/>
+					<result column="accounting_id" property="accountingId"/>
+				</collection>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<select id="getAssetLiabilityTypeByAccountRule" resultMap="typeMapper">
+		select 
+		  cralt.id,
+		  cralt.name,
+		  cralt.type,
+		  cralt.accounting_rule_type,
+		  cralt.order_no,
+		  crali_t.id as item_id,
+		  crali_t.item_name,
+		  crali_t.line_number,
+		  crali_t.parent_id,
+		  crali_t.report_liability_type,
+		  crali_t.formula_id,
+		  crali_t.operand_source,
+		  crali_t.operation,
+		  crali_t.asset_liability_item_id,
+		  crali_t.subject_id
+		from
+		  cpa_report_asset_liability_type cralt 
+		  left join 
+		    (select 
+		      crali.id,
+		      crali.item_name,
+		      crali.line_number,
+		      crali.parent_id,
+		      crali.report_liability_type,
+		      cralift.id as formula_id,
+		      cralift.operand_source,
+		      cralift.operation,
+		      cralift.asset_liability_item_id,
+		      cralift.subject_id
+		    from
+		      cpa_report_asset_liability_item crali 
+		      left join cpa_report_asset_liability_item_formular_template cralift 
+		        on crali.id = cralift.asset_liability_item_id) crali_t 
+		    on cralt.id = crali_t.report_liability_type 
+		where 
+			accounting_rule_type = #{accountRuleId}
+	</select>
+	
+	<select id="getAssetLiabilityTypeByAccountIdAndAccountRuleId" resultMap="customerTypeMapper">
+		SELECT
+		  cralca.id AS catalogue_id,
+		  cralca.name AS catalogue_name,
+		  cralca.accumulation_name,
+		  r.type_id,
+		  r.name,
+		  r.type,
+		  r.accounting_rule_type,
+		  r.order_no,
+		  r.item_id,
+		  r.item_name,
+		  r.line_number,
+		  r.parent_id,
+		  r.report_liability_type,
+		  r.item_operation,
+		  r.accumulation_type,
+		  r.formula_id,
+		  r.operand_source,
+		  r.operation,
+		  r.asset_liability_item_id,
+		  r.subject_id,
+		  r.accounting_id
+		FROM cpa_report_asset_liability_catalogue cralca LEFT JOIN 
+		(SELECT 
+		  cralt.id AS type_id,
+		  cralt.name,
+		  cralt.type,
+		  cralt.accounting_rule_type,
+		  cralt.order_no,
+		  crali_t.item_id,
+		  crali_t.item_name,
+		  crali_t.line_number,
+		  crali_t.parent_id,
+		  crali_t.report_liability_type,
+		  crali_t.item_operation,
+		  crali_t.accumulation_type,
+		  crali_t.formula_id,
+		  crali_t.operand_source,
+		  crali_t.operation,
+		  crali_t.asset_liability_item_id,
+		  crali_t.subject_id,
+		  crali_t.accounting_id
+		FROM
+		  cpa_report_asset_liability_type cralt 
+		  LEFT JOIN 
+		    (SELECT 
+		      crali.id AS item_id,
+		      crali.item_name,
+		      crali.operation AS item_operation,
+		      crali.accumulation_type,
+		      crali.line_number,
+		      crali.parent_id,
+		      crali.report_liability_type,
+		      cralift.id AS formula_id,
+		      cralift.operand_source,
+		      cralift.operation,
+		      cralift.asset_liability_item_id,
+		      cralift.subject_id,
+		      cralift.accounting_id
+		    FROM
+		      cpa_report_asset_liability_item crali 
+		      LEFT JOIN cpa_report_customer_asset_liability_item_formular cralift 
+			ON crali.id = cralift.asset_liability_item_id AND cralift.accounting_id = #{accountId}) crali_t 
+		    ON cralt.id = crali_t.report_liability_type
+		WHERE accounting_rule_type = #{accountRuleId}) r ON cralca.id = r.type ORDER BY cralca.id, r.type, r.type_id,  r.line_number ASC
+	</select>
+</mapper>

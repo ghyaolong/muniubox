@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryInfoDao">
+    
+	<sql id="cpaSalaryInfoColumns">
+		a.id AS "id",
+		a.employee_id AS "employeeId",
+		a.customer_id AS "customerId",
+		a.period AS "period",
+		a.salary AS "salary",
+		a.allowance AS "allowance",
+		a.withhold AS "withhold",
+		a.work_overtime AS "workOvertime",
+		a.salary_count AS "salaryCount",
+		a.withhold_count AS "withholdCount",
+		a.tax_basic AS "taxBasic",
+		a.individual_tax AS "individualTax",
+		a.final_pay_account AS "finalPayAccount",
+		a.del_flag AS "delFlag",
+		a.tax_free AS "taxFree",
+		a.other_pretax_deductions AS "otherPretaxDeductions",
+		a.deduct_donations AS "deductDonations",
+		a.tax_deductible AS "taxDeductible",
+		a.less_tax_paid AS "lessTaxPaid",
+		a.init_flag AS "initFlag"
+	</sql>
+	
+	<sql id="cpaSalaryInfoJoins">
+	</sql>
+    
+    <!-- 根据id获取薪资的对象信息 -->
+	<select id="get" resultType="CpaSalaryInfo">
+		SELECT 
+			a.id,a.employee_id employeeId,a.customer_id customerId,a.period,a.salary,a.allowance,a.withhold,a.work_overtime workOvertime,
+			a.salary_count salaryCount,a.withhold_count withholdCount,a.tax_basic taxBasic,a.individual_tax individualTax,a.final_pay_account finalPayAccount,
+			a.del_flag delFlag,a.tax_free taxFree,a.other_pretax_deductions otherPretaxDeductions,a.deduct_donations deductDonations,
+			a.tax_deductible taxDeductible,a.less_tax_paid lessTaxPaid,a.init_flag initFlag,cw.yanglao_individual yanglaoIndividual,
+			cw.yiliao_individual yiliaoIndividual,cw.shiye_individual shiyeIndividual,cw.gongjijin_individual gongjijinIndividual,
+			se.employee_name employeeName
+		FROM cpa_salary_info a
+			LEFT JOIN cpa_salary_company_welfare cw ON cw.employee_id = a.employee_id
+			LEFT JOIN cpa_salary_employee se ON se.id = a.employee_id
+		WHERE a.id = #{id}
+		AND a.del_flag = '0'
+		AND a.init_flag = 0
+	</select>
+	
+	<!-- 查询企业的薪酬+分页 -->
+	<select id="findAllByPage" parameterType="java.util.Map" resultType="CpaSalaryInfo">
+		SELECT 
+			a.id,a.employee_id employeeId,a.customer_id customerId,a.period,a.salary,a.allowance,a.withhold,a.work_overtime workOvertime,
+			a.salary_count salaryCount,a.withhold_count withholdCount,a.tax_basic taxBasic,a.individual_tax individualTax,a.final_pay_account finalPayAccount,
+			a.del_flag delFlag,a.tax_free taxFree,a.other_pretax_deductions otherPretaxDeductions,a.deduct_donations deductDonations,
+			a.tax_deductible taxDeductible,a.less_tax_paid lessTaxPaid,a.init_flag initFlag,cw.yanglao_individual yanglaoIndividual,
+			cw.yiliao_individual yiliaoIndividual,cw.shiye_individual shiyeIndividual,cw.gongjijin_individual gongjijinIndividual,
+			se.employee_name employeeName
+		FROM cpa_salary_info a
+			LEFT JOIN cpa_salary_company_welfare cw ON cw.employee_id = a.employee_id
+			LEFT JOIN cpa_salary_employee se ON se.id = a.employee_id
+		<where>
+			a.del_flag = '0'
+		AND
+			a.customer_id = #{customerId}
+		AND 
+			a.init_flag = 0
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+		</where>
+	</select>
+	
+	<!-- 获取企业个人缴纳养老保险的总和 -->
+	<select id="getIndividualSocialSecurity" resultType="CpaSalaryCompanyWelfare">
+		SELECT 
+			SUM(IFNULL(cw.yanglao_individual,0)) AS yanglaoIndividual,
+			SUM(IFNULL(cw.yiliao_individual,0)) AS yiliaoIndividual,
+			SUM(IFNULL(cw.shiye_individual,0)) AS shiyeIndividual,
+			SUM(IFNULL(cw.gongjijin_individual,0)) AS gongjijinIndividual
+		FROM cpa_salary_info a
+			LEFT JOIN cpa_salary_company_welfare cw ON cw.employee_id = a.employee_id
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.customer_id = #{customerId}
+		AND 
+			a.init_flag = 0
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<!-- 根据客户id查询薪酬信息初始化标记最大编号 -->
+	<select id="findMaxInitFlag" parameterType="string" resultType="Integer">
+		SELECT
+			 MAX(init_flag) initFlag 
+		FROM
+		     cpa_salary_info a
+		WHERE
+			del_flag = 0
+		AND
+			a.customer_id = #{customerId}	
+	</select>
+	
+	<!-- 根据salaryId查找集合 -->
+	<select id="findSalaryById" parameterType="string" resultType="CpaSalaryInfo">
+		SELECT 
+			<include refid="cpaSalaryInfoColumns"/>
+		FROM cpa_salary_info a
+		WHERE
+			a.id = #{id}
+		AND
+			a.del_flag = '0'
+		AND
+			a.init_flag = 0		
+	</select>
+	
+	<!-- 计算计提工资 -->
+	<select id="getAccruedSalary" resultType="Double">
+		SELECT  
+			SUM(a.salary_count) AS 计提工资
+		FROM cpa_salary_info a
+		WHERE 	a.del_flag = '0'
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<!-- 计算代扣五险一金 -->
+	<select id="getWithHoldAccount" resultType="Double">
+		SELECT  
+			SUM(a.withhold_count) AS 代扣五险一金
+		FROM cpa_salary_info a
+		WHERE 	a.del_flag = '0'
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<!-- 计算代扣个税 -->
+	<select id="getIndividualTax" resultType="Double">
+		SELECT  
+			SUM(a.individual_tax) AS 代扣个税
+		FROM cpa_salary_info a
+		WHERE 	a.del_flag = '0'
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<!-- 现金发放工资-->
+	<select id="getCashSalary" resultType="Double">
+		SELECT  
+			SUM(IFNULL(a.final_pay_account,0)) AS 现金发放工资
+		FROM cpa_salary_info a
+		WHERE 	a.del_flag = '0'
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<!-- 银行发放工资-->
+	<select id="getBankSalary" resultType="Double">
+		SELECT  
+			SUM(IFNULL(a.final_pay_account,0)) AS 银行发放工资
+		FROM cpa_salary_info a
+		WHERE 	a.del_flag = '0'
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+		
+	<insert id="insert">
+		INSERT INTO cpa_salary_info(
+			id,
+			employee_id,
+			period,
+			salary,
+			customer_id,
+			allowance,
+			withhold,
+			work_overtime,
+			salary_count,
+			withhold_count,
+			tax_basic,
+			individual_tax,
+			final_pay_account,
+			del_flag,
+			tax_free,
+			other_pretax_deductions,
+			deduct_donations,
+			tax_deductible,
+			less_tax_paid
+		) VALUES (
+			#{id},
+			#{employeeId},
+			#{period},
+			#{salary},
+			#{customerId},
+			#{allowance},
+			#{withhold},
+			#{workOvertime},
+			#{salaryCount},
+			#{withholdCount},
+			#{taxBasic},
+			#{individualTax},
+			#{finalPayAccount},
+			#{delFlag},
+			#{taxFree},
+			#{otherPretaxDeductions},
+			#{deductDonations},
+			#{taxDeductible},
+			#{lessTaxPaid}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_salary_info 
+			<trim prefix="set" suffixOverrides=",">
+				<if test="employeeId != null and employeeId != ''">
+					employee_id = #{employeeId},
+				</if>
+				<if test="period != null">
+					period = #{period},
+				</if>
+				<if test="salary != null and salary != ''">
+					salary = #{salary},
+				</if>
+				<if test="customerId != null and customerId != ''">
+					customer_id = #{customerId},
+				</if>
+				<if test="allowance != 0">
+					allowance = #{allowance},
+				</if>
+				<if test="withhold != 0">
+					withhold = #{withhold},
+				</if>
+				<if test="workOvertime != 0">
+					work_overtime = #{workOvertime},
+				</if>
+				<if test="salaryCount != 0">
+					salary_count = #{salaryCount},
+				</if>
+				<if test="withholdCount != 0">
+					withhold_count = #{withholdCount},
+				</if>
+				<if test="taxBasic != 0">
+					tax_basic = #{taxBasic},
+				</if>
+				<if test="individualTax != 0">
+					individual_tax = #{individualTax},
+				</if>
+				<if test="finalPayAccount != 0">
+					final_pay_account = #{finalPayAccount},
+				</if>
+				<if test="taxFree != 0">
+					tax_free = #{taxFree},
+				</if>
+				<if test="otherPretaxDeductions != 0">
+					other_pretax_deductions = #{otherPretaxDeductions},
+				</if>
+				<if test="deductDonations != 0">
+					deduct_donations = #{deductDonations},
+				</if>
+				<if test="taxDeductible != 0">
+					tax_deductible = #{taxDeductible},
+				</if>
+				<if test="taxDeductible != 0">
+					tax_deductible = #{taxDeductible},
+				</if>
+				<if test="lessTaxPaid != 0">
+					less_tax_paid = #{lessTaxPaid}
+				</if>
+			</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据id删除薪资信息 -->
+	<update id="delete">
+		UPDATE cpa_salary_info SET 
+			del_flag = '1'
+		WHERE id = #{id}
+		AND init_flag = 0
+	</update>
+	
+	<!-- 初始化薪酬信息 -->
+	<update id="initCpaSalaryInfo" >
+		UPDATE cpa_salary_info SET 
+			init_flag = #{initFlag}
+		WHERE customer_id = #{customerId}
+		AND del_flag = '0'
+	</update>
+</mapper>

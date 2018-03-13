@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.assetliability.ReclassifySettingDao">
+
+	<resultMap type="ReclassifySetting" id="reclassifySettingMapper">
+		<id column="id" property="id"/>
+		<result column="customer_id" property="customerId"/>
+		<result column="yingshou_yushou" property="yingshouAndYushou"/>
+		<result column="yingfu_yufu" property="yingfuAndYuFu"/>
+		<result column="qita_yingshou_qita_yingfu" property="otherYingshouAndYingfu"/>
+	</resultMap>
+
+	<select id="findSettingByCustomerId" resultMap="reclassifySettingMapper">
+		select id, customer_id, yingshou_yushou, yingfu_yufu, qita_yingshou_qita_yingfu
+			from cpa_report_asset_liability_reclassify where customer_id = #{customerId}
+	</select>
+	
+	<insert id="saveSetting" parameterType="ReclassifySetting">
+		insert into cpa_report_asset_liability_reclassify 
+			(id, customer_id, yingshou_yushou, yingfu_yufu, qita_yingshou_qita_yingfu)
+		values (#{id}, #{customerId}, #{yingshouAndYushou}, #{yingfuAndYuFu}, #{otherYingshouAndYingfu})
+	</insert>
+	
+	<update id="updateSetting" parameterType="ReclassifySetting">
+		update cpa_report_asset_liability_reclassify
+		<trim prefix="set" suffixOverrides=",">
+			<if test="true">
+				customer_id = customer_id,
+			</if>
+			<if test="yingshouAndYushou != null">
+				yingshou_yushou = #{yingshouAndYushou},
+			</if>
+			<if test="yingfuAndYuFu != null">
+				yingfu_yufu = #{yingfuAndYuFu},
+			</if>
+			<if test="otherYingshouAndYingfu != null">
+				qita_yingshou_qita_yingfu = #{otherYingshouAndYingfu},
+			</if>
+		</trim>
+		
+		where id = #{id}
+	</update>
+
+</mapper>

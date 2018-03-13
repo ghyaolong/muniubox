@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerTaxItem.CpaFormulaDao">
+	<insert id="insertList">
+		INSERT INTO cpa_formula(
+		id,
+		tax_template_id,
+		subject_id,
+		operator,
+		del_flag
+		) VALUES
+		<foreach collection="cpaFormulaList" item="item" index="index"
+			separator=",">
+			(
+			#{item.id},
+			#{item.taxTemplateId},
+			#{item.subjectId},
+			#{item.operator},
+			#{item.delFlag}
+			)
+		</foreach>
+	</insert>
+	<!-- 查询税项公式 -->
+	<select id="findCustomerTaxtemplateByTaxTemplateId" resultType="CpaFormula">
+		SELECT
+		cf.id,
+		cf.tax_template_id,
+		cf.subject_id,
+		cf.operator,
+		cf.del_flag
+		FROM cpa_formula cf
+		LEFT JOIN cpa_tax_template ctt ON ctt.id=cf.tax_template_id
+        WHERE cf.del_flag=0 AND ctt.del_flag=0 AND  ctt.id=#{taxTemplateId} 
+
+	</select>
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerInfo.CpaCustomerContactInfoDao">
+    
+	<sql id="cpaCustomerContactInfoColumns">
+		a.id AS "id",
+		a.customer_id AS "customerId",
+		a.contact_no AS "contactNo",
+		a.contact_date AS "contactDate",
+		a.income_status AS "incomeStatus",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.enterprise_marking AS "enterpriseMarking"
+	</sql>
+	
+	<sql id="cpaCustomerContactInfoJoins">
+	</sql>
+	<!-- 根据公司id,查询公司联系人 -->
+	<select id="findCustomerContactInfoByCoutomerInfoId" resultType="CpaCustomerContactInfo">
+	SELECT 
+	<include refid="cpaCustomerContactInfoColumns"/>
+	FROM cpa_customer_contact_info a
+	WHERE a.del_flag=#{delFlag}
+	<if test="null != coutomerId and ''!=coutomerId"> 
+	     and a.customer_id= #{coutomerId}
+	</if>
+	</select>
+	
+	<update id="update">
+		UPDATE cpa_customer_contact_info a
+		<trim prefix="set" suffixOverrides=",">
+		  <if test="null != contactNo and ''!=contactNo">
+				a.contact_no =#{contactNo},
+		  </if>
+		   <if test="null != contactDate and ''!=contactDate">
+				a.contact_date =#{contactDate},
+		  </if>
+		  <if test="null != incomeStatus and ''!=incomeStatus">
+				a.income_status =#{incomeStatus},
+		  </if>
+		  <if test="null != remarks and ''!=remarks">
+				a.remarks =#{remarks},
+		  </if>
+		  <if test="null != delFlag and ''!=delFlag">
+		    a.del_flag =#{delFlag},
+		  </if>
+		  <if test="null != enterpriseMarking and ''!=enterpriseMarking">
+				a.enterprise_marking =#{enterpriseMarking},
+		  </if> 
+		    
+		</trim>	
+		WHERE 1=1
+		<if test="null != id and ''!=id">
+		   AND  a.id = #{id}
+		</if> 
+		<if test="null != customerId and ''!=customerId">
+		   AND  a.customer_id = #{customerId}
+		</if>
+	</update>
+    
+	
+</mapper>

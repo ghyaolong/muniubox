@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingExpenseTypeDao">
+    
+	<sql id="cpaAssistingExpenseTypeColumns">
+		a.id AS "id",
+		a.expense_type_name AS "expenseTypeName",
+		a.account_id AS "accountId"
+	</sql>
+	
+	
+	<select id="findAllList" resultType="CpaAssistingExpenseType">
+		SELECT 
+			<include refid="cpaAssistingExpenseTypeColumns"/>
+		FROM cpa_assisting_expense_type a
+	</select>	
+	
+	
+	<select id="findList" resultType="CpaAssistingExpenseType">
+		SELECT 
+			<include refid="cpaAssistingExpenseTypeColumns"/>
+		FROM cpa_assisting_expense_type a
+		WHERE
+			a.account_id = #{accountId}
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_assisting_expense_type(
+			id,
+			expense_type_name
+		) VALUES (
+			#{id},
+			#{expenseTypeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_assisting_expense_type SET 	
+			expense_type_name = #{expenseTypeName}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM cpa_assisting_expense_type
+		WHERE id = #{id}
+	</update>
+	
+
+	
+</mapper>

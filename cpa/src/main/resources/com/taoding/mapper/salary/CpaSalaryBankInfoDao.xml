@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryBankInfoDao">
+
+
+	<select id="getSalarysetting" resultType="CpaSalaryBankInfo">
+	 select id, customer_id AS customerId, template_code AS templateCode 
+	  from cpa_salary_bank_info
+	   where customer_id = #{customerId}  limit 1
+	</select>
+
+	<insert id = "insertSetting">
+	 insert into cpa_salary_bank_info (id, customer_id, template_code) VALUES (#{id}, #{customerId}, #{templateCode})
+	</insert>
+	
+	<update id = "updateSetting">
+	 update cpa_salary_bank_info SET template_code = #{templateCode}, customer_id = #{customerId} where id = #{id}
+	</update>
+</mapper>

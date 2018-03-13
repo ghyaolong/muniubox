@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryCompanyWelfareDao">
+
+	<sql id="cpaSalaryCompanyWelfareColumns">
+		a.id AS "id",
+		a.employee_id AS "employeeId",
+		a.period AS "period",
+		a.welfare_setting_id AS "welfareSettingId",
+		a.customer_id AS "customerId",
+		a.yanglao_basic AS "yanglaoBasic",
+		a.yanglao_individual AS "yanglaoIndividual",
+		a.yanglao_company AS "yanglaoCompany",
+		a.dabing_basic AS "dabingBasic",
+		a.dabing_company AS "dabingCompany",
+		a.yiliao_basic AS "yiliaoBasic",
+		a.yiliao_individual AS "yiliaoIndividual",
+		a.yiliao_company AS "yiliaoCompany",
+		a.shiye_basic AS "shiyeBasic",
+		a.shiye_individual AS "shiyeIndividual",
+		a.shiye_company AS "shiyeCompany",
+		a.shengyu_basic AS "shengyuBasic",
+		a.shengyu_company AS "shengyuCompany",
+		a.gongshang_basic AS "gongshangBasic",
+		a.gongshang_company AS "gongshangCompany",
+		a.gongjijin_basic AS "gongjijinBasic",
+		a.gongjijin_individual AS "gongjijinIndividual",
+		a.gongjijin_company AS "gongjijinCompany",
+		a.count_individual AS "countIndividual",
+		a.count_company AS "countCompany",
+		a.dabing_company AS "dabingCompany",
+		a.dabing_basic AS "dabingBasic",
+		a.del_flag AS "delFlag",
+		a.init_flag AS "initFlag"
+	</sql>
+	
+	<sql id="cpaSalaryCompanyWelfareJoins">
+
+	</sql>
+    
+	<select id="get" resultType="CpaSalaryCompanyWelfare">
+		SELECT 
+			a.id,a.employee_id employeeId,a.period,a.welfare_setting_id welfareSettingId,a.customer_id customerId,a.yanglao_basic yanglaoBasic,
+			a.yanglao_individual yanglaoIndividual,a.yanglao_company yanglaoCompany,a.dabing_basic dabingBasic,a.dabing_company dabingCompany,
+			a.yiliao_basic yiliaoBasic,a.yiliao_individual yiliaoIndividual,a.yiliao_company yiliaoCompany,a.shiye_basic shiyeBasic,a.shiye_individual AS "shiyeIndividual",
+			a.shiye_company shiyeCompany,a.shengyu_basic  shengyuBasic,a.shengyu_company  shengyuCompany,a.gongshang_basic gongshangBasic,
+			a.gongshang_company gongshangCompany,a.gongjijin_basic gongjijinBasic,a.gongjijin_individual gongjijinIndividual,
+			a.gongjijin_company gongjijinCompany,a.count_individual countIndividual,a.count_company countCompany,a.dabing_company dabingCompany,
+			a.dabing_basic dabingBasic,a.del_flag delFalg,a.init_flag initFlag
+		FROM cpa_salary_company_welfare a
+		WHERE 
+			a.id = #{id}
+		AND 
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+	</select>
+	
+	
+	<!-- 查询所有的客户社保公积金信息列表+分页 -->
+	<select id="findAllByPage" parameterType="java.util.Map" resultType="CpaSalaryCompanyWelfare">
+		SELECT 
+			a.id,a.employee_id employeeId,a.period,a.welfare_setting_id welfareSettingId,a.customer_id customerId,a.yanglao_basic yanglaoBasic,
+			a.yanglao_individual yanglaoIndividual,a.yanglao_company yanglaoCompany,a.dabing_basic dabingBasic,a.dabing_company dabingCompany,
+			a.yiliao_basic yiliaoBasic,a.yiliao_individual yiliaoIndividual,a.yiliao_company yiliaoCompany,a.shiye_basic shiyeBasic,a.shiye_individual AS "shiyeIndividual",
+			a.shiye_company shiyeCompany,a.shengyu_basic  shengyuBasic,a.shengyu_company  shengyuCompany,a.gongshang_basic gongshangBasic,
+			a.gongshang_company gongshangCompany,a.gongjijin_basic gongjijinBasic,a.gongjijin_individual gongjijinIndividual,a.dabing_company dabingCompany,
+			a.dabing_basic dabingBasic,a.gongjijin_company gongjijinCompany,a.count_individual countIndividual,a.count_company countCompany,
+			a.del_flag delFalg,a.init_flag initFlag,se.employee_name employeeName,wp.project_name projectName
+		FROM cpa_salary_company_welfare a
+		LEFT JOIN cpa_salary_employee se ON se.id = a.employee_id
+		LEFT JOIN cpa_salary_welfare_project wp ON wp.id = a.welfare_setting_id
+		<where>
+			a.del_flag = '0'
+		AND
+		    a.init_flag = 0
+		AND
+			a.customer_id = #{customerId}
+		AND
+			a.period = #{period}
+			<if test="null != welfareSettingId and welfareSettingId != ''">
+				AND a.welfare_setting_id = #{welfareSettingId}
+			</if>	
+		</where>		
+	</select>
+	
+	<!--根据employeeId查找企业对象 -->
+	<select id="findByEmployeeId" resultType="CpaSalaryCompanyWelfare">
+		SELECT 
+			a.id,a.employee_id employeeId,a.customer_id customerId
+		FROM cpa_salary_company_welfare a
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.employee_id = #{employeeId}
+		AND
+			a.customer_id = #{customerId}
+	</select>
+	
+	<!--根据方案id查找企业对象集合 -->
+	<select id="findByWelfareId" resultType="CpaSalaryCompanyWelfare">
+		SELECT 
+			a.id,a.employee_id employeeId,a.period,a.welfare_setting_id welfareSettingId,a.customer_id customerId,a.yanglao_basic yanglaoBasic,
+			a.yanglao_individual yanglaoIndividual,a.yanglao_company yanglaoCompany,a.dabing_basic dabingBasic,a.dabing_company dabingCompany,
+			a.yiliao_basic yiliaoBasic,a.yiliao_individual yiliaoIndividual,a.yiliao_company yiliaoCompany,a.shiye_basic shiyeBasic,a.shiye_individual shiyeIndividual,
+			a.shiye_company shiyeCompany,a.shengyu_basic  shengyuBasic,a.shengyu_company  shengyuCompany,a.gongshang_basic gongshangBasic,
+			a.gongshang_company gongshangCompany,a.gongjijin_basic gongjijinBasic,a.gongjijin_individual gongjijinIndividual,
+			a.gongjijin_company gongjijinCompany,a.count_individual countIndividual,a.count_company countCompany,a.dabing_company dabingCompany,
+			a.dabing_basic dabingBasic,a.del_flag delFalg,a.init_flag initFlag
+		FROM cpa_salary_company_welfare a
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.welfare_setting_id = #{welfareSettingId}
+		AND
+			a.customer_id = #{customerId}
+	</select>
+	
+	<!-- 获取企业缴纳的五险一金的总和 -->
+	<select id="getCompanyTax" resultType="Double">
+		SELECT 
+			SUM(IFNULL(a.yanglao_company,0))+SUM(IFNULL(a.dabing_company,0))+SUM(IFNULL(a.yiliao_company,0))+SUM(IFNULL(a.shiye_company,0))
+			+SUM(IFNULL(a.shengyu_company,0))+SUM(IFNULL(a.gongshang_company,0))+SUM(IFNULL(a.gongjijin_company,0))
+		FROM 
+			cpa_salary_company_welfare a
+		WHERE
+			a.del_flag = "0"
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<!-- 获取企业缴纳的五险一金的各项的总和 -->
+	<select id="getCompanySocialSecurity" resultType="CpaSalaryCompanyWelfare">
+		SELECT 
+			SUM(IFNULL(a.yanglao_company,0)) AS yanglaoCompany,
+			SUM(IFNULL(a.yiliao_company,0)) AS yiliaoCompany,
+			SUM(IFNULL(a.shiye_company,0)) AS shiyeCompany,
+			SUM(IFNULL(a.gongshang_company,0)) AS gongshangCompany,
+			SUM(IFNULL(a.shengyu_company,0)) AS shengyuCompany,
+			SUM(IFNULL(a.gongjijin_company,0)) AS gongjijinCompany,
+			SUM(IFNULL(a.dabing_company,0)) AS dabingCompany
+		FROM 
+			cpa_salary_company_welfare a
+		WHERE a.del_flag = "0"
+		AND a.init_flag = 0	
+		AND a.customer_id = #{customerId}
+		<if test="period != null">
+			AND a.period = #{period}
+		</if>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_salary_company_welfare(
+			id,
+			employee_id,
+			period,
+			welfare_setting_id,
+			customer_id,
+			yanglao_basic,
+			yanglao_individual,
+			yanglao_company,
+			yiliao_basic,
+			yiliao_individual,
+			yiliao_company,
+			shiye_basic,
+			shiye_individual,
+			shiye_company,
+			shengyu_basic,
+			shengyu_company,
+			gongshang_basic,
+			gongshang_company,
+			gongjijin_basic,
+			gongjijin_individual,
+			gongjijin_company,
+			count_individual,
+			count_company,
+			dabing_basic,
+			dabing_company
+		) VALUES (
+			#{id},
+			#{employeeId},
+			#{period},
+			#{welfareSettingId},
+			#{customerId},
+			#{yanglaoBasic},
+			#{yanglaoIndividual},
+			#{yanglaoCompany},
+			#{yiliaoBasic},
+			#{yiliaoIndividual},
+			#{yiliaoCompany},
+			#{shiyeBasic},
+			#{shiyeIndividual},
+			#{shiyeCompany},
+			#{shengyuBasic},
+			#{shengyuCompany},
+			#{gongshangBasic},
+			#{gongshangCompany},
+			#{gongjijinBasic},
+			#{gongjijinIndividual},
+			#{gongjijinCompany},
+			#{countIndividual},
+			#{countCompany},
+			#{dabingBasic},
+			#{dabingCompany}
+		)
+	</insert>
+	
+	<!--修改客户社保公积金的信息 -->
+	<update id="updateWelfare">
+		UPDATE cpa_salary_company_welfare 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="employeeId != null and employeeId != ''">
+				employee_id = #{employeeId},
+			</if> 	
+			<if test="period != null ">
+				period = #{period},
+			</if> 
+			<if test="welfareSettingId != null and welfareSettingId != ''">
+				welfare_setting_id = #{welfareSettingId},
+			</if> 
+			<if test="customerId != null and customerId != ''">
+				customer_id = #{customerId},
+			</if>
+			<if test="yanglaoBasic != 0 and yanglaoBasic != ''">
+				yanglao_basic = #{yanglaoBasic},
+			</if>
+			<if test="yanglaoIndividual != null and yanglaoIndividual != ''">
+				yanglao_individual = #{yanglaoIndividual},
+			</if>
+			<if test="yanglaoCompany != null and yanglaoCompany != ''">
+				yanglao_company = #{yanglaoCompany},
+			</if>
+			<if test="yiliaoBasic != null and yiliaoBasic != ''">
+				yiliao_basic = #{yiliaoBasic},
+			</if>
+			<if test="yiliaoIndividual != null and yiliaoIndividual != ''">
+				yiliao_individual = #{yiliaoIndividual},
+			</if>
+			<if test="yiliaoCompany != null and yiliaoCompany != ''">
+				yiliao_company = #{yiliaoCompany},
+			</if>
+			<if test="shiyeBasic != null and shiyeBasic != ''">
+				shiye_basic = #{shiyeBasic},
+			</if>
+			<if test="shiyeIndividual != null and shiyeIndividual != ''">
+				shiye_individual = #{shiyeIndividual},
+			</if>
+			<if test="shiyeCompany != null and shiyeCompany != ''">
+				shiye_company = #{shiyeCompany},
+			</if>
+			<if test="shengyuBasic != null and shengyuBasic != ''">
+				shengyu_basic = #{shengyuBasic},
+			</if>
+			<if test="shengyuCompany != null and shengyuCompany != ''">
+				shengyu_company = #{shengyuCompany},
+			</if>
+			<if test="gongshangBasic != null and gongshangBasic != ''">
+				gongshang_basic = #{gongshangBasic},
+			</if>
+			<if test="gongshangCompany != null and gongshangCompany != ''">
+				gongshang_company = #{gongshangCompany},
+			</if>
+			<if test="gongjijinBasic != null and gongjijinBasic != ''">
+				gongjijin_basic = #{gongjijinBasic},
+			</if>
+			<if test="gongjijinIndividual != null and gongjijinIndividual != ''">
+				gongjijin_individual = #{gongjijinIndividual},
+			</if>
+			<if test="gongjijinCompany != null and gongjijinCompany != ''">
+				gongjijin_company = #{gongjijinCompany},
+			</if>
+			<if test="countIndividual != null and countIndividual != ''">
+				count_individual = #{countIndividual},
+			</if>
+			<if test="countCompany != null and countCompany != ''">
+				count_company = #{countCompany},
+			</if>
+			<if test="dabingBasic != null and dabingBasic != ''">
+				dabing_basic = #{dabingBasic},
+			</if>
+			<if test="dabingCompany != null and dabingCompany != ''">
+				dabing_company = #{dabingCompany},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="update">
+		UPDATE cpa_salary_company_welfare 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="employeeId != null and employeeId != ''">
+				employee_id = #{employeeId},
+			</if> 	
+			<if test="period != null ">
+				period = #{period},
+			</if> 
+			<if test="welfareSettingId != null and welfareSettingId != ''">
+				welfare_setting_id = #{welfareSettingId},
+			</if> 
+			<if test="customerId != null and customerId != ''">
+				customer_id = #{customerId},
+			</if>
+			<if test="yanglaoBasic != 0 and yanglaoBasic != ''">
+				yanglao_basic = #{yanglaoBasic},
+			</if>
+			<if test="yanglaoIndividual != null and yanglaoIndividual != ''">
+				yanglao_individual = #{yanglaoIndividual},
+			</if>
+			<if test="yanglaoCompany != null and yanglaoCompany != ''">
+				yanglao_company = #{yanglaoCompany},
+			</if>
+			<if test="yiliaoBasic != null and yiliaoBasic != ''">
+				yiliao_basic = #{yiliaoBasic},
+			</if>
+			<if test="yiliaoIndividual != null and yiliaoIndividual != ''">
+				yiliao_individual = #{yiliaoIndividual},
+			</if>
+			<if test="yiliaoCompany != null and yiliaoCompany != ''">
+				yiliao_company = #{yiliaoCompany},
+			</if>
+			<if test="shiyeBasic != null and shiyeBasic != ''">
+				shiye_basic = #{shiyeBasic},
+			</if>
+			<if test="shiyeIndividual != null and shiyeIndividual != ''">
+				shiye_individual = #{shiyeIndividual},
+			</if>
+			<if test="shiyeCompany != null and shiyeCompany != ''">
+				shiye_company = #{shiyeCompany},
+			</if>
+			<if test="shengyuBasic != null and shengyuBasic != ''">
+				shengyu_basic = #{shengyuBasic},
+			</if>
+			<if test="shengyuCompany != null and shengyuCompany != ''">
+				shengyu_company = #{shengyuCompany},
+			</if>
+			<if test="gongshangBasic != null and gongshangBasic != ''">
+				gongshang_basic = #{gongshangBasic},
+			</if>
+			<if test="gongshangCompany != null and gongshangCompany != ''">
+				gongshang_company = #{gongshangCompany},
+			</if>
+			<if test="gongjijinBasic != null and gongjijinBasic != ''">
+				gongjijin_basic = #{gongjijinBasic},
+			</if>
+			<if test="gongjijinIndividual != null and gongjijinIndividual != ''">
+				gongjijin_individual = #{gongjijinIndividual},
+			</if>
+			<if test="gongjijinCompany != null and gongjijinCompany != ''">
+				gongjijin_company = #{gongjijinCompany},
+			</if>
+			<if test="countIndividual != null and countIndividual != ''">
+				count_individual = #{countIndividual},
+			</if>
+			<if test="countCompany != null and countCompany != ''">
+				count_company = #{countCompany},
+			</if>
+			<if test="dabingBasic != null and dabingBasic != ''">
+				dabing_basic = #{dabingBasic},
+			</if>
+			<if test="dabingCompany != null and dabingCompany != ''">
+				dabing_company = #{dabingCompany},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	<update id="delete">
+		UPDATE cpa_salary_company_welfare SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 初始化客户社保公积金信息 -->
+	<update id="initCpaSalaryCompanyWelfare" >
+		UPDATE cpa_salary_company_welfare SET
+			init_flag = #{initFlag}
+		WHERE 
+			del_flag = '0'
+		AND
+			customer_id = #{customerId}
+	</update>
+	
+</mapper>

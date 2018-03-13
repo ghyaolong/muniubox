@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.profit.ProfileFomulaTemplateDao">
+	<sql id = "allRow">
+		id,
+		subject_id AS subjectId,
+		operation,
+		operand_source AS operandSource,
+		item_id AS itemId
+	</sql>
+	
+	<select id = "getFomulaTemplateList" resultType="ProfileFomulaTemplate">
+	 SELECT
+		<include refid="allRow"/>
+	 FROM cpa_report_profile_fomula_template
+	</select>
+	
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryBankTemplateDao">
+
+	<select id="salaryBankTemplateList" resultType="CpaSalaryBankTemplate">
+	 	SELECT id, bank_name AS bankName, template_location AS templateLocation, code
+	 	  FROM  cpa_salary_bank_template WHERE del_flag != 1
+	</select>
+	
+	<select id="getBankTemplateById" resultType="CpaSalaryBankTemplate">
+	 	SELECT id, bank_name AS bankName, template_location AS templateLocation, code
+	 	  FROM  cpa_salary_bank_template WHERE id = #{id}
+	</select>
+	
+	<select id="getBankTemplateByCode" resultType="CpaSalaryBankTemplate">
+	 	SELECT id, bank_name AS bankName, template_location AS templateLocation, code
+	 	  FROM  cpa_salary_bank_template WHERE code = #{code}
+	</select>
+</mapper>

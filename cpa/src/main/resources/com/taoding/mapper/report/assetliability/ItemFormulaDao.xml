@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.assetliability.ItemFormulaDao">
+
+	<resultMap type="com.taoding.domain.report.assetliability.ItemFormula" id="ItemFormulaMap">
+		<id column="id" property="id"/>
+		<result column="asset_liability_item_id" property="itemId"/>
+		<result column="accounting_id" property="accountingId"/>
+		<result column="subject_id" property="subjectId"/>
+		<result column="operation" property="operation"/>
+		<result column="operand_source" property="operationSourceId"/>
+	</resultMap>
+
+	<select id="getFormularByItemIdAndaccountingId" resultMap="ItemFormulaMap">
+		select 
+			id,
+			asset_liability_item_id,
+			accounting_id,
+			subject_id,
+			operation,
+			operand_source
+		from 
+			cpa_report_customer_asset_liability_item_formular
+		where 
+			accounting_id = #{accountingId} 
+		and 
+			asset_liability_item_id = #{itemId}
+	</select>
+	
+	<insert id="batchSaveCustomerFormular">
+		insert into cpa_report_customer_asset_liability_item_formular 
+			(asset_liability_item_id, accounting_id, subject_id, operation, operand_source)
+		values
+		<foreach collection="list" separator="," item="formula">
+			(
+			#{formula.itemId},	
+			#{formula.accountingId},	
+			#{formula.subjectId},	
+			#{formula.operation},	
+			#{formula.operationSourceId}
+			)
+		</foreach>
+	</insert>
+	
+	<insert id="saveCustomerFormular" parameterType="com.taoding.domain.report.assetliability.ItemFormula">
+		insert into cpa_report_customer_asset_liability_item_formular 
+			(asset_liability_item_id, accounting_id, subject_id, operation, operand_source)
+		values
+		(
+			#{itemId},	
+			#{accountingId},	
+			#{subjectId},	
+			#{operation},	
+			#{operationSourceId}
+		)
+	</insert>
+	
+	<delete id="deleteFormular">
+		delete from cpa_report_customer_asset_liability_item_formular where id = #{id}
+	</delete>
+	
+	<update id="updateFormula" parameterType="com.taoding.domain.report.assetliability.ItemFormula">
+		update cpa_report_customer_asset_liability_item_formular 
+		<trim prefix="set" prefixOverrides="," suffixOverrides=",">
+			<if test="true">
+				asset_liability_item_id = asset_liability_item_id,
+			</if>
+			<if test="subjectId != null">
+				subject_id = #{subjectId},
+			</if>
+			<if test="operation != null">
+				operation = #{operation},
+			</if>
+			<if test="operationSourceId != null">
+				operand_source = #{operationSourceId},
+			</if>
+		</trim>
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteFormulaByAccountId">
+		delete from cpa_report_customer_asset_liability_item_formular where accounting_id = #{accountId}
+	</delete>
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.settleaccount.CpaFinalLiquidationProportionDao">
+
+	<!-- 根据 bookid 查比例  -->
+	<select id="findProportionByBookId" parameterType="string" resultType="CpaFinalLiquidationProportion">
+		select 
+			id , book_id bookId, customer_id customerId, proportion
+		from cpa_final_liquidation_proportion where book_id = #{bookId}
+	</select>
+	
+	<!-- 新增比例 -->
+	<insert id="insertProportion">
+		insert into 
+			cpa_final_liquidation_proportion
+		(
+			id , book_id , customer_id , proportion 
+		) values (
+			#{id}, #{bookId}, #{customerId}, #{proportion}
+		)
+	</insert>
+	
+</mapper>

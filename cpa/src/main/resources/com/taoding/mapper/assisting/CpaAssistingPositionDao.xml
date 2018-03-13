@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingPositionDao">
+    
+	<sql id="cpaAssistingPositionColumns">
+		a.id AS "id",
+		a.position_name AS "positionName",
+		a.position_no AS "positionNo",
+		a.account_id AS "accountId",
+		a.del_flag AS "delFlag",
+		a.position_name AS "name",
+		a.position_no AS "no"
+	</sql>
+    
+	<select id="get" resultType="CpaAssistingPosition">
+		SELECT 
+			<include refid="cpaAssistingPositionColumns"/>
+		FROM cpa_assisting_position a
+		WHERE a.id = #{id}
+		AND 
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 根据名字查找 -->
+	<select id="findByName" parameterType="string" resultType="CpaAssistingPosition">
+		SELECT 
+			<include refid="cpaAssistingPositionColumns"/>
+		FROM cpa_assisting_position a
+		WHERE a.position_name = #{positionName}
+		AND 
+			a.del_flag = '0'
+		AND 
+			a.account_id = #{accountId}
+	</select>
+	
+	<!-- 根据No查询最大编号 -->
+	<select id="findMaxNoByInfoNo" parameterType="string" resultType="string">
+		select MAX(position_no) positionNo
+		 from 
+		 	cpa_assisting_position 
+		 where
+		 	account_id = #{accountId}
+	</select>
+	
+	<!-- 查询职位 -->
+	<select id="findList" resultType="CpaAssistingPosition">
+		SELECT 
+			<include refid="cpaAssistingPositionColumns"/>
+		FROM cpa_assisting_position a
+		WHERE 
+			a.del_flag = '0'
+		AND 
+			a.account_id = #{accountId}
+	</select>
+	
+	<!-- 查询所有的职位列表(包含模糊搜索) -->
+	<select id="findAllList" parameterType="java.util.Map" resultType="CpaAssistingPosition">
+		SELECT 
+			<include refid="cpaAssistingPositionColumns"/>
+		FROM cpa_assisting_position a
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.account_id = #{accountId}
+			<if test="positionName != null and positionName != ''">
+				AND a.position_name LIKE 
+					concat('%',#{positionName},'%')
+			</if>
+		ORDER BY id DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_assisting_position(
+			id,
+			position_name,
+			position_no,
+			account_id,
+			del_flag
+		) VALUES (
+			#{id},
+			#{positionName},
+			#{positionNo},
+			#{accountId},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- 修改部门的信息 -->
+	<update id="update">
+		UPDATE cpa_assisting_position SET
+		 	<if test="null != positionName and positionName !=''">
+				position_name = #{positionName},
+			</if>
+			<if test="null != positionNo and positionNo !=''">
+				position_no = #{positionNo},
+			</if>
+			<if test="null != accountId and accountId !=''">
+				account_id = #{accountId} ,
+			</if>
+			del_flag = '0' 
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据id删除职位 -->
+	<update id="delete" parameterType="string" >
+		UPDATE cpa_assisting_position SET
+				del_flag ='1'		
+		WHERE id = #{id}	
+	</update>
+	
+</mapper>

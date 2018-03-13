@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.addition.CpaCustomerSubjectBankDao">
+	<sql id="cpaCustomerSubjectBankColumns">
+		a.id AS "id",
+		a.customer_id AS "customerInfo.id",
+		a.subject_id AS "cpaSubject.id",
+		a.bank_id AS "cpaBank.id",
+		a.bank_account AS "bankAccount",
+		a.bank_address AS "bankAddress",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	<select id="get" resultType="CpaCustomerSubjectBank">
+		SELECT
+		<include refid="cpaCustomerSubjectBankColumns" />
+		FROM cpa_customer_subject_bank a
+		WHERE a.del_flag=0 AND a.id = #{id}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cpa_customer_subject_bank(
+		id,
+		customer_id,
+		subject_id,
+		bank_id,
+		bank_account,
+		bank_address,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{customerInfo.id},
+		#{cpaSubject.id},
+		#{cpaBank.id},
+		#{bankAccount},
+		#{bankAddress},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cpa_customer_subject_bank a
+		<trim prefix="set" suffixOverrides=",">
+			<if
+				test="null!=customerInfo and null != customerInfo.id and ''!=customerInfo.id">
+				a.customer_id =#{customerInfo.id},
+			</if>
+			<if
+				test="null!=cpaSubject and null != cpaSubject.id and ''!=cpaSubject.id">
+				a.subject_id =#{cpaSubject.id},
+			</if>
+			<if test="null != cpaBank and null !=cpaBank.id and ''!=cpaBank.id">
+				a.bank_id =#{cpaBank.id},
+			</if>
+			<if test="null != bankAccount and ''!=bankAccount">
+				a.bank_account =#{bankAccount},
+			</if>
+			<if test="null != bankAddress and ''!=bankAddress">
+				a.bank_address =#{bankAddress},
+			</if>
+			<!--<if test="null != createBy.id and ''!=createBy.id"> a.create_by =#{createBy.id}, 
+				</if> <if test="null !=createDate and ''!=createDate"> a.create_date =#{createDate}, 
+				</if> <if test="null != updateBy.id and ''!=updateBy.id"> a.update_by =#{updateBy.id}, 
+				</if> <if test="null != updateDate and ''!=updateDate"> a.update_date =#{updateDate}, 
+				</if> -->
+			<if test="null != delFlag and ''!=delFlag">
+				a.del_flag =#{delFlag},
+			</if>
+			<if test="null != remarks and ''!=remarks">
+				a.remarks =#{remarks},
+			</if>
+		</trim>
+		WHERE a.id = #{id}
+	</update>
+	<!-- 根据公司id,查询公司关联银行信息 -->
+	<select id="findCustomerSubjectBankByCoutomerInfoId" resultType="CpaCustomerSubjectBank">
+		SELECT 
+		      ccsb.bank_account AS bankAccount,ccsb.bank_address AS bankAddress,
+		      cn.bank_name AS "cpaBank.bankName",cs.subject_name AS "cpaSubject.subjectName"
+		FROM cpa_customer_subject_bank ccsb 
+		LEFT JOIN cpa_bank cn ON cn.id=ccsb.bank_id
+		LEFT JOIN cpa_subject cs ON cs.id=ccsb.subject_id
+		WHERE ccsb.del_flag=#{delFlag}
+		<if test="null != coutomerId and ''!=coutomerId">
+			AND ccsb.customer_id =#{coutomerId}
+		</if>
+	</select>
+	
+	<select id="selectList" parameterType="Map"  resultType="CpaCustomerSubjectBank">
+	SELECT a.id,a.bank_account AS bankAccount,a.bank_address AS bankAddress,cb.bank_name AS "cpaBank.bankName",a.bank_id AS "cpaBank.id"
+	FROM cpa_customer_subject_bank a
+	LEFT JOIN cpa_bank cb ON cb.id=a.bank_id
+	WHERE 1=1
+	<if test="null != coutomerId and ''!=coutomerId">
+			AND a.customer_id =#{coutomerId}
+	</if>
+	<if test="null != bankAccount  and ''!=bankAccount">
+			AND a.bank_account =#{bankAccount}
+	</if>
+	<if test="null != bankAddress and ''!=bankAddress">
+			AND a.bank_address =#{bankAddress}
+	</if>
+	<if test="null != bankId and ''!=bankId">
+			AND a.bank_id =#{bankId}
+	</if>
+	<if test="null != subjectId and ''!=subjectId">
+			AND a.subject_id =#{subjectId}
+	</if>
+	</select>
+</mapper>

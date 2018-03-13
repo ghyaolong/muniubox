@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.subject.CpaSubjectDao">
+	
+	<!-- 查询全部科目类型 -->
+	<select id="findAllList" resultType="CpaSubject">
+	  	select id, catalog_id catalogId, 
+	  		subject_no subjectNo,
+	  		subject_name subjectName, direction ,
+	  		parent, level ,type ,hash_child hashChild
+	  		from cpa_subject where type = #{type} and del_flag = 0 order by subject_no asc
+	</select>
+	
+	<!-- 检索科目编号唯一性 -->
+	<select id="findBySubjectNo" resultType="CpaSubject">
+	  	select id, subject_no subjectNo, subject_name subjectName ,
+	  		direction ,parent, level ,type
+	  		from cpa_subject where type = #{type} and subject_no = #{subjectNo} and del_flag = 0 
+	</select>
+	
+	<!-- 检索科目名称唯一性 -->
+	<select id="findBySubjectName" resultType="CpaSubject">
+	  	select id, subject_no subjectNo, subject_name subjectName ,
+	  		direction ,parent, level ,type
+	  		from cpa_subject where type = #{type} and subject_name = #{subjectName} 
+	  		 and parent = #{parentNo}  and del_flag = 0 
+	</select>
+	
+	<!-- 根据id查询科目 -->
+	<select id="get" resultType="CpaSubject">
+		select 
+			id, subject_no subjectNo, subject_name subjectName ,
+	  		direction ,parent, level ,type
+		from cpa_subject where id =#{id} and del_flag = 0
+	</select>
+	
+	<!-- 根据ParentNo查询科目 -->
+	<select id="findByParentNo" resultType="CpaSubject">
+		select id, catalog_id catalogId, 
+	  		subject_no subjectNo,
+	  		subject_name subjectName,
+	  		direction ,parent, level,type
+	  		from cpa_subject where del_flag = 0 and type = #{type} and parent = #{parentNo} order by subject_no asc
+	</select>
+	
+	<!-- 根据科目类型查询科目信息 -->
+	<select id="findAllBycatalogId" resultType="CpaSubject">
+		select id, catalog_id catalogId, 
+	  		subject_no subjectNo,
+	  		subject_name subjectName,
+	  		direction ,parent, level,type
+	  		from cpa_subject where del_flag = 0 and catalog_id = #{catalogId} order by subject_no asc
+	</select>
+	
+	<!-- 插入科目 -->
+	<insert id="insert">
+		insert into cpa_subject(
+			id, catalog_id, subject_no,subject_name ,direction ,parent ,level, type, 
+			create_by, create_date, update_by, update_date, remarks, del_flag ,hash_child
+		) values (
+			#{id}, #{catalogId},#{subjectNo} ,#{subjectName},#{direction},#{parent},#{level},#{type}, 
+			#{createBy.id}, #{createDate}, #{updateBy.id}, #{updateDate}, #{remarks}, #{delFlag}, #{hashChild}
+		)
+	</insert>
+	
+	<!-- 修改科目 -->
+	<update id="update">
+		update cpa_subject set 
+<!-- 			catalog_id = #{catalogId},  -->
+			subject_no = #{subjectNo}, 
+			subject_name = #{subjectName},
+			<if test="null != hashChild">
+			hash_child = #{hashChild},
+			</if>
+			
+			direction = #{direction}
+<!-- 			parent = #{parent},  -->
+<!-- 			level = #{level},  -->
+<!-- 			create_by = #{createBy.id},  -->
+<!-- 			create_date = #{createDate},  -->
+<!-- 			update_by = #{updateBy.id},  -->
+<!-- 			update_date = #{updateDate},  -->
+<!-- 			remarks = #{remarks} -->
+		where id = #{id}
+	</update>
+	
+	<!-- 根据id删除科目 -->
+	<delete id="delete">
+		delete from cpa_subject where id = #{id}
+	</delete>
+	
+	
+</mapper>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.vouchersummary.CpaVoucherSummaryDao">
+    
+   	<insert id="batchInsert">
+		insert into  cpa_voucher_summary
+			(
+				id , book_id , customer_id , voucher_period , subject_no , 
+				subject_name, direction , parent , assisting ,subject ,
+				current_period_debit,current_period_credit, create_by , create_date
+			) values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(
+				#{item.id}, #{item.bookId}, #{item.customerId}, #{item.voucherPeriod}, #{item.subjectNo},
+				#{item.subjectName}, #{item.direction}, #{item.parent}, #{item.assisting}, #{item.subject},
+				#{item.currentPeriodDebit},#{item.currentPeriodCredit}, #{item.createBy.id},#{item.createDate}
+			)
+		</foreach>
+	</insert>
+	
+	<!-- 通过id 查询当前账期 凭证汇总科目信息 -->
+	<select id="findById" parameterType="string" resultType="CpaVoucherSummary">
+		select  
+			id , book_id bookId, customer_id customerId, voucher_period voucherPeriod, subject_no subjectNo, 
+				subject_name subjectName, direction , parent , assisting ,subject ,
+				ifnull(current_period_debit,0) currentPeriodDebit,ifnull(current_period_credit,0) currentPeriodCredit
+			from cpa_voucher_summary
+		where book_id = #{bookId} and id =#{id} and voucher_period = #{voucherPeriod}
+	</select>
+	
+	<!-- 根据父科目编号 查询科目 -->
+	<select id="findBySubjectNo" parameterType="string" resultType="CpaVoucherSummary">
+		select  
+			id , book_id bookId, customer_id customerId, voucher_period voucherPeriod, subject_no subjectNo, 
+				subject_name subjectName, direction , parent , assisting ,subject ,
+				ifnull(current_period_debit,0) currentPeriodDebit,ifnull(current_period_credit,0) currentPeriodCredit
+			from cpa_voucher_summary
+		where book_id = #{bookId} and subject_no =#{subjectNo} and voucher_period = #{voucherPeriod}
+	</select>
+	
+	<!-- 修改账簿 凭证汇总科目金额 -->
+	<update id="updateVoucherSummaryAmount">
+		update cpa_voucher_summary 
+		 set 
+			current_period_debit =  #{currentPeriodDebit,jdbcType=DECIMAL} ,
+			current_period_credit =  #{currentPeriodCredit,jdbcType=DECIMAL} 
+		where id = #{id} and voucher_period = #{voucherPeriod} and book_id =#{bookId}
+	</update>
+	
+	
+		
+	<!-- 查询当前账期 凭证汇总科目信息 -->
+	<select id="findAllList" parameterType="string" resultType="CpaVoucherSummary">
+		select  
+			id , book_id bookId, customer_id customerId, voucher_period voucherPeriod, subject_no subjectNo, 
+				subject_name subjectName, direction , parent , assisting ,subject ,
+				ifnull(current_period_debit,0) currentPeriodDebit,ifnull(current_period_credit,0) currentPeriodCredit
+			from cpa_voucher_summary
+		where book_id = #{bookId}  and voucher_period = #{voucherPeriod}
+		order by subject_no
+	</select>
+	
+	
+	<!-- 查询当前账期 凭证汇总科目信息 求和 借方贷方-->
+	<select id="findSumDebitAndCredit" parameterType="string" resultType="CpaVoucherSummary">
+		select
+		    "合计" as "subjectName",
+		    sum(ifnull(current_period_debit,0)) currentPeriodDebit,
+		    sum(ifnull(current_period_credit,0)) currentPeriodCredit
+			from cpa_voucher_summary
+		where book_id = #{bookId}  and voucher_period = #{voucherPeriod} and  parent = #{parent}
+		group by book_id, voucher_period
+	</select>
+	
+	<!-- 统计余额	 根据 summaryId-->
+	<select id="statisticsAmountBySummaryIds" parameterType="map" resultType="CpaVoucherSummary">  
+	    select id, IFNULL(SUM(current_period_debit),0) currentPeriodCredit, IFNULL(SUM(current_period_credit),0) currentPeriodDebit, direction, subject_no, subject_name 
+			, IF(direction = '1',IFNULL(SUM(current_period_debit),0) - IFNULL(SUM(current_period_credit),0), IFNULL(SUM(current_period_credit),0) - IFNULL(SUM(current_period_debit),0))	balance	
+		from cpa_voucher_summary 
+	    where voucher_period &gt;= #{startPeriod} and voucher_period &lt;= #{currentPeriod} and book_id = #{bookId}
+		and id in
+			<foreach item="item" index="index" collection="summaryIds" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		    </foreach> 
+	</select>	
+	
+	<!-- 统计余额	 根据 summaryId-->
+	<select id="statisticsAmountBySummaryId" parameterType="map" resultType="CpaVoucherSummary">  
+	    select id, IFNULL(SUM(current_period_debit),0) currentPeriodCredit, IFNULL(SUM(current_period_credit),0) currentPeriodDebit, direction, subject_no, subject_name 
+			, IF(direction = '1',IFNULL(SUM(current_period_debit),0) - IFNULL(SUM(current_period_credit),0), IFNULL(SUM(current_period_credit),0) - IFNULL(SUM(current_period_debit),0))	balance	
+		from cpa_voucher_summary 
+	    where voucher_period &gt;= #{startPeriod} and voucher_period &lt;= #{currentPeriod} and book_id = #{bookId}
+		and id = #{summaryId}
+	</select>	
+	
+	<!-- 查询科目信息及余额 -->
+	<select id="findInfoAndAmountById" parameterType="string" resultType="CpaVoucherSummary">
+		select t.id , t.subject_no subjectNo ,
+			t.subject_name subjectName ,t.direction ,
+			IFNULL(t.beginning_balances,0) beginningBalances , 
+			IFNULL(t1.sumDebit,0)  currentPeriodDebit,
+			IFNULL(t1.sumCredit,0) currentPeriodCredit ,t.assisting
+		from cpa_customer_subject t
+			left join (
+				select id ,SUM(current_period_debit) sumDebit ,SUM(current_period_credit) sumCredit from cpa_voucher_summary 
+					where id = #{id}  and book_id = #{bookId}  
+					<if test="type != null and type == 1">
+						and voucher_period = #{period}
+					</if>
+					<if test="type != null and type == 2">
+						and voucher_period &lt; #{period}
+					</if>
+			) t1 on t1.id = t.id
+		where t.id = #{id} and t.book_id = #{bookId} and t.del_flag = 0 
+	
+	</select>
+	
+
+</mapper>

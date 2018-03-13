@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.voucher.CpaVoucherTempleteDao">
+    
+    <!-- 查询 企业所保存的凭证模板 -->
+	<select id="findListByBookId" resultType="CpaVoucherTemplete">
+		select 
+			<include refid="templeteColumns" />
+		from cpa_voucher_templete 
+			where book_id = #{bookId} and type = #{type} order by create_date
+	</select>
+	
+	<!-- 根据模板名称查询-检索模板名称唯一性 -->
+	<select id="findByTempleteName" parameterType="string" resultType="CpaVoucherTemplete">
+		select 
+			<include refid="templeteColumns" />
+		from cpa_voucher_templete 
+			where book_id = #{bookId} and type = true  and templete_name = #{templeteName}
+	</select>
+	
+	<!-- 根据模板id查询 -->
+	<select id="get" parameterType="string" resultType="CpaVoucherTemplete">
+		select 
+			<include refid="templeteColumns" />
+		 from cpa_voucher_templete where id = #{id} 
+	</select>
+	
+	<!-- 插入凭证模板 -->
+	<insert id="insert">
+		insert into cpa_voucher_templete(
+			id ,book_id ,customer_id ,templete_name ,have_money ,type,amount_debit ,
+			amount_credit ,account_capital ,create_by ,create_date
+		) values (
+			#{id},#{bookId} ,#{customerId}, #{templeteName},#{haveMoney},#{type},#{amountDebit},
+			#{amountCredit},#{accountCapital},#{createBy.id},#{createDate}
+		)
+	</insert>
+
+	<!-- 根据模板id删除凭证模板 -->
+	<delete id="delete">
+		delete from cpa_voucher_templete where id = #{id}
+	</delete>
+
+	<sql id="templeteColumns">
+		id ,book_id bookId,customer_id customerId,templete_name templeteName ,have_money haveMoney,type
+	</sql>
+</mapper>

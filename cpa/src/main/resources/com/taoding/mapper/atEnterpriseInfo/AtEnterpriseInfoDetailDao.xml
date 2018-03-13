@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.atEnterpriseInfo.AtEnterpriseInfoDetailDao">
+    
+	<sql id="atEnterpriseInfoDetailColumns">
+		a.id AS "id",
+		a.at_enterprise_info_id AS "atEnterpriseInfoId",
+		a.company_name AS "companyName",
+		a.company_phone AS "companyPhone",
+		a.industry_involved AS "industryInvolved",
+		a.company_scale AS "companyScale",
+		a.create_date AS "createDate",
+		a.registered_address AS "registeredAddress",
+		a.company_address AS "companyAddress",s
+		a.account_id AS "accountId",
+		a.verifier_id AS "verifierId",
+		a.region_id AS "regionId",
+		a.social_credit_code AS "socialCreditCode",
+		a.manage_form AS "manageForm",
+		a.company_type AS "companyType",
+		a.registered_assets AS "registeredAssets",
+		a.company_website AS "companyWebsite",
+		a.company_fax AS "companyFax",
+		a.taxpaye_property AS "taxpayeProperty",
+		a.enterprise_marking AS "enterpriseMarking",
+		a.register_date AS "registerDate",
+		a.update_by AS "updateBy.id",
+		a.company_mail AS "companyMail",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+	</sql>
+	
+	<sql id="atEnterpriseInfoDetailJoins">
+	</sql>
+    
+	<select id="get" resultType="AtEnterpriseInfoDetail">
+		SELECT 
+			<include refid="atEnterpriseInfoDetailColumns"/>
+		FROM at_enterprise_info_detail a
+		<include refid="atEnterpriseInfoDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AtEnterpriseInfoDetail">
+		SELECT 
+			<include refid="atEnterpriseInfoDetailColumns"/>
+		FROM at_enterprise_info_detail a
+		<include refid="atEnterpriseInfoDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AtEnterpriseInfoDetail">
+		SELECT 
+			<include refid="atEnterpriseInfoDetailColumns"/>
+		FROM at_enterprise_info_detail a
+		<include refid="atEnterpriseInfoDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO at_enterprise_info_detail(
+			id,
+			at_enterprise_info_id,
+			company_name,
+			company_phone,
+			industry_involved,
+			company_scale,
+			create_date,
+			registered_address,
+			company_address,
+			account_id,
+			verifier_id,
+			region_id,
+			social_credit_code,
+			manage_form,
+			company_type,
+			registered_assets,
+			company_website,
+			company_fax,
+			taxpaye_property,
+			enterprise_marking,
+			register_date,
+			update_by,
+			company_mail,
+			create_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{atEnterpriseInfoId},
+			#{companyName},
+			#{companyPhone},
+			#{industryInvolved},
+			#{companyScale},
+			#{createDate},
+			#{registeredAddress},
+			#{companyAddress},
+			#{accountId},
+			#{verifierId},
+			#{regionId},
+			#{socialCreditCode},
+			#{manageForm},
+			#{companyType},
+			#{registeredAssets},
+			#{companyWebsite},
+			#{companyFax},
+			#{taxpayeProperty},
+			#{enterpriseMarking},
+			#{registerDate},
+			#{updateBy.id},
+			#{companyMail},
+			#{createBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE at_enterprise_info_detail SET 	
+			at_enterprise_info_id = #{atEnterpriseInfoId},
+			company_name = #{companyName},
+			company_phone = #{companyPhone},
+			industry_involved = #{industryInvolved},
+			company_scale = #{companyScale},
+			registered_address = #{registeredAddress},
+			company_address = #{companyAddress},
+			account_id = #{accountId},
+			verifier_id = #{verifierId},
+			region_id = #{regionId},
+			social_credit_code = #{socialCreditCode},
+			manage_form = #{manageForm},
+			company_type = #{companyType},
+			registered_assets = #{registeredAssets},
+			company_website = #{companyWebsite},
+			company_fax = #{companyFax},
+			taxpaye_property = #{taxpayeProperty},
+			enterprise_marking = #{enterpriseMarking},
+			register_date = #{registerDate},
+			update_by = #{updateBy.id},
+			company_mail = #{companyMail},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE at_enterprise_info_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

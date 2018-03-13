@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.settleaccount.CpaFinalLiquidationDao">
+
+	<!-- 根据账期+账簿ID 判断是否期末结转 -->
+	<select id="findByBookId" parameterType="string" resultType="CpaFinalLiquidation">
+		select 
+			id ,book_id bookId ,customer_id customerId ,current_period currentPeriod , settle_accounts settleAccounts
+		from cpa_final_liquidation where book_id = #{bookId} and current_period = #{currentPeriod}
+	</select>
+	
+	<!-- 新增期末结转数据 -->
+	<insert id="insert">
+		insert into 
+			cpa_final_liquidation
+		(
+			id , book_id , customer_id , current_period , settle_accounts ,create_by ,create_date
+		) values (
+			#{id}, #{bookId}, #{customerId}, #{currentPeriod}, #{settleAccounts}, #{createBy.id},#{createDate}
+		)
+	</insert>
+	
+</mapper>

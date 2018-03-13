@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerTaxItem.CustomerTaxItemDao">
+	<sql id="customerTaxItemColumns">
+	    DISTINCT 
+		a.id,
+		a.account_id AS "accountingBookId",
+		a.name,
+		a.rate,
+		a.deleteable,
+		a.enable,
+		ccs.id AS "subjectId",
+		CONCAT(subject_no," ",ccs.subject_name) AS subjectName,
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.accrued_type AS accruedType,
+		a.remarks,
+		a.del_flag AS delFlag
+	</sql>
+	<select id="get" parameterType="java.lang.String" resultType="CustomerTaxItem">
+		SELECT
+		a.id,
+		a.account_id AS "accountingBookId",
+		a.subject_id AS "subjectId",
+		a.name,
+		a.rate,
+		a.deleteable,
+		a.enable, 
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.accrued_type AS accruedType,
+		a.remarks,
+		a.del_flag AS delFlag
+		FROM cpa_customer_tax_item a
+		WHERE a.del_flag=0 
+		AND a.id=#{id}
+	</select>
+	<select id="findList" parameterType="java.util.Map"  resultType="CustomerTaxItem">
+		SELECT
+		<include refid="customerTaxItemColumns" />
+		FROM cpa_customer_tax_item a
+		LEFT JOIN cpa_customer_subject ccs ON ccs.id=a.subject_id 
+		WHERE a.del_flag=0
+		AND a.account_id=#{accountingBookId}
+	</select>
+	<insert id="insert">
+		INSERT INTO cpa_customer_tax_item(
+		id,
+		account_id,
+		name,
+		rate,
+		deleteable,
+		enable,
+		accrued_type,
+		subject_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{accountingBookId},
+		#{name},
+		#{rate},
+		#{deleteable},
+		#{enable},
+		#{accruedType},
+		#{subjectId},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+	<update id="update">
+		UPDATE cpa_customer_tax_item a
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null!=accountingBookId and ''!=accountingBookId">
+				a.account_id =#{accountingBookId},
+			</if>
+			<if test="null != name and ''!=name">
+				a.name =#{name},
+			</if>
+			<if test="null != rate">
+				a.rate =#{rate},
+			</if>
+			<if test="null!=subjectId and  ''!=subjectId">
+				a.subject_id =#{subjectId},
+			</if>
+			<if test="null != remarks and ''!=remarks">
+				a.remarks =#{remarks},
+			</if>
+			<if test="null != delFlag and ''!=delFlag">
+				a.del_flag =#{delFlag},
+			</if>
+		   <if test="enable==true or enable==false">
+			   a.enable=#{enable},
+		   </if>
+		</trim>
+		WHERE a.id = #{id}
+	</update>
+	  <!-- 查询客户税项表是否有客户账薄信息 -->
+	<!-- <select id="findCustomerTaxItemForAccountingBookId"  parameterType="java.lang.String" resultType="CustomerTaxItem">
+		SELECT
+		<include refid="customerTaxItemColumns" />
+		FROM cpa_customer_tax_item a
+		LEFT JOIN cpa_customer_subject ccs ON ccs.id=a.subject_id 
+		<if test="null!=accountingBookId and ''!=accountingBookId">
+		    AND a.account_id=#{accountingBookId}
+		</if>
+	</select> -->
+</mapper>

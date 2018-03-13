@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.settleaccount.CpaFinalLiquidationBasicDao">
+
+	<!-- 根据纳税人规模查询 基础配置 -->
+	<select id="findAllListByTaxpayerPropertyAndKeyAndType" parameterType="string" resultType="CpaFinalLiquidationBasic">
+		select 
+			id , taxpayer_property taxpayerProperty,sub_key subKey, sub_name subName , 
+			subject_id subjectId , subject_no subjectNo , subject_name subjectName , direction , type  
+		from cpa_final_liquidation_basic where taxpayer_property = #{taxpayerProperty} and sub_key = #{subKey}
+	    <if test="type != null ">
+	    and type = #{type}
+	    </if>
+	</select>
+	
+</mapper>

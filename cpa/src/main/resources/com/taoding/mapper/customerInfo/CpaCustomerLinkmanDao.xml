@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerInfo.CpaCustomerLinkmanDao">
+
+	<sql id="cpaCustomerLinkmanColumns">
+		a.id AS "id",
+		a.customer_id AS "customerId",
+		a.name AS
+		"name",
+		a.sex AS sex,
+		a.position AS "position",
+		a.email AS "email",
+		a.phone AS "phone",
+		a.status AS "status",
+		a.create_by AS "createBy.id",
+		a.create_date AS
+		"createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS
+		"updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.enterprise_marking AS "enterpriseMarking"
+	</sql>
+	<!-- 根据公司id,查询公司联系人 -->
+	<select id="findCustomerLinkmanByCoutomerInfoId" resultType="CpaCustomerLinkman">
+		SELECT
+		<include refid="cpaCustomerLinkmanColumns" />
+		FROM cpa_customer_linkman a
+		WHERE a.del_flag=#{delFlag}
+		<if test="null != coutomerId and ''!=coutomerId">
+			AND a.customer_id= #{coutomerId}
+		</if>
+		<if test="null != id and ''!=id">
+			AND a.id= #{id}
+		</if>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_customer_linkman(
+			id,
+			customer_id,
+			name,
+			position,
+			email,
+			sex,
+			phone,
+			status,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			enterprise_marking
+		) VALUES (
+			#{id},
+			#{customerInfoId},
+			#{name},
+			#{position},
+			#{email},
+			#{sex},
+			#{phone},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{enterpriseMarking}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_customer_linkman a
+		<trim prefix="set" suffixOverrides=",">  
+		  <if test="null != name and ''!=name">
+		    a.name =#{name},
+		</if>
+		<if test="null != position and ''!=position">
+		    a.position =#{position},
+		</if>
+		<if test="null != email and ''!=email">
+		    a.email =#{email},
+		</if>
+		<if test="null != phone and ''!=phone">
+		    a.phone =#{phone},
+		</if>
+		<if test="null != status and ''!=status">
+		    a.status =#{status},
+		</if>
+		<if test="null != sex and ''!=sex">
+		    a.sex =#{sex},
+		</if>
+		<if test="null != remarks and ''!=remarks">
+		   a.remarks =#{remarks},
+		</if>
+		<if test="null != delFlag and ''!=delFlag">
+		    a.del_flag =#{delFlag},
+		</if> 
+		<if test="null != enterpriseMarking and ''!=enterpriseMarking">
+		    a.enterprise_marking =#{enterpriseMarking},
+		</if> 
+		</trim>
+		WHERE 1=1
+		<if test="null != id and ''!=id">
+		   AND  a.id = #{id}
+		</if> 
+		<if test="null != customerInfoId and ''!=customerInfoId">
+		   AND  a.customer_id = #{customerInfoId}
+		</if>
+	</update>
+</mapper>

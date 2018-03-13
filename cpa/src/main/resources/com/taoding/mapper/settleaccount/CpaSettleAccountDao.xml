@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.settleaccount.CpaSettleAccountDao">
+	<!-- 结账 按钮保存的信息 -->
+	<insert id="insertAccount">
+		insert into cpa_settle_account(
+			id, book_id, customer_id, current_period, settle_accounts, create_by, create_date
+		) values 
+		(
+			#{id}, #{bookId}, #{customerId}, #{currentPeriod}, #{settleAccounts}, #{createBy}, #{createDate}
+		)
+	</insert>
+	
+	<!-- 根据账薄 id，客户 id，账期 查询唯一的一条数据 -->
+	<select id="findByCustomerIdAndCurrentPeriod" parameterType="string" resultType="CpaSettleAccount">
+		select id, book_id bookId, customer_id customerId, current_period currentPeriod,
+			settle_accounts settleAccounts, create_by createBy, create_date createDate 
+		from cpa_settle_account 
+		where book_id= #{bookId} 
+		and customer_id = #{customerId}
+		and current_period = #{currentPeriod}
+	</select>
+	
+	<!-- 根据账薄 id，客户 id，账期 更新一条数据 -->
+	<update id="updateCpaSettleAccountByOne" parameterType="string">
+		update cpa_settle_account set settle_accounts = '0' 
+		where book_id= #{bookId} 
+		and customer_id = #{customerId}
+		and current_period = #{currentPeriod}
+	</update>
+	
+	<!-- 反结算 根据账薄 id，客户 id，传进来的 账期 更新账期以前的数据  -->
+	<update id="updateCpaSettleAccountByList" parameterType="string">
+		update cpa_settle_account set settle_accounts = '0' 
+		where book_id= #{bookId} 
+		and customer_id = #{customerId}
+		and current_period  &lt; #{currentPeriod}
+	</update>
+	
+</mapper>

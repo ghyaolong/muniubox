@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.profit.ProfileCustomerFomulaDao">
+	
+	<sql id = "allRow">
+	 id,
+	 subject_id AS subjectId,
+	 account_id AS accountId,
+	 operation,
+	 operand_source AS operandSource,
+	 item_id AS itemId
+	</sql>
+	
+	
+	
+	<select id = "getProfileCustomerFomulaList" resultType="ProfileCustomerFomula">
+	 SELECT
+	  <include refid="allRow"/>
+	 FROM cpa_report_customer_profile_item_fomula
+	 WHERE account_id = #{accountId}
+	</select>
+	
+	<select id="getItemFomulaList" resultType="ProfileCustomerFomula">
+	SELECT
+	  <include refid="allRow"/>
+	 FROM cpa_report_customer_profile_item_fomula
+	 WHERE account_id = #{accountId} AND item_id = #{itemId}
+	</select>
+	
+	<insert id="saveFormula">
+		INSERT INTO cpa_report_customer_profile_item_fomula (subject_id, account_id, operation, operand_source, item_id)
+		 VALUES (#{subjectId}, #{accountId}, #{operation}, #{operandSource}, #{itemId});
+	</insert>
+	
+	<update id="updateFormula">
+		UPDATE cpa_report_customer_profile_item_fomula
+		 SET subject_id = #{subjectId}, operation = #{operation}, operand_source = #{operandSource} 
+		 WHERE id = #{id}
+	</update>
+	
+	<delete id = "deleteByAccountId">
+	DELETE FROM cpa_report_customer_profile_item_fomula WHERE account_id = #{accountId}
+	</delete>
+	
+	<delete id="delCustomerFomula">
+	DELETE FROM cpa_report_customer_profile_item_fomula WHERE id = #{id}
+	</delete>
+</mapper>

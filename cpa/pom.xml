@@ -1,0 +1,336 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.taoding</groupId>
+		<artifactId>muniubox</artifactId>
+		<version>1.0</version>
+	</parent>
+	<artifactId>cpa</artifactId>
+	<name>cpa</name>
+	<url>http://maven.apache.org</url>
+	
+	<properties>
+		<pkg.name>muniubox-cpa</pkg.name>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>1.5.4.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.0.20</version>
+		</dependency>
+		<!-- 热部署 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+		</dependency>
+
+		<!--apache shiro -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-spring</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-ehcache</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		
+		<!-- AMQP -->
+		 <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+         <!--ocr 相关的jar-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.38</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baidu.aip</groupId>
+            <artifactId>java-sdk</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+
+		<dependency>
+			<groupId>com.taoding</groupId>
+			<artifactId>modelData</artifactId>
+			<version>1.0</version>
+		</dependency>
+		
+		<!-- 获得汉字拼音 -->
+		<dependency>
+		    <groupId>com.belerweb</groupId>
+		    <artifactId>pinyin4j</artifactId>
+		    <version>2.5.0</version>
+		</dependency>
+		
+		<!-- add all iText 7 Community modules -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itext7-core</artifactId>
+			<version>7.0.5</version>
+			<type>pom</type>
+		</dependency>
+		
+	</dependencies>
+	
+	<build>
+		<finalName>${pkg.name}-${project.version}</finalName>
+		<resources>
+	      <resource>
+	        <directory>${project.basedir}/src/main/resources</directory>
+	        <filtering>true</filtering>
+	      </resource>
+	    </resources>
+	
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.5.1</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.0.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+				</plugin>
+				<plugin>
+					<groupId>org.fortasoft</groupId>
+					<artifactId>gradle-maven-plugin</artifactId>
+					<version>1.0.8</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>boot</classifier>
+					<layout>ZIP</layout>
+					<executable>true</executable>
+					<excludeDevtools>true</excludeDevtools>
+					<mainClass>com.taoding.CPAApplication</mainClass>
+					<layout>JAR</layout>
+					<embeddedLaunchScriptProperties>
+						<confFolder>${pkg.installFolder}/conf</confFolder>
+						<logFolder>${pkg.logFolder}</logFolder>
+						<logFilename>${pkg.name}.out</logFilename>
+						<initInfoProvides>${pkg.name}</initInfoProvides>
+					</embeddedLaunchScriptProperties>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<delimiters>
+						<delimiter>${*}</delimiter>
+					</delimiters>
+					<useDefaultDelimiters>false</useDefaultDelimiters>
+				</configuration>
+				<executions>
+					<execution>
+						<id>copy-service-config</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/conf</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources</directory>
+									<excludes>
+										<exclude>logback.xml</exclude>
+									</excludes>
+									<filtering>false</filtering>
+								</resource>
+								<resource>
+									<directory>src/main/resources</directory>
+									<includes>
+										<include>application.yml</include>
+										<include>mybatis-config.xml</include>
+									</includes>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-script</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/linux</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/scripts/linux</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Implementation-Title>myFramework</Implementation-Title>
+							<Implementation-Version>${project.version}</Implementation-Version>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.fortasoft</groupId>
+				<artifactId>gradle-maven-plugin</artifactId>
+				<configuration>
+					<tasks>
+						<task>build</task>
+						<task>buildDeb</task>
+<!-- 						<task>buildRpm</task> -->
+					</tasks>
+					<args>
+						<arg>-PprojectBuildDir=${project.build.directory}</arg>
+						<arg>-PprojectVersion=${project.version}</arg>
+						<arg>-PmainJar=${project.build.directory}/${project.build.finalName}-boot.${project.packaging}</arg>
+						<arg>-PpkgName=${pkg.name}</arg>
+						<arg>-PpkgUser=${pkg.user}</arg>
+						<arg>-PpkgInstallFolder=${pkg.installFolder}</arg>
+						<arg>-PpkgLogFolder=${pkg.logFolder}</arg>
+					</args>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>invoke</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

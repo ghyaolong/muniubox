@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerTaxItem.TaxValueAddedDetailDao">
+	<insert id="insertList">
+		INSERT INTO cpa_tax_value_added_detail(
+		id,
+		account_id,
+		tax_rate,
+		output_subject_id,
+		not_pay_vat,
+		input_subject_id,
+		cost_subject_id,
+		individual_exemption,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		del_flag
+		) VALUES  
+		<foreach collection="taxValueAddedDetailList" item="item" index="index"
+			separator=",">
+			(
+			#{item.id},
+			#{item.accountingId},
+			#{item.taxRate},
+			#{item.outputSubjectId},
+			#{item.notPayVat},
+			#{item.inputSubjectId},
+			#{item.costSubjectId},
+			#{item.individualExemption},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.delFlag}
+			)
+		</foreach>
+	</insert>
+	<select id="getAccountingId" resultType="TaxValueAddedDetail">
+		SELECT a.account_id AS accountingId,a.tax_rate AS taxRate,a.output_subject_id AS outputSubjectId,a.not_pay_vat AS notPayVat,
+		       a.input_subject_id AS inputSubjectId,a.cost_subject_id AS costSubjectId,a.individual_exemption AS individualExemption
+		FROM cpa_tax_value_added_detail a 
+		WHERE a.account_id=#{accountingId} 
+	</select> 
+	<delete id="deleteAccountingId">
+	   DELETE FROM cpa_tax_value_added_detail WHERE account_id=#{accountId}
+	</delete>
+</mapper>

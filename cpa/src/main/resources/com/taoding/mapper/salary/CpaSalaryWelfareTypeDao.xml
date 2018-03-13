@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryWelfareTypeDao">
+    
+	<sql id="cpaSalaryWelfareTypeColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.no AS "no",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="cpaSalaryWelfareTypeJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaSalaryWelfareType">
+		SELECT 
+			<include refid="cpaSalaryWelfareTypeColumns"/>
+		FROM cpa_salary_welfare_type a
+		<include refid="cpaSalaryWelfareTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 查询所有的社保公积金缴纳项目的名称 -->
+	<select id="findAllName" resultType="CpaSalaryWelfareType">
+		SELECT 
+			DISTINCT a.name,a.id
+		FROM cpa_salary_welfare_type a
+		<where>
+			a.del_flag = '0'
+		</where>		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_salary_welfare_type(
+			id,
+			name,
+			no,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{no},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_salary_welfare_type SET 	
+			name = #{name},
+			no = #{no}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cpa_salary_welfare_type SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

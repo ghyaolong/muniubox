@@ -1,0 +1,85 @@
+﻿server:
+  context-path: /cpa
+  port: 8081
+
+spring:
+  profile:
+    active: test
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.5.73:3306/muniubox?useUnicode=true&amp;characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: mysqlmuniubox
+
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall-filter,log4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  wall-filter:
+    type: com.alibaba.druid.wall.WallFilter
+    config: myWallConfig
+  myWallConfig:
+    type: com.alibaba.druid.wall.WallConfig
+    multiStatementAllow:  true
+    
+#MQ 连接地址
+  rabbitmq:
+    addresses: 180.76.140.116:5672
+    username: guest
+    password: guest
+    publisher-confirms: false
+    virtual-host: /
+    listener:
+      simple:
+        max-concurrency: 3
+# 设置请求上传的文件大小        
+  http:
+    multipart:
+      max-file-size: 70MB
+      max-request-size: 70MB
+# 设置允许上传的图片格式和图片大小      
+img:
+  extension: .jpg,.jpeg,.bmp,.gif,.png
+  size: 4194304 # 单位byte   4*1024*1024 byte        
+
+mybatis:
+  config-location: "classpath:mybatis-config.xml"
+  
+#用户认证相关参数
+authentication:
+  expDate: 1800000
+  secret: 201711090001
+ 
+#上传图片相关路径 
+userFileLogo:
+  path: userfile/images/photo/logo
+  
+ticketImg:
+  path: static\userfile\imges\ticket\
+
+platform:
+  url: http://localhost:8080
+
+#测试用  
+#ocr:
+#  appId: TicketOCR
+#  apiKey: 6fCF4kG2KFL43R4rQDrUZr6U
+#  secretKey: GlzE7HyqPe9LFEDDud5qSRbmg2h0sd5g
+
+#百度OCR相关配置
+ocr:
+  appId: 10571311
+  apiKey: 0Ve3A1MZp3So7ae4c4n7jipo
+  secretKey: zmsAoT1TGlYfzm46pCiKlR8ZXhclAF8w
+  
+ 

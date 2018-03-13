@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.fixedAsset.LongApportionedAssetsDao">
+	<sql id="longApportionedAssetsColumns">
+		distinct
+		a.id AS "id",
+		a.name AS "name",
+		a.accounted_for_date AS
+		"accountedForDate",
+		a.current_period AS "currentPeriod",
+		a.employee_id
+		AS "assistingEmployee.id",
+		e.name AS "assistingEmployee.name",
+		a.dept_id AS "assistingBalanceDepartment.id",
+		d.department_name AS
+		"assistingBalanceDepartment.departmentName",
+		a.account_id as
+		"accountId",
+		a.original_value AS "originalValue",
+		a.original_depreciation AS "originalDepreciation",
+		a.lifecycle AS
+		"lifecycle",
+		a.depreciation_per_month AS "depreciationPerMonth",
+		a.depreciation_type AS "depreciationType",
+		a.depreciation_start_date AS
+		"depreciationStartDate",
+		a.depreciation_fee_subject_id AS
+		"depreciationFeeSubject.id",
+		s.subject_name AS
+		"depreciationFeeSubject.subjectName",
+		a.depreciation_cumulation_subject_id AS
+		"depreciationCumulationSubject.id",
+		cs.subject_name AS
+		"depreciationCumulationSubject.subjectName",
+		a.status,
+		a.create_by AS
+		"createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.net_worth as "netWorth",
+		a.this_month_depreciation as "thisMonthDepreciation",
+		a.enter_date AS enterDate  <!-- 录入时间 -->
+	</sql>
+	<sql id="longApportionedAssetsExportColumns">
+	    a.name AS "nameApportioned", a.accounted_for_date AS "accountedForDateApportioned", 
+		e.name AS "assistingEmployeeApportionedName", d.department_name AS "assistingBalanceDepartmentApportionedName", 
+		a.original_value AS "originalValueApportioned",  a.original_depreciation AS "originalDepreciationApportioned", 
+		a.lifecycle AS "lifecycleApportioned",  a.depreciation_per_month AS "depreciationPerMonthApportioned", 
+		a.net_worth as "netWorthApportioned",  a.this_month_depreciation as "thisMonthDepreciationApportioned",a.depreciation_date AS "depreciationDateApportioned",
+		a.enter_date AS enterDateApportioned
+	</sql>
+	<select id="get" resultType="LongApportionedAssets">
+		SELECT
+		<include refid="longApportionedAssetsColumns" />
+		FROM cpa_long_apportioned_assets a
+		<include refid="longApportionedAssetsJoins" />
+		WHERE a.del_flag=0 AND a.id=#{id}
+	</select>
+	<insert id="insert">
+		INSERT INTO cpa_long_apportioned_assets(
+		id,
+		name,
+		accounted_for_date,
+		current_period,
+		employee_id,
+		dept_id,
+		account_id,
+		original_value,
+		original_depreciation,
+		lifecycle,
+		depreciation_per_month,
+		depreciation_type,
+		depreciation_start_date,
+		depreciation_fee_subject_id,
+		depreciation_cumulation_subject_id,
+		net_worth,
+		status,
+		code,
+		enter_date,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		)
+		VALUES (
+		#{id},
+		#{name},
+		#{accountedForDate},
+		#{currentPeriod},
+		#{assistingEmployee.id},
+		#{assistingBalanceDepartment.id},
+		#{accountId},
+		IFNULL(#{originalValue},0.00),
+		IFNULL(#{originalDepreciation},0.00),
+		#{lifecycle},
+		IFNULL(#{depreciationPerMonth},0.00),
+		#{depreciationType},
+		#{depreciationStartDate},
+		#{depreciationFeeSubject.id},
+		#{depreciationCumulationSubject.id},
+		IFNULL(#{netWorth},0.00),
+		#{status},
+		#{code},
+		now(),   <!-- 当前日期 -->
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cpa_long_apportioned_assets
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null!=name   and ''!=name ">
+				name = #{name},
+			</if>
+			<if test="null!=accountedForDate">
+				accounted_for_date=#{accountedForDate},
+			</if>
+			<if test="null!=currentPeriod">
+				current_period=#{currentPeriod},
+			</if>
+			<if
+				test="null!=assistingEmployee and null!=assistingEmployee.id  and ''!=assistingEmployee.id ">
+				employee_id=#{assistingEmployee.id},
+			</if>
+			<if
+				test="null!=assistingBalanceDepartment and null!=assistingBalanceDepartment.id   and ''!=assistingBalanceDepartment.id ">
+				dept_id=#{assistingBalanceDepartment.id},
+			</if>
+			<if test="null!=accountId and ''!=accountId">
+				account_id=#{accountId},
+			</if>
+			<if test="null!=originalValue and ''!=originalValue">
+				original_value=#{originalValue},
+			</if>
+			<if test="null!=originalDepreciation   and ''!=originalDepreciation">
+				original_depreciation=#{originalDepreciation},
+			</if>
+			<if test="null!=lifecycle  and ''!=lifecycle">
+				lifecycle=#{lifecycle},
+			</if>
+			<if test="null!=depreciationPerMonth  and depreciationPerMonth>0">
+				depreciation_per_month=#{depreciationPerMonth},
+			</if>
+			<if test="null!=depreciationType  and ''!=depreciationType">
+				depreciation_type=#{depreciationType},
+			</if>
+			<if test="null!=depreciationStartDate">
+				depreciation_start_date=#{depreciationStartDate},
+			</if>
+			<if
+				test="null!=depreciationFeeSubject and depreciationFeeSubject.id and ''!=depreciationFeeSubject.id">
+				depreciation_fee_subject_id=#{depreciationFeeSubject.id},
+			</if>
+			<if
+				test="null!=depreciationCumulationSubject and null!=depreciationCumulationSubject.id  and ''!=depreciationCumulationSubject.id">
+				depreciation_cumulation_subject_id=#{depreciationCumulationSubject.id},
+			</if>
+			<if test="null!=status">
+				status=#{status},
+			</if>
+			<if test="null!=updateBy and null!=updateBy.id  and ''!=updateBy.id">
+				update_by=#{updateBy.id},
+			</if>
+			<if test="null!=updateDate">
+				update_date=#{updateDate},
+			</if>
+			<if test="null!=delFlag and ''!=delFlag">
+				del_flag=#{delFlag},
+			</if>
+			<if test="null!=remarks and ''!=remarks">
+				remarks=#{remarks},
+			</if>
+			<if test="null!=voucherId and ''!=voucherId">
+				voucher_id=#{voucherId},
+			</if>
+			<if test="null!=code and ''!=code">
+				code=#{code},
+			</if>
+		</trim>
+		WHERE id=#{id}
+	</update>
+	<delete id="batchUpdate">
+		UPDATE cpa_long_apportioned_assets SET del_flag=1
+		WHERE id in
+		<foreach collection="ids" index="index" item="item" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<!-- 分页查询 -->
+	<select id="findListByPage" resultType="LongApportionedAssets"
+		parameterType="java.util.Map">
+		SELECT
+			 
+			        <include refid="longApportionedAssetsColumns" />
+			  
+		FROM cpa_long_apportioned_assets a
+		<include refid="longApportionedAssetsJoins" />
+		<where>
+			a.del_flag='0'
+			<if test="accountId != null and '' != accountId">
+				AND a.account_id = #{accountId}
+			</if>
+			<if test="null != currentPeriod">
+				AND DATE_FORMAT(a.current_period,'%Y-%m') =
+				DATE_FORMAT(#{currentPeriod},'%Y-%m')
+			</if>
+			
+			<if test="null != periodFrom">
+				AND <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') >= DATE_FORMAT(#{periodFrom},'%Y-%m')]]>
+			</if>
+			<if test="null != periodTo">
+				AND <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') <= DATE_FORMAT(#{periodTo},'%Y-%m')]]>
+			</if>
+			
+			<if test="codes != null">
+				AND a.code  in 
+				<foreach collection="codes" index="index" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if> 
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<sql id="longApportionedAssetsJoins">
+		LEFT JOIN cpa_assisting_employee e ON e.id = a.employee_id
+		LEFT JOIN
+		cpa_assisting_balance_department d ON d.id = a.dept_id
+		LEFT JOIN
+		cpa_customer_subject s ON s.id = a.depreciation_fee_subject_id
+		LEFT
+		JOIN cpa_customer_subject cs ON cs.id =
+		a.depreciation_cumulation_subject_id
+	</sql>
+	<!-- 按条件求和 条件参考分页 -->
+	<select id="sumLongApportionedAssetsListByMap" resultType="LongApportionedAssets"
+		parameterType="java.util.Map">
+		SELECT
+		<!--groupByNameStr 与  groupBy 配合应用-->
+		<if test="null != groupByNameStr and '' != groupByNameStr">
+		${groupByNameStr}
+		</if>
+        "合计" as "name",
+		sum(IFNULL(a.original_value,0)) as
+		"originalValue",
+		sum(IFNULL(a.original_depreciation,0)) as
+		"originalDepreciation",
+		sum(IFNULL(a.net_worth,0)) as netWorth,
+		sum(IFNULL(a.depreciation_per_month,0)) as "depreciationPerMonth",
+		sum(IFNULL(a.this_month_depreciation,0)) as "thisMonthDepreciation"
+		FROM cpa_long_apportioned_assets a
+		<where>
+			a.del_flag='0'
+			<if test="accountId != null and '' != accountId">
+				and a.account_id = #{accountId}
+			</if>
+			<if test="null != currentPeriod">
+				AND DATE_FORMAT(a.current_period,'%Y-%m') =
+				DATE_FORMAT(#{currentPeriod},'%Y-%m')
+			</if>
+		</where>
+		<if test="null != groupBy and '' != groupBy">
+			group by ${groupBy}
+		</if>
+	</select>
+	<select id="findBookMaxCode" resultType="String">
+		SELECT MAX(a.code)
+		FROM cpa_long_apportioned_assets a
+		WHERE a.account_id=#{bookId}
+		ORDER BY a.code DESC
+	</select>
+	
+	
+	
+	<!--  单表列 用户摊销详细  -->
+	<sql id="longApportionedAssetsColumnsOne">
+		a.id AS "id",
+		a.name AS "name",
+		a.accounted_for_date AS "accountedForDate",
+		a.current_period AS "currentPeriod",
+		a.employee_id AS "assistingEmployee.id",
+		a.dept_id AS "assistingBalanceDepartment.id",
+		a.account_id as "accountId",
+		a.original_value AS "originalValue",
+		a.original_depreciation AS "originalDepreciation",
+		a.lifecycle AS "lifecycle",
+		a.depreciation_per_month AS "depreciationPerMonth",
+		a.depreciation_type AS "depreciationType",
+		a.depreciation_start_date AS "depreciationStartDate",
+		a.depreciation_fee_subject_id AS "depreciationFeeSubject.id",
+		a.depreciation_cumulation_subject_id AS "depreciationCumulationSubject.id",
+		a.status,
+		a.code,
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.net_worth as "netWorth",
+		a.this_month_depreciation as "thisMonthDepreciation",
+		a.enter_date AS enterDate  <!-- 录入时间 -->
+	</sql>
+	<!-- 用户摊销详细 -->
+	<select id="findLongApportioneAssetListByMap" resultType="LongApportionedAssets"
+		parameterType="java.util.Map">
+		SELECT
+			<include refid="longApportionedAssetsColumnsOne" />
+		FROM cpa_long_apportioned_assets a
+		<where>
+			a.del_flag='0'
+			<if test="accountId != null and '' != accountId">
+				AND a.account_id = #{accountId}
+			</if>
+			<if test="null != currentPeriod">
+				AND DATE_FORMAT(a.current_period,'%Y-%m') = DATE_FORMAT(#{currentPeriod},'%Y-%m')
+			</if>
+			
+			<if test="null != periodFrom">
+				AND <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') >= DATE_FORMAT(#{periodFrom},'%Y-%m')]]>
+			</if>
+			<if test="null != periodTo">
+				AND <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') <= DATE_FORMAT(#{periodTo},'%Y-%m')]]>
+			</if>
+
+			<if test="null != status">
+			AND a.status = #{status}
+            </if>
+            
+            <include refid="codesSql"/>
+			<!-- 资产编码 -->
+			
+			<if test="null != orderStr and '' != orderStr">
+			order by #{orderStr}
+			</if>
+		</where>
+	</select>
+	
+		<!-- 资产编码 -->
+		<sql id="codesSql">
+			<if test="codes != null">
+				and a.code in
+				<foreach collection="codes" item="code" separator=" , " open="("
+					close=")">
+					#{code}
+				</foreach>
+			</if>
+		</sql>
+	
+	
+</mapper>

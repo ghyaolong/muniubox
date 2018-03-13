@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.accountingBook.AccountingBookDao">
+
+
+	<sql id="accountingBookColumns">
+		a.id AS "id",
+		a.customer_Info_id AS "customerInfoId",
+		a.accounting_start_date AS "accountingStartDate",
+		a.taxpayer_property_id AS "taxpayerPropertyId",
+		a.accounting_system_id
+		AS "accountingSystemId",
+		a.current_period as "currentPeriod",
+		a.account_status as "accountStatus",
+		a.authorise_status AS "authoriseStatus",
+		a.assigned_status AS "assignedStatus",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.code as "code"
+	</sql>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into cpa_accounting_book(
+<!-- 		id, -->
+		customer_Info_id,
+		accounting_start_date,
+		taxpayer_property_id,
+		accounting_system_id,
+		authorise_status,
+		assigned_status,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+	    del_flag,
+		code,
+		account_status,
+		current_period
+		)
+		values(
+<!-- 		#{id}, -->
+		#{customerInfoId},
+		#{accountingStartDate},
+		#{taxpayerPropertyId},
+		#{accountingSystemId},
+		#{authoriseStatus},
+		#{assignedStatus},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{code},
+		#{accountStatus},
+		#{currentPeriod}
+		)
+	</insert>
+
+	<select id="get" resultType="AccountingBook">
+		select
+		<include refid="accountingBookColumns" />
+		from cpa_accounting_book a
+		where a.id=#{id}
+	</select>
+
+	<update id="update">
+		update cpa_accounting_book
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null != customerInfoId and '' != customerInfoId">
+				customer_Info_id = #{customerInfoId},
+			</if>
+
+			<if test="null != accountingStartDate">
+				accounting_start_date = #{accountingStartDate},
+			</if>
+
+			<if test="null != taxpayerPropertyId and '' != taxpayerPropertyId">
+				taxpayer_property_id = #{taxpayerPropertyId},
+			</if>
+
+			<if test="null != accountingSystemId and '' != accountingSystemId">
+				accounting_system_id = #{accountingSystemId},
+			</if>
+
+			<if test="null != authoriseStatus">
+				authorise_status = #{authoriseStatus},
+			</if>
+			<if test="null != assignedStatus">
+				assigned_status = #{assignedStatus},
+			</if>
+
+			<if test="null != code and '' != code">
+				code = #{code},
+			</if>
+			<if test="null != remarks and '' != remarks">
+				remarks = #{remarks},
+			</if>
+
+			<if test="null != accountStatus">
+				accounts_status = #{accountStatus},
+			</if>
+			
+			<if test="null != currentPeriod">
+				current_period = #{currentPeriod},
+			</if>
+
+			update_by = #{createBy.id},
+			update_date = #{updateDate},
+		</trim>
+
+		where id=#{id}
+	</update>
+	<!-- end accountingBook -->
+
+
+
+	<sql id="authoriseColumns">
+		a.id AS "id",
+		a.accounting_book_id AS "accountingBookId",
+		a.accounting_id AS "accountingId",
+		a.authorise_type AS "authoriseType",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+
+	<select id="getAuthorise" resultType="Authorise">
+		SELECT
+		<include refid="authoriseColumns" />
+		FROM cpa_authorise a
+		WHERE a.id = #{id}
+	</select>
+
+
+
+	<insert id="insertAuthorise">
+		INSERT INTO cpa_authorise(
+		id,
+		accounting_book_id,
+		accounting_id,
+		authorise_type,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{accountingBookId},
+		#{accountingId},
+		#{authoriseType},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="updateAuthorise">
+		UPDATE cpa_authorise
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null !=accountingBookId and '' !=accountingBookId">
+				accounting_book_id = #{accountingBookId},
+			</if>
+
+			<if test="null != accountingId and '' != accountingId">
+				accounting_id = #{accountingId},
+			</if>
+
+			<if test="null != authoriseType and '' != authoriseType">
+				authorise_type = #{authoriseType},
+			</if>
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteAuthorise" parameterType="String">
+		update cpa_authorise set del_flag='1'
+		where id = #{id}
+	</update>
+
+
+	<select id="selectAuthoriseList" parameterType="Authorise"
+		resultType="Authorise">
+		select
+		<include refid="authoriseColumns" />
+		from cpa_authorise a
+		<where>
+			a.del_flag=#{DEL_FLAG_NORMAL}
+			<if test="id != null and '' !=id">
+				and a.id=#{id}
+			</if>
+
+			<if test="accountingBookId != null and '' !=accountingBookId">
+				and a.accounting_book_id=#{accountingBookId}
+			</if>
+
+			<if test="accountingId != null and '' != accountingId">
+				and a.accounting_id=#{accountingId}
+			</if>
+
+			<if test="authoriseType != null">
+				and a.authorise_type=#{authoriseType}
+			</if>
+		</where>
+	</select>
+
+	<!-- cpa_account_system -->
+	<sql id="accountSystemColumns">
+		a.id,
+		a.name,
+		a.is_validated as "isValidated"
+	</sql>
+
+	<select id="findAccountSystemList" parameterType="AccountSystem" resultType="AccountSystem">
+		select
+		<include refid="accountSystemColumns" />
+		from cpa_account_system a
+		<where>
+			<trim prefixOverrides="and">
+				<if test="null != id and '' != id">
+					and a.id=#{id}
+				</if>
+				<if test="name != null and '' != name">
+					and a.name=#{name}
+				</if>
+				<if test="isValidated != null and '' != isValidated">
+					and a.is_validated=#{isValidated}
+				</if>
+			</trim>
+		</where>
+	</select>
+
+	<!-- cpa_taxpayer_property -->
+	<sql id="taxpayerPropertyColumns">
+		a.id,
+		a.name,
+		a.is_validated as "isValidated"
+	</sql>
+
+	<select id="findTaxpayerPropertyList" parameterType="TaxpayerProperty" resultType="TaxpayerProperty">
+		select
+		<include refid="taxpayerPropertyColumns" />
+		from cpa_taxpayer_property a
+		<where>
+			<trim prefixOverrides="and">
+				<if test="null != id and '' != id">
+					and a.id=#{id}
+				</if>
+				<if test="name != null and '' != name">
+					and a.name=#{name}
+				</if>
+				<if test="isValidated != null and '' != isValidated">
+					and a.is_validated=#{isValidated}
+				</if>
+			</trim>
+		</where>
+	</select>
+	<!-- 查询账套信息 -->
+	<select id="findCustomerAccountBook" parameterType="String" resultType="AccountingBook">
+		SELECT a.id AS "id", a.customer_Info_id AS "customerInfoId", a.accounting_start_date AS "accountingStartDate", a.taxpayer_property_id AS "taxpayerPropertyId",
+		a.accounting_system_id AS "accountingSystemId", a.current_period as "currentPeriod", a.account_status as "accountStatus", a.authorise_status AS "authoriseStatus",
+		a.assigned_status AS "assignedStatus", a.create_by AS "createBy.id", a.create_date AS "createDate",  a.update_by AS "updateBy.id", a.update_date AS "updateDate",
+		a.remarks AS "remarks", a.del_flag AS "delFlag", a.code as "code" ,cas.name AS accountingSystemName  
+		FROM cpa_accounting_book a
+		LEFT JOIN cpa_account_system cas ON cas.id=a.accounting_system_id AND cas.is_validated="1"
+		WHERE a.del_flag=0  AND a.customer_Info_id=#{customerId}
+	</select> 
+	<update id="updateType">
+	   UPDATE cpa_accounting_book SET taxpayer_property_id=#{taxpayerPropertyId} WHERE id=#{id}
+	</update>
+</mapper>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.voucher.CpaVoucherDao">
+    
+    <sql id="publicSearchColumns">
+		id ,book_id bookId ,customer_id customerId,
+		voucher_no voucherNo , voucher_period voucherPeriod ,
+		voucher_date voucherDate , voucher_type voucherType ,
+		amount_debit amountDebit , amount_credit amountCredit , 
+		account_capital accountCapital , ticket_count ticketCount 
+	</sql>
+    
+	<!-- 根据凭证id查询 -->
+	<select id="getById" parameterType="string" resultType="CpaVoucher">
+		select 
+			<include refid="publicSearchColumns"/>
+		 from cpa_voucher_${bookId} where id = #{id} 
+	</select>
+	
+	<!-- 插入凭证 -->
+	<insert id="insert">
+		insert into 
+			cpa_voucher_${bookId}
+		(
+			id ,book_id ,customer_id ,voucher_no ,voucher_period ,voucher_date ,
+			voucher_type ,amount_debit, amount_credit, account_capital, ticket_count ,
+			create_by, create_date , update_by , update_date, remarks
+		) values (
+			#{voucher.id},#{voucher.bookId} ,#{voucher.customerId}, #{voucher.voucherNo}, #{voucher.voucherPeriod}, #{voucher.voucherDate},
+			#{voucher.voucherType}, #{voucher.amountDebit} ,#{voucher.amountCredit}, #{voucher.accountCapital}, #{voucher.ticketCount},
+			#{voucher.createBy.id}, #{voucher.createDate}, #{voucher.updateBy.id}, #{voucher.updateDate}, #{voucher.remarks}
+		)
+	</insert>
+
+	<!-- 为一个客户初始化一张凭证表 -->
+	<update id="init" parameterType="java.lang.String">
+		CREATE TABLE
+		IF NOT EXISTS cpa_voucher_${bookId}
+		(
+	     	id varchar(64) not null comment '主键',
+		  	book_id varchar(64) NOT NULL COMMENT '账簿ID',
+		  	customer_id varchar(64) NOT NULL COMMENT '客户ID',
+		  	voucher_no varchar(20) NOT NULL COMMENT '凭证编号',
+		  	voucher_period date DEFAULT NULL COMMENT '凭证所属账期',
+		  	voucher_date datetime NOT NULL COMMENT '凭证日期',
+		  	voucher_type int(11) DEFAULT NULL COMMENT '凭证类型  1手动凭证 2自动凭证',
+		  	amount_debit decimal(50,3) NOT NULL COMMENT '借方金额',
+		  	amount_credit decimal(50,3) NOT NULL COMMENT '贷方金额',
+		  	account_capital varchar(128) DEFAULT NULL COMMENT '金额大写',
+		  	ticket_count int(11) DEFAULT NULL DEFAULT '0' COMMENT '单据张数',
+		  	create_by varchar(64) DEFAULT NULL COMMENT '创建人ID',
+		  	create_date datetime DEFAULT NULL COMMENT '创建时间',
+		  	update_by varchar(64) DEFAULT NULL COMMENT '修改人ID',
+		  	update_date datetime DEFAULT NULL COMMENT '修改时间',
+		  	remarks varchar(255) DEFAULT NULL COMMENT '备注',
+		  	PRIMARY KEY (id)
+		);
+	</update>
+
+	<!-- 通过账期查询最大编号 -->
+	<select id="getMaxNo" resultType="string">
+		select MAX(voucher_no) from cpa_voucher_${bookId} where voucher_period = #{voucherPeriod}
+	</select>
+	
+	<!-- 通过账期+凭证编号查询凭证信息  -->
+	<select id="findByNoAndPeriod" parameterType="string" resultType="CpaVoucher">
+		select 
+			<include refid="publicSearchColumns"/>
+		 from cpa_voucher_${bookId} 
+			where voucher_no = #{voucherNo} and voucher_period = #{voucherPeriod} 
+	</select>
+	
+	<!-- 修改凭证金额 -->
+	<update id="updateVoucherAmount">
+		update cpa_voucher_${bookId} 
+			set 
+				amount_debit = #{voucher.amountDebit}, 
+				amount_credit = #{voucher.amountCredit},
+				account_capital = #{voucher.accountCapital},
+				update_by = #{voucher.updateBy.id},
+				update_date = #{voucher.updateDate}
+		where id = #{voucher.id}
+	</update>
+	
+	<!-- 查询 大于当前编号的数据（删除时，需重新调整凭证编号） -->
+	<select id="findGreaterThanVoucherNo" parameterType="string" resultType="CpaVoucher">
+		select 
+			<include refid="publicSearchColumns"/>
+		 from cpa_voucher_${bookId} 
+			where voucher_no  &gt; #{voucherNo} and voucher_period = #{voucherPeriod} 
+	</select>
+	
+	<!-- 根据id删除凭证 -->
+	<delete id="deleteById" parameterType="string">
+		delete from cpa_voucher_${bookId} where id = #{id} 
+	</delete>
+	
+	<!-- 修改凭证编号 -->
+	<update id="updateVoucherNo">
+		update cpa_voucher_${bookId} 
+			set voucher_no =#{voucherNo} where id =#{id}
+	</update>
+	
+	<!-- 查询当前账期的所有编号 -->
+	<select id="findAllNoByPeriod" parameterType="string" resultType="string">
+		select voucher_no from cpa_voucher_${bookId}  
+			where voucher_period = #{voucherPeriod} order by voucher_no 
+	</select>
+	
+	<!-- 查询调整编号所需的数据 -->
+	<select id="findAdjustmentVoucherNoData" parameterType="string" resultType="CpaVoucher">
+		select 
+			id ,customer_id customerId,book_id bookId , voucher_no voucherNo
+		from cpa_voucher_${bookId} 
+			where voucher_no &gt;= #{startNo} and voucher_no &lt;= #{endNo} order by voucher_no
+	</select>
+	
+	<!-- 批量删除凭证 -->
+	<delete id="batchDelete" >
+		delete from cpa_voucher_${bookId} 
+			where id in
+		<foreach item="item" collection="deleteIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>	
+	</delete>
+	
+	<!-- 查询当前账期所有数据 -->
+	<select id="findAllListByPeriod" parameterType="java.util.Map" resultType="CpaVoucher">
+		select distinct t4.id , t4.book_id bookId ,t4.customer_id customerId,
+			t4.voucher_no voucherNo , t4.voucher_period voucherPeriod ,
+			t4.voucher_date voucherDate , t4.voucher_type voucherType ,
+			t4.amount_debit amountDebit , t4.amount_credit amountCredit , 
+			t4.account_capital accountCapital , t4.ticket_count ticketCount  ,t5.name userName
+		 from (
+		 	select * from (
+				select t.id searchId from cpa_voucher_${bookId} t
+					left join sys_user t1 on t.create_by = t1.id
+				where t.voucher_period = #{voucherPeriod}
+				<if test="type != null and type =='0'.toString()">
+					<if test="queryParams != null and queryParams != ''">
+						and (
+								t1.name like concat(concat('%', #{queryParams}), '%') 
+								or t.voucher_no like concat(concat('%', #{queryParams}), '%') 
+							)
+					</if>
+				</if>
+				<if test="type != null and type =='1'.toString()">
+					and t.amount_debit <![CDATA[>=]]> #{startAmount} and t.amount_debit <![CDATA[<=]]>  #{endAmount}
+				</if>
+		  	) s1
+		  	<if test="type != null and type.toString() =='0'.toString()">
+			  union all  
+			  	select * from  (
+					select distinct t2.voucher_id searchId from cpa_voucher_subject_${bookId} t2
+					left join cpa_customer_subject t3 on t2.subject_id = t3.id
+					where  t3.book_id = #{bookId} and t2.voucher_period = #{voucherPeriod}
+					<if test="queryParams != null and queryParams != ''">
+						and  (
+								t2.abstracts like concat(concat('%', #{queryParams}), '%')
+								or t3.subject_no like concat(concat('%', #{queryParams}), '%')
+								or t3.subject_name like concat(concat('%', #{queryParams}), '%')
+							)
+					</if>
+				) s2
+		  	</if>
+		) s3
+		left join cpa_voucher_${bookId} t4 on s3.searchId = t4.id
+		left join sys_user t5 on t4.create_by  = t5.id order by t4.voucher_no 
+	</select>
+	
+	<!-- 查询需要合并的凭证基础数据 -->
+	<select id="findMergeVoucherByIds" resultType="CpaVoucher">
+		select 
+			<include refid="publicSearchColumns"/>
+		 from cpa_voucher_${bookId} 
+		 	where id in 
+		 	<foreach item="item" collection="mergeIds" open="(" separator="," close=")">
+            	#{item}
+        	</foreach>	
+	 	 order by voucher_no 
+	</select>
+	
+	<!-- 查询当前账期凭证数量 -->
+	<select id="findAllSize" parameterType="string" resultType="int">
+		select count(1) from cpa_voucher_${bookId}  where voucher_period = #{voucherPeriod}
+	</select>
+</mapper>

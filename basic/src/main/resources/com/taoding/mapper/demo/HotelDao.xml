@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.demo.HotelDao">
+    <select id="selectByCityId" resultType="Hotel">
+        select * from hotel where city = #{id}
+    </select>
+
+    <insert id="insertHotel" keyColumn="id" useGeneratedKeys="true">
+      insert into hotel (city, name, address, zip) VALUES
+        (#{city}, #{name}, #{address}, #{zip})
+    </insert>
+</mapper>

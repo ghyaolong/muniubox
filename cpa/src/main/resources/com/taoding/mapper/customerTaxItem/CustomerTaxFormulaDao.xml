@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerTaxItem.CustomerTaxFormulaDao">
+	<sql id="customerTaxFormulaColumns">
+		a.id AS "id",
+		a.customer_tax_id AS "customerTaxId",
+		a.subject_id AS subjectId,
+		a.operator AS operator,
+		cs.subject_name AS subjectName,
+		a.create_by AS
+		"createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks,
+		a.del_flag AS
+		delFlag
+	</sql>
+	<insert id="insert">
+		INSERT INTO cpa_customer_tax_formula(
+		id,
+		customer_tax_id,
+		subject_id,
+		operator,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{customerTaxId},
+		#{subjectId},
+		#{operator},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+	<select id="get">
+		SELECT
+		<include refid="customerTaxFormulaColumns" />
+		FROM cpa_customer_tax_formula a 
+		LEFT JOIN cpa_customer_subject cs ON cs.id=a.subject_id 
+		WHERE a.del_flag=0 AND cs.del_flag=0  
+		AND id=#{id}
+	</select>
+	<update id="update">
+		UPDATE cpa_customer_tax_formula a SET a.del_flag =#{delFlag}
+		WHERE a.customer_tax_id=#{customerTaxId}
+	</update>
+	<select id="findList" parameterType="java.util.Map" resultType="CustomerTaxFormula">
+		SELECT
+		<include refid="customerTaxFormulaColumns" />
+		FROM cpa_customer_tax_formula a
+		LEFT JOIN cpa_customer_tax_item ccti ON ccti.id= a.customer_tax_id
+		<if test="null!=accountingBookId and ''!=accountingBookId">
+		    AND ccti.account_id=#{accountingBookId}
+		</if>
+		LEFT JOIN cpa_customer_subject cs ON cs.id=a.subject_id 
+		WHERE a.del_flag=0 AND cs.del_flag=0 
+		<if test="null!=customerTaxId and ''!=customerTaxId">
+		   AND customer_tax_id=#{customerTaxId}
+		</if>
+	</select>
+</mapper>

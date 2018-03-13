@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.voucher.CpaVoucherSubjectDao">
+    
+	<!-- 新增凭证科目 -->
+	<insert id="insert">
+		insert into 
+			cpa_voucher_subject_${bookId}
+		(
+			id , voucher_id , abstracts , subject_id , amount_debit , voucherPeriod,
+			amount_credit , sort , create_by , create_date
+		) values (
+			#{id}, #{voucherId}, #{abstracts}, #{subjectId}, #{amountDebit},#{voucherPeriod},
+			#{amountCredit}, #{sort}, #{createBy.id}, #{createDate}
+		)
+	</insert>
+
+	<!-- 批量新增凭证科目 -->
+	<insert id="batchInsert">
+		insert into 
+			cpa_voucher_subject_${bookId}
+		(
+			id , voucher_id , abstracts , subject_id , amount_debit , voucher_period,
+			amount_credit , sort , create_by , create_date
+		) values 
+		<foreach collection="lists" item="item" index="index" separator="," > 
+			(
+				#{item.id}, #{item.voucherId}, #{item.abstracts}, #{item.subjectId}, #{item.amountDebit},#{item.voucherPeriod},
+				#{item.amountCredit}, #{item.sort}, #{item.createBy.id},#{item.createDate}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 根据凭证ID查询凭证科目 -->
+	<select id="findByVoucherId" parameterType="string" resultType="CpaVoucherSubject">
+ 		select t.id, t.voucher_id voucherId,t.subject_id subjectId ,t.abstracts,IFNULL(t.amount_debit,0) amountDebit,IFNULL(t.amount_credit,0) amountCredit,t.sort,
+				IFNULL(t1.sumDebit,0) sumDebit ,IFNULL(t1.sumCredit,0) sumCredit,
+				t2.subject_no subjectNo,t2.subject_name subjectName,t2.direction,IFNULL(t2.beginning_balances,0) beginningBalances
+			from cpa_voucher_subject_${bookId}  t 
+				left join 
+				(
+					select subject_id , IFNULL(SUM(amount_debit),0) sumDebit ,IFNULL(SUM(amount_credit),0) sumCredit from cpa_voucher_subject_${bookId} group by subject_id
+				) t1 on t1.subject_id = t.subject_id
+			 	left join cpa_customer_subject t2 on t.subject_id = t2.id
+			where t.voucher_id = #{voucherId} order by t.sort asc 
+	</select>
+	
+	<!-- 为一个客户初始化一张凭证表 -->
+	<update id="init" parameterType="java.lang.String">
+		CREATE TABLE
+		IF NOT EXISTS cpa_voucher_subject_${bookId}
+		(
+			id varchar(64) NOT NULL COMMENT '主键ID',
+			voucher_id varchar(64) DEFAULT NULL COMMENT '凭证ID',
+			voucher_period date DEFAULT NULL COMMENT '凭证所属账期',
+			abstracts varchar(128) DEFAULT NULL COMMENT '摘要',
+			subject_id varchar(64) DEFAULT NULL COMMENT '科目ID',
+			amount_debit decimal(50,3) DEFAULT NULL COMMENT '借方金额',
+			amount_credit decimal(50,3) DEFAULT NULL COMMENT '贷方金额',
+			sort int(11) DEFAULT NULL COMMENT '排序',
+			create_by varchar(64) DEFAULT NULL COMMENT '创建人',
+			create_date datetime DEFAULT NULL COMMENT '创建时间',
+		  	PRIMARY KEY (id)
+		);
+	</update>
+	
+	<!-- 通过科目id查询所有记账凭证所有科目信息 -->
+	<select id="findBySubjectId" parameterType="string" resultType="CpaVoucherSubject">
+		select  
+				t.id , t.voucher_id voucherId, t.abstracts , t.subject_id subjectId, t.voucher_period voucherPeriod ,
+				t.amount_debit amountDebit , t.amount_credit amountCredit, t.sort ,t1.voucher_no voucherNo
+ 			from 
+ 				cpa_voucher_subject_${bookId} t
+ 				left join cpa_voucher_${bookId} t1 on t.voucher_id = t1.id
+ 			where subject_id = #{subjectId}
+	</select>
+	
+	<!-- 根据凭证ID 删除科目信息  -->
+	<delete id="deleteByVoucherId" parameterType="string">
+		delete from cpa_voucher_subject_${bookId} 
+			where voucher_id = #{voucherId} 
+	</delete>
+	
+	<!-- 根据凭证ID批量删除凭证科目 -->
+	<delete id="batchDeleteByVoucherId" >
+		delete from cpa_voucher_subject_${bookId} 
+			where voucher_id in
+		<foreach item="item" collection="deleteIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>	
+	</delete>
+	
+	<!-- 查询需要合并的科目，并将同科目合并 -->
+	<select id="findMergeVoucherSubject" resultType="CpaVoucherSubject">
+		select  
+			id , voucher_id voucherId, abstracts , subject_id subjectId, voucher_period voucherPeriod ,
+			IFNULL(SUM(amount_debit),0) amountDebit , IFNULL(SUM(amount_credit),0) amountCredit, sort 
+ 			from  cpa_voucher_subject_${bookId} 
+ 			where voucher_id in 
+		<foreach item="item" collection="mergeIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>	
+			group by subject_id order by sort
+	</select>
+	
+	<!-- 获取需要删除的科目的金额 此方法凭证汇总使用 -->
+	<select id="findDeleteSubjectAmount" parameterType="string" resultType="SummaryEntity">
+		select  
+			subject_id subjectId, IFNULL(SUM(amount_debit),0) amountDebit , IFNULL(SUM(amount_credit),0) amountCredit
+ 			from  cpa_voucher_subject_${bookId} 
+ 			where voucher_id in 
+		<foreach item="item" collection="voucherIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        	group by subject_id
+	</select>
+	
+	<!-- 统计借方贷方金额	根据 subjectId  -->
+	<select id="statisticsAmountBySubjectId" parameterType="string" resultMap="cpaVoucherSubjectResult">  
+	    select t1.abstracts, t1.amount_debit, amount_credit
+		from cpa_voucher_subject_${bookId}  t1
+		join cpa_customer_subject t2 on t1.subject_id = t2.id
+	    and t1.voucher_period = #{periods}
+		and t2.id = #{subjectId}
+		GROUP BY t2.id
+	</select>	
+	
+	<!-- 统计借方贷方金额	根据 subjectIds  -->
+	<select id="statisticsAmountBySubjectIds" parameterType="map" resultType="CpaVoucherSubject">  
+	    select t1.abstracts, t1.amount_debit, amount_credit
+		from cpa_voucher_subject_${bookId}  t1
+		join cpa_customer_subject t2 on t1.subject_id = t2.id
+	    and voucher_period = #{periods}
+	    and t2.id in
+			<foreach item="item" index="index" collection="subjectIds" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		    </foreach>
+		GROUP BY t2.id
+	</select>	
+	
+	 <resultMap id="cpaVoucherSubjectResult" type="CpaVoucherSubject">
+		<result property="abstracts" column="abstracts" />
+		<result property="amountDebit" column="amount_debit" />
+		<result property="amountCredit" column="amount_credit" />
+	</resultMap>  
+	
+	
+	<!-- 根据 customerId 查询科目编号 -->
+	<select id="getSubjectNoById" parameterType="string" resultType="CpaCustomerSubject">
+		select subject_no, book_id from cpa_customer_subject
+		where id = #{customerId}
+	</select>
+	
+	<!-- 单个节点 计算金额合计按科目方向计算金额 -->
+	<select id="getCpaVoucherSubjectBySubjectId" parameterType="string" resultType="CpaVoucherSubject">
+		select t1.id , t2.voucher_id voucherId, t2.voucher_period voucherPeriod, t2.abstracts, t2.subject_id subjectId, 
+				ifnull(sum(t2.amount_debit),0) amountDebit, ifnull(sum(t2.amount_credit),0) amountCredit,
+				t1.direction ,t1.subject_no subjectNo , t1.subject_name subjectName
+		from cpa_voucher_subject_${bookId}  t2
+		left join  cpa_customer_subject t1 on t1.id = t2.subject_id 
+		where t2.subject_id = #{subjectId} and t2.voucher_period =#{currentPeriod} and t1.book_id = #{bookId}
+	</select>
+	
+	<!-- 所有子节点金额合计 按科目方向计算金额 -->
+	<select id="findByParentSubjectNo" parameterType="string" resultType="CpaVoucherSubject">
+		select t1.id , t2.voucher_id voucherId, t2.voucher_period voucherPeriod, t2.abstracts, t2.subject_id subjectId, 
+				ifnull(sum(t2.amount_debit),0) amountDebit, ifnull(sum(t2.amount_credit),0) amountCredit,
+				t1.direction ,t1.subject_no subjectNo , t1.subject_name subjectName
+		from cpa_voucher_subject_${bookId} t2	
+			left join cpa_customer_subject t1 on t2.subject_id = t1.id
+		where  t1.book_id = #{bookId} and t2.voucher_period =#{currentPeriod} 
+		and t1.parent REGEXP #{subjectNo}
+		GROUP BY t1.subject_no		
+	</select>
+	
+	<!-- 单个节点 计算 损益 （直接使用的科目编号）-->
+	<select id="getCpaVoucherSubjectProfitAndLoss" parameterType="string" resultType="CpaVoucherSubject">
+		select t2.id , t2.voucher_id voucherId, t2.voucher_period voucherPeriod, t2.abstracts, t2.subject_id subjectId, 
+				ifnull(sum(t2.amount_debit),0) amountDebit, ifnull(sum(t2.amount_credit),0) amountCredit, t1.direction
+		from cpa_voucher_subject_${bookId}  t2
+			left join  cpa_customer_subject t1 on t1.id = t2.subject_id
+		where t2.subject_id = #{subjectId}
+		and t2.voucher_period =#{currentPeriod}
+		and t1.book_id = #{bookId}
+	</select>
+	
+	
+	<!-- 所有子节点 计算 损益 （包含直接使用的科目编号的）/根据 bookId 查询所有节点 -->
+	<select id="findByParentSubjectNoProfitAndLoss" parameterType="string" resultType="CpaVoucherSubject">
+		select t2.id , t2.voucher_id voucherId, t2.voucher_period voucherPeriod, t2.abstracts, t2.subject_id subjectId, 
+				ifnull(t2.amount_debit,0) amountDebit, ifnull(t2.amount_credit,0) amountCredit, t1.direction
+		from cpa_voucher_subject_${bookId} t2	
+			left join cpa_customer_subject t1 on t2.subject_id = t1.id		
+		where t1.book_id = #{bookId} and t2.voucher_period =#{currentPeriod}
+		<if test="null != subjectNo and '' != subjectNo">
+			and t1.parent REGEXP #{subjectNo}		
+		</if>
+		GROUP BY t1.subject_no		
+	</select>
+	<!--  <resultMap id="cpaVoucherSubjectResult3" type="CpaVoucherSubject">
+	 	<id property="id" column="id" />
+	 	<result property="voucherId" column="voucher_id" />
+	 	<result property="voucherPeriod" column="voucher_period" />
+	 	<result property="abstracts" column="abstracts" />
+		<result property="subjectId" column="subject_id" />
+		<result property="amountDebit" column="amountDebit" />
+		<result property="amountCredit" column="amountCredit" />
+	</resultMap>  -->
+	
+	<!-- 单个节点 计算 损益 （直接使用的科目编号）返回金额-->
+	<select id="getCpaVoucherSubjectProfitAndLossMoney" parameterType="string" resultType="CpaVoucherSubject">
+		select ifnull(SUM(t2.amount_debit),0) amountDebit, ifnull(sum(t2.amount_credit),0) amountCredit
+		from cpa_voucher_subject_${bookId}  t2
+			left join  cpa_customer_subject t1 on t1.id = t2.subject_id
+		where t2.subject_id = #{subjectId} and t2.voucher_period =#{currentPeriod} 
+		and t1.book_id = #{bookId}
+	</select>
+	
+	<!-- 所有子节点 计算 损益 （包含直接使用的科目编号的）/根据 bookId 查询所有节点  返回统计金额-->
+	<select id="findByParentSubjectNoProfitAndLossTotalMoney" parameterType="string" resultType="CpaVoucherSubject">
+		select sum(ifnull(t2.amount_debit,0)) amountDebit, sum(ifnull(t2.amount_credit,0)) amountCredit
+		from cpa_voucher_subject_${bookId} t2	
+			left join cpa_customer_subject t1 on t2.subject_id = t1.id		
+		where t1.book_id = #{bookId} and t2.voucher_period =#{currentPeriod}
+		<if test="null != subjectNo and '' != subjectNo">
+			and t1.parent REGEXP #{subjectNo}		
+		</if>
+		GROUP BY t1.subject_no		
+	</select>
+	<!--  <resultMap id="cpaVoucherSubjectResult4" type="CpaVoucherSubject">
+		<result property="amountDebit" column="amountDebit" />
+		<result property="amountCredit" column="amountCredit" />
+	</resultMap>  -->
+	
+	
+	
+</mapper>

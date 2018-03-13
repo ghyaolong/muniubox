@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if ! getent group muniubox >/dev/null; then
+    addgroup --system muniubox
+fi
+
+if ! getent passwd muniubox >/dev/null; then
+    adduser --quiet \
+            --system \
+            --ingroup muniubox \
+            --quiet \
+            --disabled-login \
+            --disabled-password \
+            --home /usr/share/muniubox-platform \
+            --no-create-home \
+            -gecos "my-framework application" \
+            muniubox
+fi

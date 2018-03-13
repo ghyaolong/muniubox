@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.user.UserDao">
+	
+	  <resultMap id="userResult" type="User">
+		<id property="id" column="id" />
+		<result property="company.id" column="company.id" />
+		<result property="office.id" column="office.id" />
+		<result property="loginName" column="login_name" />
+		<result property="password" column="password" />
+		<result property="no" column="no" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		<result property="mobile" column="mobile" />
+		<result property="userType" column="user_type" />
+		<result property="loginIp" column="login_ip" />
+		<result property="loginDate" column="login_date" />
+		<result property="remarks" column="remarks" />
+		<result property="loginFlag" column="login_flag" />
+		<result property="delFlag" column="del_flag" />
+		<result property="photo" column="photo" />
+		<result property="createBy.id" column="createBy.id" />
+		<result property="createDate" column="create_date" />
+		<result property="updateBy.id" column="updateBy.id" />
+		<result property="updateDate" column="update_date" />
+		<result property="enterpriseMarking" column="enterpriseMarking" />
+		<result property="sysUserExtend.sex" column="sysUserExtend.sex" />
+	</resultMap>  
+    <sql id="userColumns">
+        DISTINCT
+    	a.id,
+    	a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+    	a.login_name,
+    	a.password,
+    	a.no,
+		a.name,
+		a.email,
+		a.phone,
+		a.mobile,
+		a.user_type,
+		a.login_ip,
+		a.login_date,
+		a.remarks,
+		a.login_flag,
+		a.photo,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		seu.enterprise_id as "enterpriseMarking",
+    	su.sex As "sysUserExtend.sex"
+    </sql>
+    <!-- 根据企业注册的公司账户查询用户是否存在 -->
+    <sql id="enterpriseUserColumns">
+    	a.id,
+    	a.login_name,
+    	a.password,
+    	a.no,
+		a.name,
+		a.email,
+		a.phone,
+		a.mobile,
+		a.user_type,
+		a.login_ip,
+		a.login_date,
+		a.remarks,
+		a.login_flag,
+		a.photo,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		a.enterprise_marking
+    	 
+    </sql>
+    
+    <sql id="userJoins">
+        join sys_enterprise_user seu on seu.user_id=a.id and seu.del_flag='0'
+        <if test="null != enterpriseMarking and ''!=enterpriseMarking  and 'no'.toString()!=enterpriseMarking">
+        and seu.enterprise_id = #{enterpriseMarking}
+        </if>
+		LEFT JOIN sys_office o ON o.id = seu.office_id
+		LEFT JOIN sys_user_extend su ON su.user_id = a.id
+    </sql>
+	
+	<sql id="userJoinsId">
+        join sys_enterprise_user seu on seu.user_id=a.id and seu.del_flag='0'
+		LEFT JOIN sys_user_extend su ON su.user_id = a.id
+    </sql>
+	
+	<!-- 根据编号获得用户 -->
+	<select id="get" resultMap="userResult">
+		SELECT
+			<include refid="userColumns"/>  
+		FROM sys_user a
+		<include refid="userJoinsId"/>
+		WHERE a.id = #{id}
+	</select>
+	<!-- 根据登录名查询用户 -->
+	<select id="getByLoginName" resultMap="userResult" parameterType="User">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoinsId"/>
+		WHERE a.login_name = #{loginName} AND a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="null != password and ''!=password">
+		and a.password =#{password}
+		</if>
+	</select>
+	
+	<!-- 分页查询用户信息 -->
+	<select id="findAllUserList" parameterType="java.util.Map" resultMap="userResult">
+		SELECT
+			 DISTINCT a.id, a.company_id AS "company.id", a.office_id AS "office.id", a.login_name,
+    			a.password, a.no, a.name, a.email, a.phone, a.mobile, a.user_type,
+				a.login_ip,	 a.login_date, a.remarks, a.login_flag,	a.photo, a.create_by AS "createBy.id",
+				a.create_date, a.update_by AS "updateBy.id", a.update_date,	a.del_flag
+		FROM sys_user a
+		<if test="null!=roleId and '' != roleId">
+		JOIN sys_user_role ur ON ur.user_id = a.id AND ur.role_id = #{roleId}
+		</if>
+		<if test="null != enterpriseMarking and '' != enterpriseMarking">
+		JOIN sys_enterprise_user seu ON seu.user_id = a.id AND seu.enterprise_id = #{enterpriseMarking}
+		</if>
+		
+			WHERE a.del_flag = 0 
+		<if test="null != queryConditionSql and queryConditionSql !=''">
+			${queryConditionSql}
+		</if>
+	</select>
+	
+	<!-- 根据OfficeId获取用户（树查询用户时用）  及 组织机构管理删除部门时用-->
+	<select id="findUserByOfficeId" resultType="User" useCache="true">
+		SELECT
+			a.id, a.name, a.login_name
+		FROM sys_user a 
+    	JOIN sys_enterprise_user seu on seu.user_id = a.id and seu.del_flag=#{DEL_FLAG_NORMAL}
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+			AND seu.office_id = #{office.id}
+       AND seu.enterprise_id =#{enterpriseMarking}
+		ORDER BY a.name
+	</select>
+	<!-- 查询全部用户 -->
+	<select id="findAllList" resultMap="userResult">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+<!-- 		<if test="enterpriseMarking !=null"> -->
+<!-- 		and a.enterprise_marking=#{enterpriseMarking} -->
+<!-- 		</if> -->
+		ORDER BY a.name
+	</select>
+	
+	<!-- 查询全部用户数目 -->
+	<select id="findAllCount" resultType="long">
+		SELECT
+			COUNT(1)
+		FROM sys_user a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="enterpriseMarking !=null">
+		and a.enterprise_marking=#{enterpriseMarking}
+		</if>
+	</select>
+	
+	
+	<!-- 插入用户 -->
+	<insert id="insert">
+		INSERT INTO sys_user(
+			id, 
+			company_id, 
+			office_id, 
+			login_name, 
+			password, 
+			no, 
+			name, 
+			email, 
+			phone, 
+			mobile, 
+			user_type, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			login_flag, 
+			photo, 
+			del_flag,
+			enterprise_marking
+		) VALUES (
+			#{id}, 
+			#{company.id}, 
+			#{office.id}, 
+			#{loginName}, 
+			#{password}, 
+			#{no}, 
+			#{name}, 
+			#{email}, 
+			#{phone}, 
+			#{mobile}, 
+			#{userType}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{loginFlag}, 
+			#{photo}, 
+			#{delFlag},
+			#{enterpriseMarking}
+		)
+	</insert>
+	
+	<!-- 更新用户 -->
+	<update id="update">
+		UPDATE sys_user SET 
+			company_id = #{company.id}, 
+			office_id = #{office.id}, 
+			login_name = #{loginName}, 
+			password = #{password}, 
+			no = #{no}, 
+			name = #{name}, 
+			email = #{email}, 
+			phone = #{phone}, 
+			mobile = #{mobile}, 
+			user_type = #{userType}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			login_flag = #{loginFlag},
+			photo = #{photo},
+			enterprise_marking=#{enterpriseMarking}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除用户和角色关联表数据 -->
+	<delete id="deleteUserRole">
+		DELETE FROM sys_user_role 
+		<where> 
+		<trim prefixOverrides="and">
+		<if test="null!=id and id != ''">
+		user_id = #{id}
+		</if>
+		<if test="role!=null and role.id != ''">
+		and role_id = #{role.id}
+		</if>
+		</trim>
+		</where>
+	</delete>
+	
+		<!-- 删除用户和角色组关联表数据 -->
+	<delete id="deleteUserRoleGroup">
+		DELETE FROM sys_user_role_group 
+		<where> 
+		<if test="null!=id and id != ''">
+		user_id = #{id}
+		</if>
+		</where>
+	</delete>
+	
+	  <!-- 插入用户和角色关联表数据 -->
+  <insert id="insertUserRole">
+    INSERT INTO sys_user_role(user_id, role_id)
+    <foreach collection="roleList" item="role" separator=" union all ">
+      SELECT #{id}, #{role.id}
+    </foreach>
+  </insert>
+	
+	<!-- 插入用户和角色关联表数据 -->
+	<insert id="insertUserRoleForRoleGroup">
+		INSERT INTO sys_user_role(user_id, role_id)
+		<foreach collection="userList" item="userId" separator=" union all ">
+			SELECT #{userId}, #{roleId}
+		</foreach>
+	</insert>
+	
+	
+	<!-- 插入用户和角色组关联表数据 -->
+	<insert id="insertUserRoleGroup">
+		INSERT INTO sys_user_role_group(user_id, role_group_id)
+		<foreach collection="roleGroupList" item="roleGroup" separator=" union all ">
+			SELECT #{id}, #{roleGroup.id}
+<!-- 			<if test="dbName != 'mssql'"> -->
+<!-- 			FROM dual -->
+<!-- 			</if> -->
+		</foreach>
+	</insert>
+	
+		<!-- 插入用户和角色关联表数据 -->
+	<insert id="insertUserRoleBatch" parameterType="java.util.List">
+		INSERT INTO sys_user_role(user_id, role_id)
+		<foreach collection="list" item="user" separator=" union all ">
+			SELECT #{user.id}, #{user.role.id}
+<!-- 			<if test="dbName != 'mssql'"> -->
+<!-- 			FROM dual -->
+<!-- 			</if> -->
+		</foreach>
+	</insert>
+	
+	
+	<!-- 更新用户信息  -->
+	<update id="updateUserInfo">
+		UPDATE sys_user SET 
+			email = #{email}, 
+			phone = #{phone}, 
+			mobile = #{mobile}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			photo = #{photo},
+			login_flag=#{loginFlag},
+			enterprise_marking=#{enterpriseMarking}
+		WHERE id = #{id}
+	</update>
+	
+		<!-- 更新用户信息  -->
+	<update id="updateUserLoginFlag">
+		UPDATE sys_user SET 
+			login_flag=#{loginFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 更新用户密码 -->
+	<update id="updatePasswordById">
+		UPDATE sys_user SET 
+			password = #{password} 
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 更新登录信息，如登录IP、登录时间 -->
+	<update id="updateLoginInfo">
+		UPDATE sys_user SET 
+			login_ip = #{loginIp}, 
+			login_Date = #{loginDate} 
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 逻辑删除用户 -->
+	<update id="delete">
+		UPDATE sys_user SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findUserRoleCount" resultType="long" parameterType="User">
+		SELECT
+			COUNT(1)
+		FROM sys_user_role a
+		<where>
+		1=1
+		<if test="null!=id and id !=''">
+		and a.user_id = #{id}
+		</if>
+		<if test="role !=null and null !=role.id and role.id !=''">
+		and a.role_id = #{role.id}
+		</if>
+		</where>
+	</select>
+	
+	<!-- 查询所有的工号 -->
+	<select id="findCount" resultType="Integer">
+		select count(1) 
+		 from sys_user s 
+		<where >
+		s.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="no != null and no !=''">
+		 and s.no=#{no}
+		</if>
+		<if test="enterpriseMarking !=null">
+		and s.enterprise_marking=#{enterpriseMarking}
+		</if>
+		</where>
+	</select>
+	<sql id="empUserColumns">
+      DISTINCT
+    	a.id,
+    	a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+    	a.login_name,
+    	a.password,
+    	a.no,
+		a.name,
+		a.email,
+		a.phone,
+		a.mobile,
+		a.user_type,
+		a.login_ip,
+		a.login_date,
+		a.remarks,
+		a.login_flag,
+		a.photo,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		seu.enterprise_id as "enterpriseMarking",
+    	su.sex As "sysUserExtend.sex"
+    </sql>
+    
+    <sql id="empUserJoins">
+        join sys_enterprise_user seu on seu.user_id=a.id 
+        <if test="null != enterpriseMarking and ''!=enterpriseMarking and 'no'.toString()!=enterpriseMarking">
+        and  seu.enterprise_id = #{enterpriseMarking} and seu.del_flag='0'
+        </if>
+		LEFT JOIN sys_office o ON o.id = seu.office_id
+		LEFT JOIN sys_user_extend su ON su.user_id = a.id   
+    </sql>
+	
+	<!-- 分页查询用户信息 -->
+	<select id="findEmpUserList" parameterType="java.util.Map" resultMap="userResult">
+		SELECT
+			<include refid="empUserColumns"/>
+		FROM sys_user a
+		<include refid="empUserJoins"/>
+		WHERE 1=1  
+		<if test="null != delFlag and delFlag !=''">
+		   AND a.del_flag=#{delFlag}
+		</if> 
+		<if test="null != loginFlag and loginFlag !=''">
+		   AND a.login_flag=#{loginFlag}
+		</if> 
+		<if test="null != sex and sex !=''">
+		   AND	su.sex=#{sex}
+		</if> 
+		<if test="null != queryConditionSql and queryConditionSql !=''">
+			${queryConditionSql}
+		</if>
+		ORDER BY a.create_date desc
+	</select>
+	
+	<!-- 根据企业注册的公司账户查询用户是否存在 -->
+	<select id="findEnterpriseforLoginName" resultType="User">
+		SELECT
+			<include refid="enterpriseUserColumns"/> 
+		FROM sys_user a
+		WHERE a.del_flag=0
+		<if test="null != loginName and ''!=loginName">
+			AND	a.login_name =#{loginName} 
+		</if>  
+		<if test="null != enterpriseMarking and ''!=enterpriseMarking">
+			AND	a.enterprise_marking =#{enterpriseMarking} 
+		</if>
+	</select>
+	
+	<!-- 插入企业用户 -->
+	<insert id="insertUserEnterprise">
+		INSERT INTO sys_user(
+			id, 
+			login_name, 
+			password, 
+			no, 
+			name, 
+			email, 
+			phone, 
+			mobile, 
+			user_type, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			login_flag, 
+			photo, 
+			del_flag,
+			enterprise_marking 
+		) VALUES (
+			#{id}, 
+			#{atEnterpriseInfo.companyAccount}, 
+			#{password}, 
+			#{atEnterpriseInfo.companyCode}, 
+			#{atEnterpriseInfo.companyName}, 
+			#{atEnterpriseInfo.atEnterpriseInfoDetail.companyMail}, 
+			#{atEnterpriseInfo.atEnterpriseInfoDetail.companyPhone}, 
+			#{mobile}, 
+			#{userType}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{loginFlag}, 
+			#{photo}, 
+			#{delFlag},
+			#{enterpriseMarking}
+		)
+	</insert>
+
+	<select id="selectOfficeByUserId" resultType="Office">  
+	SELECT
+		so.id,
+		so. NAME,
+		so.parent_id AS parentId,
+		so.parent_ids AS parentIds
+	FROM
+		sys_office so
+	JOIN sys_enterprise_user seu ON seu.office_id = so.id and so.del_flag ='0' 
+	 <where>
+	 so.del_flag ='0'
+	 <if test="id !=null and id !=''">
+	 and seu.user_id =#{id}
+	 </if>
+	 </where>
+	</select>
+	<!-- 查询部门下的员工 -->
+	<select id="findOfficeForUser" parameterType="java.util.Map"  resultType="User">
+		SELECT
+		<include refid="empUserColumns" />
+		FROM sys_user a
+		<include refid="officeUserJoins" />
+		WHERE 1=1
+		<if test="null != officeId and ''!=officeId">
+			AND seu.office_id = #{officeId}
+		</if>
+		<if test="null != queryConditionSql and queryConditionSql !=''">
+			${queryConditionSql}
+		</if>
+	   ORDER BY a.create_date desc	
+	</select>
+	<sql id="officeUserJoins">
+		JOIN sys_enterprise_user seu ON seu.user_id = a.id  
+		<if
+			test="null != enterpriseMarking and ''!=enterpriseMarking">
+			and seu.enterprise_id = #{enterpriseMarking}
+		</if>
+		  AND seu.del_flag='0' AND a.del_flag = "0"
+		LEFT JOIN sys_user_extend su ON su.user_id = a.id 
+	</sql>
+	
+	<!-- 查询最大员工编号 -->	
+	<select id="findUserEnterpriseMarkingForMaxNo" resultType="String">
+		SELECT MAX(a.no)
+		FROM sys_user a
+		WHERE a.enterprise_marking = #{enterpriseMarking} 
+		ORDER BY a.no desc
+	</select>
+	
+	<!-- 根据手机号码查询用户 -->
+	<select id="findUserByMobile" resultType="User">
+		SELECT
+			u.id, u.login_name, u.mobile
+		FROM sys_user u
+		WHERE u.mobile = #{mobile}
+	</select>
+	
+	<!-- 根据用户名查询用户 -->
+	<select id="findUserByLoginName" resultType="User">
+		SELECT
+			*
+		FROM sys_user u
+		WHERE u.login_name = #{loginName}
+	</select>
+	
+	<!-- 根据用户名更新用户密码 -->
+	<update id="updatePasswordByPhone">
+		UPDATE sys_user SET 
+			password = #{password} 
+		WHERE login_name = #{loginName}
+	</update>
+	
+	
+</mapper>

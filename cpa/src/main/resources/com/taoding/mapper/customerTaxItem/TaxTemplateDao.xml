@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerTaxItem.TaxTemplateDao">
+	<sql id="taxTemplateColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.rate AS "rate",
+		a.enable AS
+		"enable",
+		a.province AS "province",
+		a.city AS "city",
+		a.subject_id AS "subjectId",
+		a.del_flag AS delFlag
+	</sql>
+	<select id="get" resultType="TaxTemplate">
+		SELECT
+		<include refid="taxTemplateColumns" />
+		FROM cpa_tax_template a
+		WHERE a.del_flag=0
+			AND a.id=#{id}
+	</select>
+	<insert id="insert">
+		INSERT INTO cpa_tax_template(
+		id,
+		name,
+		rate,
+		enable,
+		province,
+		city,
+		subject_id,
+		del_flag
+		) VALUES (
+		#{id},
+		#{name},
+		#{rate},
+		#{enable},
+		#{province},
+		#{city},
+		#{subjectId},
+		#{delFlag}
+		)
+	</insert>
+	<update id="update">
+		UPDATE cpa_tax_template a
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null != name and ''!=name">
+				a.name =#{name},
+			</if>
+			<if test="null != province and ''!=province">
+				a.province =#{province},
+			</if>
+			<if test="null != city and ''!=city">
+				a.city =#{city},
+			</if>
+			<if test="null!=subjectId  and ''!=subjectId">
+				a.subject_id =#{subjectId},
+			</if>
+			<if test="null != delFlag and ''!=delFlag">
+				a.del_flag =#{delFlag},
+			</if>
+			<if test="enable==true or enable==false">
+				a.enable=#{enable},
+			</if>
+		</trim>
+		WHERE a.id = #{id}
+	</update>
+	<!-- 查询客户税项模板 -->
+	<select id="findTaxTemplateList" resultType="TaxTemplate">
+		SELECT
+		<include refid="taxTemplateColumns" />
+		FROM cpa_tax_template a
+		LEFT JOIN cpa_subject cs on cs.id=a.subject_id
+		WHERE a.del_flag=#{delFlag}  AND cs.del_flag=#{delFlag}   AND a.province="0" 
+		<if test="null!=province and ''!=province">
+		  OR  a.province=#{province}
+		</if>
+	</select>
+
+</mapper>

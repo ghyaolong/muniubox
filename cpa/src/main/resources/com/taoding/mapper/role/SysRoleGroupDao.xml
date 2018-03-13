@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.role.SysRoleGroupDao">
+    
+	<sql id="sysRoleGroupColumns">
+		a.id AS "id",
+		a.role_group_name AS "roleGroupName",
+		a.role_group_no AS "roleGroupNo",
+		a.role_group_status AS "roleGroupStatus",
+		a.role_group_desc AS "roleGroupDesc",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.enterprise_marking AS "enterpriseMarking"
+	</sql>
+	
+	<sql id="sysRoleGroupJoins">
+	</sql>
+    
+	<select id="get" resultType="SysRoleGroup">
+		SELECT 
+			<include refid="sysRoleGroupColumns"/>
+		FROM sys_role_group a
+		<include refid="sysRoleGroupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<select id="findList" resultType="SysRoleGroup">
+		SELECT 
+			<include refid="sysRoleGroupColumns"/>
+		FROM sys_role_group a
+		<include refid="sysRoleGroupJoins"/>
+		<where>
+		 a.del_flag = #{DEL_FLAG_NORMAL} AND a.enterprise_marking=#{enterpriseMarking}
+		<if test="null!=sqlMap and sqlMap.queryConditionSqlR !=''">
+	        ${sqlMap.queryConditionSqlR}
+	     </if>
+		</where>
+		<!-- <choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose> -->
+	</select>
+	
+	<select id="findAllList" resultType="SysRoleGroup">
+		SELECT 
+			<include refid="sysRoleGroupColumns"/>
+		FROM sys_role_group a
+		<include refid="sysRoleGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} AND a.enterprise_marking=#{enterpriseMarking}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_role_group(
+			id,
+			role_group_name,
+			role_group_no,
+			role_group_status,
+			role_group_desc,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			enterprise_marking
+		) VALUES (
+			#{id},
+			#{roleGroupName},
+			#{roleGroupNo},
+			#{roleGroupStatus},
+			#{roleGroupDesc},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{enterpriseMarking}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_role_group SET 	
+			role_group_name = #{roleGroupName},
+			role_group_no = #{roleGroupNo},
+			role_group_status = #{roleGroupStatus},
+			role_group_desc = #{roleGroupDesc},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			enterprise_marking = #{enterpriseMarking}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_role_group SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="findMaxGroupNo" resultType="string">
+	SELECT MAX(a.role_group_no) from sys_role_group a 
+	<where>
+	a.enterprise_marking =#{enterpriseMarking} and a.del_flag=#{DEL_FLAG_NORMAL}
+	<if test="null != roleGroupNo and '' !=roleGroupNo">
+	and a.role_group_no like CONCAT(#{roleGroupNo},'%')
+	</if>
+	</where>
+	</select>
+	<select id="findRoleGroupList" resultType="SysRoleGroup">
+		SELECT 
+			<include refid="sysRoleGroupColumns"/>
+		FROM sys_role_group a
+		LEFT JOIN sys_user_role_group surg on surg.role_group_id=a.id
+		LEFT JOIN sys_user su on su.id=surg.user_id 
+		<include refid="sysRoleGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="user != null and user.id != null and user.id != ''">
+			AND su.id = #{user.id}
+		   </if>
+		</where>		
+		<!-- <choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose> -->
+	</select>
+	<!-- 查询模板角色组 -->
+	<select id="findEnterpriseTemplateForRoleGroup" resultType="SysRoleGroup">
+		SELECT 
+			<include refid="sysRoleGroupColumns"/>
+		FROM sys_role_group a
+		WHERE
+		a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="enterpriseMarking !=null">
+		and a.enterprise_marking=#{enterpriseMarking}
+		</if>
+	</select>
+	 <resultMap type="SysRoleGroup" id="sysGroupByResultMap">
+		<id property="id" column="id" />
+		<result property="roleGroupName" column="roleGroupName" />
+		<collection property="roleList" ofType="Role">
+	   	<result property="id" column="roleList.id" />
+	   	<result property="enname" column="roleList.enname" />
+	   	<result property="name" column="roleList.name" />
+	   </collection> 
+	 </resultMap>  
+	
+	<!-- 插入模板角色组 -->
+	<insert id="insertEnterpriseTemplateForRoleGroup">
+		INSERT INTO sys_role_group(
+			id,
+			role_group_name,
+			role_group_no,
+			role_group_status,
+			role_group_desc,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			enterprise_marking
+		) VALUES  
+		<foreach collection="roleGroupList" item="item" index="index" separator="," > 
+		
+		(
+			#{item.id},
+			#{item.roleGroupName},
+			#{item.roleGroupNo},
+			#{item.roleGroupStatus},
+			#{item.roleGroupDesc},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.remarks},
+			#{item.delFlag},
+			#{item.enterpriseMarking}
+		) 
+		</foreach> 
+		 
+	</insert>
+	
+	
+	<!-- 插入企业模板角色组与用户的关联关系 -->
+	<insert id="insertEnterpriseTemplateSysUserRoleGroupList">
+		INSERT INTO sys_user_role_group(
+			 user_id,
+			 role_group_id
+		) VALUES
+		
+		<foreach collection="roleGroupList" item="item" index="index" separator="," > 
+		(
+			#{item.user.id},
+			#{item.id}
+			
+		) 
+		</foreach> 
+	</insert>
+	<select id="selectSysGroupRole" parameterType="SysRoleGroup" resultMap="sysGroupByResultMap">
+	SELECT
+	sg.id,
+	sg.role_group_name as "roleGroupName",
+	sr.enname as "roleList.enname",
+	sr.id as "roleList.id",
+	sr.NAME as "roleList.name"
+	FROM
+	sys_role_group sg
+	JOIN sys_role sr ON sr.role_group_id = sg.id
+	left JOIN sys_user_role sur on sur.role_id=sr.id
+	<where>
+	sg.del_flag = #{DEL_FLAG_NORMAL}
+	<if test="null != user and user.id !=null">
+	and sur.user_id=#{user.id}
+	</if>
+	</where>
+	</select>
+</mapper>

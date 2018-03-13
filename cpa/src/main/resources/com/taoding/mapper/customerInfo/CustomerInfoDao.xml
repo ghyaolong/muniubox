@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerInfo.CustomerInfoDao">
+
+	<sql id="customerInfoColumns">
+	    DISTINCT 
+		a.id AS "id",
+		a.name AS "name",
+		a.no AS "no", 
+		a.type AS "type",
+		a.corporation AS "corporation",
+		a.address_backup AS "addressBackup",
+		a.address_registed AS
+		"addressRegisted",
+		a.province AS "province",
+		a.city as "city",
+		a.area as "area",
+		a.tax_status AS "taxStatus",
+		a.income_status AS
+		"incomeStatus",
+		a.status AS "status",
+		a.accounting AS "accounting", 
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag",
+		a.enterprise_marking AS
+		"enterpriseMarking",
+		cab.id as "accountBookId",
+		cab.current_period as "currentPeriod",
+		cab.account_status as "accountStatus",  
+		ctp.name AS "taxpayerPropertyName" 
+	</sql>
+	<!-- 根据属性查询客户信息查询 -->
+	<select id="get" resultType="CustomerInfo">
+		SELECT
+		a.id AS "id",
+		a.name AS "name",
+		a.no AS "no", 
+		a.type AS "type",
+		a.corporation AS "corporation",
+		a.address_backup AS "addressBackup",
+		a.address_registed AS
+		"addressRegisted",
+		a.province AS "province",
+		a.city as "city",
+		a.area as "area",
+		a.tax_status AS "taxStatus",
+		a.income_status AS
+		"incomeStatus",
+		a.status AS "status",
+		a.accounting AS "accounting", 
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag",
+		ctp.name AS "taxpayerPropertyName", 
+		a.enterprise_marking AS
+		"enterpriseMarking"
+		FROM cpa_customer_info a 
+	    LEFT JOIN cpa_taxpayer_property ctp ON ctp.id=a.type AND ctp.is_validated="1" 
+		WHERE a.del_flag=0  AND  a.id =#{id} 
+	</select> 
+	<insert id="insert">
+		INSERT INTO cpa_customer_info(
+		id,
+		name,
+		no, 
+		type,
+		corporation,
+		address_backup,
+		address_registed,
+		province,
+		city,
+		area,
+		tax_status,
+		income_status,
+		status,
+		accounting,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		enterprise_marking
+		) VALUES (
+		#{id},
+		#{name},
+		#{no}, 
+		#{type},
+		#{corporation},
+		#{addressBackup},
+		#{addressRegisted},
+		#{province},
+		#{city},
+		#{area},
+		#{taxStatus},
+		#{incomeStatus},
+		#{status},
+		#{accounting},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{enterpriseMarking}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cpa_customer_info a
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null != name and ''!=name">
+				a.name =#{name},
+			</if>
+			<if test="null != no and ''!=no">
+				a.no =#{no},
+			</if> 
+			<if test="null != type">
+				a.type =#{type},
+			</if>
+			<if test="null != corporation and ''!=corporation">
+				a.corporation =#{corporation},
+			</if>
+			<if test="null != addressBackup and ''!=addressBackup">
+				a.address_backup =#{addressBackup},
+			</if>
+			<if test="null != addressRegisted and ''!=addressRegisted">
+				a.address_registed =#{addressRegisted},
+			</if>
+			<if test="null != province and ''!=province">
+				a.province =#{province},
+			</if>
+<!-- 			<if test="null != accountStatus and ''!=accountStatus"> -->
+<!-- 				a.account_status =#{accountStatus}, -->
+<!-- 			</if> -->
+			<if test="null != taxStatus and ''!=taxStatus">
+				a.tax_status =#{taxStatus},
+			</if>
+			<if test="null != incomeStatus and ''!=incomeStatus">
+				a.income_status =#{incomeStatus},
+			</if>
+			<if test="null != status and ''!=status">
+				a.status =#{status},
+			</if>
+			<if test="null != accounting and ''!=accounting">
+				a.accounting =#{accounting},
+			</if>
+			
+			<if test="null != city and '' != city">
+				a.city =#{city},
+			</if>
+			
+			<if test="null != area and ''!= area">
+				a.area =#{area},
+			</if>
+			
+<!-- 			<if test="null != accountPeriod"> -->
+<!-- 				a.account_period =#{accountPeriod}, -->
+<!-- 			</if> -->
+			<if test="null != delFlag and ''!=delFlag">
+				a.del_flag =#{delFlag},
+			</if>
+			<if test="null != remarks and ''!=remarks">
+				a.remarks =#{remarks},
+			</if>
+			<if test="null != enterpriseMarking and ''!=enterpriseMarking">
+				a.enterprise_marking =#{enterpriseMarking},
+			</if>
+		</trim>
+		WHERE a.id = #{id}
+	</update>
+	<sql id="customerInfoColumnsList">
+			a.id AS "id",
+			a.name AS "name",
+			a.no AS "no", 
+			a.type AS "type",
+			a.corporation AS "corporation",
+			a.address_backup AS "addressBackup",
+			a.address_registed AS
+			"addressRegisted",
+			a.province AS "province",
+			a.city as "city",
+			a.area as "area",
+			cab.account_status AS
+			"accountStatus",
+			a.tax_status AS "taxStatus",
+			a.income_status AS
+			"incomeStatus",
+			a.status AS "status",
+			a.accounting AS "accounting",
+			cab.current_period AS "currentPeriod",
+			a.create_by AS "createBy.id",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate",
+			a.remarks
+			AS "remarks",
+			a.del_flag AS "delFlag",
+			a.enterprise_marking AS
+			"enterpriseMarking",
+			cab.id as "accountBookId"
+		
+		</sql>
+		
+	<select id="findCustomInfoListByMap" parameterType="java.util.Map"
+		resultType="CustomerInfo">
+		select
+		<include refid="customerInfoColumnsList" />
+		from
+		cpa_customer_info a 
+		left join cpa_accounting_book  cab on cab.customer_info_id = a.id 
+		<where>
+			a.del_flag=#{DEL_FLAG_NORMAL}
+			<if test="null != queryCondition and '' != queryCondition">
+				 ${queryCondition}
+			</if>
+		</where>
+	</select>
+	<!-- 查询最大客户编号 -->	
+	<select id="findCustomerInfoEnterpriseMarkingForMaxNo" resultType="String">
+		SELECT MAX(a.no)
+		FROM cpa_customer_info a
+		WHERE a.enterprise_marking = #{enterpriseMarking} 
+		ORDER BY a.no desc
+	</select>
+</mapper>

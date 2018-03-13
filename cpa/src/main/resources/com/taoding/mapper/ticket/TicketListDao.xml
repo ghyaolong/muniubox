@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.ticket.TicketListDao">
+	<resultMap id="BaseResultMap" type="com.taoding.domain.ticket.TicketList">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="book_id" jdbcType="VARCHAR" property="bookId" />
+		<result column="accounting_id" jdbcType="VARCHAR" property="accountingId" />
+		<result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+		<result column="parent_ids" jdbcType="VARCHAR" property="parentIds" />
+		<result column="subject_content" jdbcType="VARCHAR" property="subjectContent" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="clearing_type" jdbcType="TINYINT" property="clearingType" />
+		<result column="proof_strategy" jdbcType="TINYINT" property="proofStrategy" />
+		<result column="usiness_accounting" jdbcType="TINYINT"
+			property="usinessAccounting" />
+		<result column="is_preset" jdbcType="TINYINT" property="isPreset" />
+		<result column="is_default" jdbcType="TINYINT" property="isDefault" />
+		<result column="deleted" jdbcType="TINYINT" property="deleted" />
+		<result column="created" jdbcType="TIMESTAMP" property="created" />
+		<result column="updated" jdbcType="TIMESTAMP" property="updated" />
+	</resultMap>
+	<resultMap id="VoResultMap" type="com.taoding.domain.ticket.vo.TicketListVo"
+		extends="BaseResultMap">
+		<result column="ticket_count" jdbcType="VARCHAR" property="ticketCount" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, book_id, accounting_id, parent_id, parent_ids,
+		subject_content, name,
+		clearing_type,
+		proof_strategy,
+		usiness_accounting, is_preset, is_default, deleted, created, updated
+	</sql>
+	<select id="selectByExample" parameterType="com.taoding.domain.ticket.TicketListExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from cpa_ticket_list
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from cpa_ticket_list
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from
+		cpa_ticket_list
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.taoding.domain.ticket.TicketListExample">
+		delete from cpa_ticket_list
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.taoding.domain.ticket.TicketList">
+		insert into cpa_ticket_list
+		(id, book_id, accounting_id,
+		parent_id, parent_ids, subject_content,
+		name, clearing_type, proof_strategy,
+		usiness_accounting, is_preset,
+		is_default,
+		deleted, created, updated
+		)
+		values (#{id,jdbcType=VARCHAR},
+		#{bookId,jdbcType=VARCHAR},
+		#{accountingId,jdbcType=VARCHAR},
+		#{parentId,jdbcType=VARCHAR}, #{parentIds,jdbcType=VARCHAR},
+		#{subjectContent,jdbcType=VARCHAR},
+		#{name,jdbcType=VARCHAR},
+		#{clearingType,jdbcType=TINYINT},
+		#{proofStrategy,jdbcType=TINYINT},
+		#{usinessAccounting,jdbcType=TINYINT}, #{isPreset,jdbcType=TINYINT},
+		#{isDefault,jdbcType=TINYINT},
+		#{deleted,jdbcType=TINYINT},
+		#{created,jdbcType=TIMESTAMP}, #{updated,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.taoding.domain.ticket.TicketList">
+		insert into cpa_ticket_list
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="bookId != null">
+				book_id,
+			</if>
+			<if test="accountingId != null">
+				accounting_id,
+			</if>
+			<if test="parentId != null">
+				parent_id,
+			</if>
+			<if test="parentIds != null">
+				parent_ids,
+			</if>
+			<if test="subjectContent != null">
+				subject_content,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="clearingType != null">
+				clearing_type,
+			</if>
+			<if test="proofStrategy != null">
+				proof_strategy,
+			</if>
+			<if test="usinessAccounting != null">
+				usiness_accounting,
+			</if>
+			<if test="isPreset != null">
+				is_preset,
+			</if>
+			<if test="isDefault != null">
+				is_default,
+			</if>
+			<if test="deleted != null">
+				deleted,
+			</if>
+			<if test="created != null">
+				created,
+			</if>
+			<if test="updated != null">
+				updated,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="bookId != null">
+				#{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="accountingId != null">
+				#{accountingId,jdbcType=VARCHAR},
+			</if>
+			<if test="parentId != null">
+				#{parentId,jdbcType=VARCHAR},
+			</if>
+			<if test="parentIds != null">
+				#{parentIds,jdbcType=VARCHAR},
+			</if>
+			<if test="subjectContent != null">
+				#{subjectContent,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="clearingType != null">
+				#{clearingType,jdbcType=TINYINT},
+			</if>
+			<if test="proofStrategy != null">
+				#{proofStrategy,jdbcType=TINYINT},
+			</if>
+			<if test="usinessAccounting != null">
+				#{usinessAccounting,jdbcType=TINYINT},
+			</if>
+			<if test="isPreset != null">
+				#{isPreset,jdbcType=TINYINT},
+			</if>
+			<if test="isDefault != null">
+				#{isDefault,jdbcType=TINYINT},
+			</if>
+			<if test="deleted != null">
+				#{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				#{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				#{updated,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.taoding.domain.ticket.TicketListExample"
+		resultType="java.lang.Long">
+		select count(*) from cpa_ticket_list
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update cpa_ticket_list
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=VARCHAR},
+			</if>
+			<if test="record.bookId != null">
+				book_id = #{record.bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.accountingId != null">
+				accounting_id = #{record.accountingId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.parentId != null">
+				parent_id = #{record.parentId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.parentIds != null">
+				parent_ids = #{record.parentIds,jdbcType=VARCHAR},
+			</if>
+			<if test="record.subjectContent != null">
+				subject_content =
+				#{record.subjectContent,jdbcType=VARCHAR},
+			</if>
+			<if test="record.name != null">
+				name = #{record.name,jdbcType=VARCHAR},
+			</if>
+			<if test="record.clearingType != null">
+				clearing_type = #{record.clearingType,jdbcType=TINYINT},
+			</if>
+			<if test="record.proofStrategy != null">
+				proof_strategy =
+				#{record.proofStrategy,jdbcType=TINYINT},
+			</if>
+			<if test="record.usinessAccounting != null">
+				usiness_accounting =
+				#{record.usinessAccounting,jdbcType=TINYINT},
+			</if>
+			<if test="record.isPreset != null">
+				is_preset = #{record.isPreset,jdbcType=TINYINT},
+			</if>
+			<if test="record.isDefault != null">
+				is_default = #{record.isDefault,jdbcType=TINYINT},
+			</if>
+			<if test="record.deleted != null">
+				deleted = #{record.deleted,jdbcType=TINYINT},
+			</if>
+			<if test="record.created != null">
+				created = #{record.created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.updated != null">
+				updated = #{record.updated,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update cpa_ticket_list
+		set id = #{record.id,jdbcType=VARCHAR},
+		book_id =
+		#{record.bookId,jdbcType=VARCHAR},
+		accounting_id =
+		#{record.accountingId,jdbcType=VARCHAR},
+		parent_id =
+		#{record.parentId,jdbcType=VARCHAR},
+		parent_ids =
+		#{record.parentIds,jdbcType=VARCHAR},
+		subject_content =
+		#{record.subjectContent,jdbcType=VARCHAR},
+		name =
+		#{record.name,jdbcType=VARCHAR},
+		clearing_type =
+		#{record.clearingType,jdbcType=TINYINT},
+		proof_strategy =
+		#{record.proofStrategy,jdbcType=TINYINT},
+		usiness_accounting =
+		#{record.usinessAccounting,jdbcType=TINYINT},
+		is_preset =
+		#{record.isPreset,jdbcType=TINYINT},
+		is_default =
+		#{record.isDefault,jdbcType=TINYINT},
+		deleted =
+		#{record.deleted,jdbcType=TINYINT},
+		created =
+		#{record.created,jdbcType=TIMESTAMP},
+		updated =
+		#{record.updated,jdbcType=TIMESTAMP}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.taoding.domain.ticket.TicketList">
+		update cpa_ticket_list
+		<set>
+			<if test="bookId != null">
+				book_id = #{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="accountingId != null">
+				accounting_id = #{accountingId,jdbcType=VARCHAR},
+			</if>
+			<if test="parentId != null">
+				parent_id = #{parentId,jdbcType=VARCHAR},
+			</if>
+			<if test="parentIds != null">
+				parent_ids = #{parentIds,jdbcType=VARCHAR},
+			</if>
+			<if test="subjectContent != null">
+				subject_content = #{subjectContent,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="clearingType != null">
+				clearing_type = #{clearingType,jdbcType=TINYINT},
+			</if>
+			<if test="proofStrategy != null">
+				proof_strategy = #{proofStrategy,jdbcType=TINYINT},
+			</if>
+			<if test="usinessAccounting != null">
+				usiness_accounting =
+				#{usinessAccounting,jdbcType=TINYINT},
+			</if>
+			<if test="isPreset != null">
+				is_preset = #{isPreset,jdbcType=TINYINT},
+			</if>
+			<if test="isDefault != null">
+				is_default = #{isDefault,jdbcType=TINYINT},
+			</if>
+			<if test="deleted != null">
+				deleted = #{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				created = #{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				updated = #{updated,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.taoding.domain.ticket.TicketList">
+		update
+		cpa_ticket_list
+		set book_id = #{bookId,jdbcType=VARCHAR},
+		accounting_id
+		= #{accountingId,jdbcType=VARCHAR},
+		parent_id =
+		#{parentId,jdbcType=VARCHAR},
+		parent_ids =
+		#{parentIds,jdbcType=VARCHAR},
+		subject_content =
+		#{subjectContent,jdbcType=VARCHAR},
+		name = #{name,jdbcType=VARCHAR},
+		clearing_type = #{clearingType,jdbcType=TINYINT},
+		proof_strategy =
+		#{proofStrategy,jdbcType=TINYINT},
+		usiness_accounting =
+		#{usinessAccounting,jdbcType=TINYINT},
+		is_preset =
+		#{isPreset,jdbcType=TINYINT},
+		is_default =
+		#{isDefault,jdbcType=TINYINT},
+		deleted = #{deleted,jdbcType=TINYINT},
+		created = #{created,jdbcType=TIMESTAMP},
+		updated =
+		#{updated,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+	<!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<自定义方法>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
+	<select id="selectList" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from cpa_ticket_list
+		<where>
+			<if test="id != null and id != ''">
+				and id = #{id,jdbcType=VARCHAR}
+			</if>
+			<if test="bookId != null and bookId != ''">
+				and book_id = #{bookId,jdbcType=VARCHAR}
+			</if>
+			<if test="accountingId != null">
+				and accounting_id = #{accountingId,jdbcType=VARCHAR}
+			</if>
+			<if test="parentId != null">
+				and parent_id = #{parentId,jdbcType=VARCHAR}
+			</if>
+			<if test="parentIds != null">
+				and parent_ids = #{parentIds,jdbcType=VARCHAR}
+			</if>
+			<if test="subjectContent != null">
+				and subject_content = #{subjectContent,jdbcType=VARCHAR}
+			</if>
+			<if test="name != null">
+				and name = #{name,jdbcType=VARCHAR}
+			</if>
+			<if test="clearingType != null">
+				and clearing_type = #{clearingType,jdbcType=TINYINT}
+			</if>
+			<if test="proofStrategy != null">
+				and proof_strategy = #{proofStrategy,jdbcType=TINYINT}
+			</if>
+			<if test="usinessAccounting != null">
+				and usiness_accounting =
+				#{usinessAccounting,jdbcType=TINYINT}
+			</if>
+			<if test="isPreset != null">
+				and is_preset = #{isPreset,jdbcType=TINYINT}
+			</if>
+			<if test="isDefault != null">
+				and is_default = #{isDefault,jdbcType=TINYINT}
+			</if>
+			<if test="deleted != null">
+				and deleted = #{deleted,jdbcType=TINYINT}
+			</if>
+			<if test="created != null">
+				and created = #{created,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updated != null">
+				and updated = #{updated,jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectListVo" parameterType="java.util.Map"
+		resultMap="VoResultMap">
+		select
+		tl.*,
+		(SELECT COUNT(*) FROM cpa_${bookId}_ticket t WHERE t.list_ids LIKE
+		CONCAT('%',tl.id,'%') AND t.deleted = 0 AND t.account_date = #{accountDate,jdbcType=DATE}) AS 'ticket_count'
+		from cpa_ticket_list AS tl
+		<where>
+			<if test="id != null and id != ''">
+				and tl.id = #{id,jdbcType=VARCHAR}
+			</if>
+			<if test="bookId != null and bookId != ''">
+				and tl.book_id = #{bookId,jdbcType=VARCHAR}
+			</if>
+			<if test="accountingId != null">
+				and tl.accounting_id = #{accountingId,jdbcType=VARCHAR}
+			</if>
+			<if test="parentId != null">
+				and tl.parent_id = #{parentId,jdbcType=VARCHAR}
+			</if>
+			<if test="parentIds != null">
+				and tl.parent_ids = #{parentIds,jdbcType=VARCHAR}
+			</if>
+			<if test="subjectContent != null">
+				and tl.subject_content =
+				#{subjectContent,jdbcType=VARCHAR}
+			</if>
+			<if test="name != null">
+				and tl.name = #{name,jdbcType=VARCHAR}
+			</if>
+			<if test="clearingType != null">
+				and tl.clearing_type = #{clearingType,jdbcType=TINYINT}
+			</if>
+			<if test="proofStrategy != null">
+				and tl.proof_strategy = #{proofStrategy,jdbcType=TINYINT}
+			</if>
+			<if test="usinessAccounting != null">
+				and tl.usiness_accounting =
+				#{usinessAccounting,jdbcType=TINYINT}
+			</if>
+			<if test="isPreset != null">
+				and tl.is_preset = #{isPreset,jdbcType=TINYINT}
+			</if>
+			<if test="isDefault != null">
+				and is_default = #{isDefault,jdbcType=TINYINT}
+			</if>
+			<if test="deleted != null">
+				and deleted = #{deleted,jdbcType=TINYINT}
+			</if>
+			<if test="created != null">
+				and tl.created = #{created,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updated != null">
+				and tl.updated = #{updated,jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</select>
+
+</mapper>

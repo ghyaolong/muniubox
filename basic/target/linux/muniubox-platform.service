@@ -1,0 +1,11 @@
+[Unit]
+Description=muniubox-platform
+After=syslog.target
+
+[Service]
+User=muniubox
+ExecStart=/usr/share/muniubox-platform/bin/muniubox-platform.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

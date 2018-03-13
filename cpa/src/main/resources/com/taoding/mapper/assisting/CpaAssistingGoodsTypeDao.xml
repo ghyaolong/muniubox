@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingGoodsTypeDao">
+    
+	<sql id="cpaAssistingGoodsTypeColumns">
+		a.id AS "id",
+		a.goods_type_name AS "goodsTypeName",
+		a.account_id AS "accountId"
+	</sql>
+	
+	<sql id="cpaAssistingGoodsTypeJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaAssistingGoodsType">
+		SELECT 
+			<include refid="cpaAssistingGoodsTypeColumns"/>
+		FROM cpa_assisting_goods_type a
+		<include refid="cpaAssistingGoodsTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 查询所有的存货分类 -->
+	<select id="findList" resultType="CpaAssistingGoodsType">
+		SELECT 
+			a.id,a.goods_type_name goodsTypeName,a.account_id accountId
+		FROM cpa_assisting_goods_type a
+		WHERE
+			a.account_id = #{accountId}		
+	</select>
+	
+	<select id="findAllList" resultType="CpaAssistingGoodsType">
+		SELECT 
+			<include refid="cpaAssistingGoodsTypeColumns"/>
+		FROM cpa_assisting_goods_type a
+		<include refid="cpaAssistingGoodsTypeJoins"/>	
+		ORDER BY id ASC	
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_assisting_goods_type(
+			id,
+			goods_type_name,
+			account_id
+		) VALUES (
+			#{id},
+			#{goodsTypeName},
+			#{accountId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_assisting_goods_type SET 	
+			goods_type_name = #{goodsTypeName},
+			account_id = #{accountId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM cpa_assisting_goods_type
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

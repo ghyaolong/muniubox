@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryWelfareProjectDao">
+    
+	<sql id="cpaSalaryWelfareProjectColumns">
+		a.id AS "id",
+		a.project_name AS "projectName",
+		a.customer_id AS "customerId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.init_flag AS "initFlag"
+	</sql>
+	
+	<resultMap id="projectAndItemColumns" type="CpaSalaryWelfareProject">
+		<id property="id" column="project_id"/>
+		<result property="projectName" column="project_name"/>
+		<collection property="items" ofType="CpaSalaryWelfareSetting">
+			<id property="id" column="id"/>
+			<result property="projectId" column="project_id"/>
+			<result property="welfareItemTypeId" column="welfare_item_type_id"/>
+			<result property="companyRate" column="company_rate"/>
+			<result property="companyFix" column="company_fix"/>
+			<result property="companyRoundRuleId" column="company_round_rule_id"/>
+			<result property="individualRate" column="individual_rate"/>
+			<result property="individualFix" column="individual_fix"/>
+			<result property="individualRoundRuleId" column="individual_round_rule_id"/>
+		</collection>
+	</resultMap>
+	
+	<sql id="cpaSalaryWelfareProjectJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaSalaryWelfareProject">
+		SELECT 
+			<include refid="cpaSalaryWelfareProjectColumns"/>
+		FROM cpa_salary_welfare_project a
+		<include refid="cpaSalaryWelfareProjectJoins"/>
+		WHERE a.id = #{id}
+		AND
+		    a.init_flag = 0
+		AND a.del_flag = "0"
+	</select>
+	
+	<!-- 根据方案名称获取方案对象 -->
+	<select id="getProjectByProjectName" resultType="CpaSalaryWelfareProject">
+		SELECT 
+			<include refid="cpaSalaryWelfareProjectColumns"/>
+		FROM cpa_salary_welfare_project a
+		WHERE a.id = #{id}
+		AND
+		    a.init_flag = 0
+		AND a.customer_id = #{customerId}
+		AND a.del_flag = "0"
+	</select>
+	
+	
+	<select id="findProjectAndItemByCustomerId" parameterType="string" resultMap="projectAndItemColumns">
+		SELECT 
+		  cswp.id AS project_id,
+		  cswp.project_name  AS project_name,
+		  csws.id AS id,
+		  csws.project_id AS project_id,
+		  csws.welfare_item_type_id AS welfare_item_type_id,
+		  csws.company_rate AS company_rate,
+		  csws.company_fix AS company_fix,
+		  csws.company_round_rule_id AS company_round_rule_id,
+		  csws.individual_rate AS individual_rate,
+		  csws.individual_fix AS individual_fix,
+		  csws.individual_round_rule_id AS individual_round_rule_id,
+		  cswt.name AS name,
+		  csrr.rule_name AS companyRoundRule
+		FROM
+		  cpa_salary_welfare_project cswp 
+		  LEFT JOIN cpa_salary_welfare_setting csws 
+		    ON cswp.id = csws.project_id 
+		  LEFT JOIN cpa_salary_welfare_type cswt
+		  	ON cswt.id = csws.welfare_item_type_id
+		  LEFT JOIN cpa_salary_round_rule csrr
+		  	ON csrr.id = csws.company_round_rule_id
+		WHERE csws.customer_id = #{customerId} 
+		  AND cswp.del_flag = '0' 
+		  AND csws.del_flag = '0'
+		
+
+	</select>
+	
+	<!-- 查询企业所有的方案名称 -->
+	<select id="findAllList" parameterType="string" resultType="CpaSalaryWelfareProject">
+		SELECT 
+			<include refid="cpaSalaryWelfareProjectColumns"/>
+		FROM cpa_salary_welfare_project a
+		<include refid="cpaSalaryWelfareProjectJoins"/>
+		<where>
+			a.del_flag = '0'
+		AND
+			a.customer_id = #{customerId}
+		AND
+		    a.init_flag = 0
+		</where>		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_salary_welfare_project(
+			id,
+			project_name,
+			customer_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectName},
+			#{customerId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_salary_welfare_project SET 
+			<if test="projectName != null and projectName != ''">
+				project_name = #{projectName},
+			</if>	
+			<if test="customerId != null and customerId != ''">
+				customer_id = #{customerId},
+			</if>	
+			<if test="updateBy != null and updateBy.id != ''">
+				update_by = #{updateBy.id},
+			</if>	
+			<if test="updateDate != null">
+				update_date = #{updateDate}
+			</if>
+			del_flag = "0"
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cpa_salary_welfare_project SET 
+			del_flag = "0"
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 初始化社保方案名称 -->
+	<update id="initCpaSalaryWelfareProject">
+		UPDATE cpa_salary_welfare_project SET 
+			init_flag = #{initFlag}
+		WHERE customer_id = #{customerId}
+		AND
+		    del_flag = '0'
+	</update>
+	
+</mapper>

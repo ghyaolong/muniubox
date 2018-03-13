@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingGoodsDao">
+    
+	<sql id="cpaAssistingGoodsColumns">
+		a.id AS "id",
+		a.goods_no AS "goodsNo",
+		a.goods_name AS "goodsName",
+		a.spec AS "spec",
+		a.unit AS "unit",
+		a.init_money AS "initMoney",
+		a.init_count AS "initCount",
+		a.account_id AS "accountId",
+		a.goods_source AS "goodsSource",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.goods_id AS "goodsId",
+		gt.goods_type_name AS "goodsTypeName",
+		a.goods_name AS "name",
+		a.goods_no AS "no"
+	</sql>
+	
+	<sql id="cpaAssistingGoodsJoins">
+		LEFT JOIN cpa_assisting_goods_type gt ON gt.id = a.goods_id
+	</sql>
+    
+    <!--根据id获取对象信息  -->
+	<select id="get" resultType="CpaAssistingGoods">
+		SELECT 
+			<include refid="cpaAssistingGoodsColumns"/>
+		FROM cpa_assisting_goods a
+		<include refid="cpaAssistingGoodsJoins"/>
+		WHERE a.id = #{id}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+		<!-- 根据名字查找 -->
+	<select id="findByName" parameterType="string" resultType="CpaAssistingGoods">
+		SELECT 
+			<include refid="cpaAssistingGoodsColumns"/>
+		FROM cpa_assisting_goods a
+		<include refid="cpaAssistingGoodsJoins"/>
+		WHERE a.goods_name = #{goodsName}
+		AND
+			a.account_id = #{accountId}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 根据No查询最大编号 -->
+	<select id="findMaxNoByInfoNo" parameterType="string" resultType="string">
+		select MAX(goods_no) goodsNo  from cpa_assisting_goods where account_id = #{accountId}
+	</select>
+
+	<!-- 查询所有存货的列表 -->
+	<select id="findAllList" parameterType="java.util.Map"  resultType="CpaAssistingGoods">
+		SELECT 
+			<include refid="cpaAssistingGoodsColumns"/>
+		FROM cpa_assisting_goods a
+		<include refid="cpaAssistingGoodsJoins"/>
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.account_id = #{accountId}
+			<if test="goodsName != null and goodsName != ''">
+				AND a.goods_name LIKE 
+					concat('%',#{goodsName},'%')
+			</if>
+			<if test="goodsTypeName != null and goodsTypeName != ''">
+				AND gt.goods_type_name = #{goodsTypeName}	
+			</if>
+		ORDER BY id DESC		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_assisting_goods(
+			id,
+			goods_no,
+			goods_name,
+			spec,
+			unit,
+			init_money,
+			init_count,
+			account_id,
+			goods_source,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			goods_id
+		) VALUES (
+			#{id},
+			#{goodsNo},
+			#{goodsName},
+			#{spec},
+			#{unit},
+			#{initMoney},
+			#{initCount},
+			#{accountId},
+			#{goodsSource},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{goodsId}
+		)
+	</insert>
+	
+	<!-- 修改存货条目的信息 -->
+	<update id="update">
+		UPDATE cpa_assisting_goods SET 
+			<if test="null != goodsNo and goodsNo !=''">
+				goods_no = #{goodsNo},
+			</if>
+			<if test="null != goodsName and goodsName !=''">
+				goods_name = #{goodsName},
+			</if>
+			<if test="null != spec and spec !=''">
+				spec = #{spec},
+			</if>
+			<if test="null != unit and unit !=''">
+				unit = #{unit},
+			</if>
+			<if test="null != initMoney and initMoney !=''">
+				init_money = #{initMoney},
+			</if>
+			<if test="null != initCount and initCount !=''">
+				init_count = #{initCount},
+			</if>
+			<if test="null != goodsSource and goodsSource !=''">
+				goods_source = #{goodsSource},
+			</if>
+			<if test="null != accountId and accountId !=''">
+				account_id = #{accountId},
+			</if>
+			<if test="null != updateBy and updateBy !=''">
+				update_by = #{updateBy},
+			</if>
+			<if test="null != updateDate and updateDate !=''">
+				update_date = #{updateDate},
+			</if>
+			<if test="null != remarks and remarks !=''">
+				remarks = #{remarks},
+			</if>
+			<if test="null != goodsId and goodsId !=''">
+				goods_id = #{goodsId},
+			</if>
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据存货id删除存货 -->
+	<update id="delete" >
+		UPDATE cpa_assisting_goods SET 
+			del_flag = '1'
+		WHERE id = #{id}
+	</update>
+</mapper>

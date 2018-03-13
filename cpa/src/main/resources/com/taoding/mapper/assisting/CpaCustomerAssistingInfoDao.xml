@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaCustomerAssistingInfoDao">
+    
+	<sql id="cpaCustomerAssistingInfoColumns">
+		a.id AS "id",
+		a.catalog_id AS "catalogId",
+		a.no AS "no",
+		a.name AS "name",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="cpaCustomerAssistingInfoJoins">
+	</sql>
+    
+    <!-- 根据No查询最大编号 -->
+	<select id="findMaxNoByInfoNo"  resultType="string">
+		select MAX(no) no  from cpa_customer_assisting_info
+	</select>
+    
+    <!-- 根据辅助核算类型的id查找对应的列表，包含有按照name查找列表 -->
+	<select id="findListById" parameterType="java.util.Map" resultType="cpaCustomerAssistingInfo">
+		SELECT 
+			<include refid="cpaCustomerAssistingInfoColumns"/>
+		FROM cpa_customer_assisting_info a
+		<include refid="cpaCustomerAssistingInfoJoins"/>
+		WHERE a.catalog_id = #{id}
+		AND 
+			a.del_flag = 0
+		<!-- 按照name模糊查找 -->
+		<if test="name != null and name != ''">
+			AND a.name LIKE 
+				concat('%',#{name},'%')
+		</if>
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<!-- 根据名字查找 -->
+	<select id="findByName" parameterType="string" resultType="cpaCustomerAssistingInfo">
+		SELECT 
+			<include refid="cpaCustomerAssistingInfoColumns"/>
+		FROM cpa_customer_assisting_info a
+		<include refid="cpaCustomerAssistingInfoJoins"/>
+		WHERE a.name = #{name}
+		AND 
+			a.del_flag = 0
+		AND a.catalog_id = #{id}
+	</select>
+	
+	<select id="findList" resultType="cpaCustomerAssistingInfo">
+		SELECT 
+			<include refid="cpaCustomerAssistingInfoColumns"/>
+		FROM cpa_customer_assisting_info a
+		<include refid="cpaCustomerAssistingInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_customer_assisting_info(
+			id,
+			catalog_id,
+			no,
+			name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{catalogId},
+			#{no},
+			#{name},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- 编辑所有的辅助核算类型的详细信息 -->
+	<update id="update">
+		UPDATE cpa_customer_assisting_info  
+		<trim prefix="set" suffixOverrides=",">
+			<if test="null != catalogId and catalogId !=''">
+				catalog_id = #{catalogId},
+			</if>
+			<if test="null != no and no !=''">
+				no = #{no},
+			</if>	
+			<if test="null != name and name !=''">
+				name = #{name},
+			</if>	
+			<if test="null != updateBy and updateBy !=''">
+				update_by = #{updateBy},
+			</if>
+			<if test="null != updateDate and updateDate !=''">
+				update_date = #{updateDate},
+			</if>
+			<if test="null != remarks and remarks != ''">
+				remarks = #{remarks},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除辅助核算类型的信息 -->
+	<update id="delete">
+		UPDATE cpa_customer_assisting_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

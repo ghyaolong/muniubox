@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.subject.CpaSubjectFormatSettingDao">
+	
+	<sql id="columns">
+		id, customer_id AS "customerId", seperator, max_level AS "maxLevel", length_per_level AS "lengthPerLevel"
+	</sql>
+	
+	<!-- 查询全部科目类型 -->
+	<select id="getSettingByCustomerId" resultType="CpaSubjectFormatSetting">
+	  	select 
+	  	<include refid="columns"/>
+	  	from cpa_subject_format_setting where customer_id = #{customerId}
+	</select>
+	
+	<!-- 插入科目Excel导入设置 -->
+	<insert id="insert">
+		insert into cpa_subject_format_setting(
+			id, customer_id, seperator, max_level, length_per_level
+		) values (
+			#{id}, #{customerId}, #{seperator}, #{maxLevel}, #{lengthPerLevel}
+		)
+	</insert>
+	
+	<!-- 根据id删除科目 -->
+	<delete id="delSettingById">
+		delete from cpa_subject_format_setting where id = #{id}
+	</delete>
+	
+	
+</mapper>

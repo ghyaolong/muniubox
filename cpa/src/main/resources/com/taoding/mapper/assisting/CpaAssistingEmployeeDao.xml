@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingEmployeeDao">
+    
+	<sql id="cpaAssistingEmployeeColumns">
+		a.id AS "id",
+		a.employee_no AS "employeeNo",
+		a.name AS "name",
+		a.gender AS "gender",
+		a.department_id AS "departmentId",
+		a.position_id AS "positionId",
+		a.phone AS "phone",
+		a.email AS "email",
+		a.hukou AS "hukou",
+		a.identity AS "identity",
+		a.status AS "status",
+		a.on_board_data AS "onBoardData",
+		a.bank_id AS "bankId",
+		a.credit_card AS "creditCard",
+		a.account_id AS "accountId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.employee_no AS "no"
+	</sql>
+	
+	<sql id="cpaAssistingEmployeeJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaAssistingEmployee">
+		SELECT 
+			<include refid="cpaAssistingEmployeeColumns"/>
+		FROM cpa_assisting_employee a
+		<include refid="cpaAssistingEmployeeJoins"/>
+		WHERE a.id = #{id}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 根据名字查找 -->
+	<select id="findByName" parameterType="string" resultType="CpaAssistingEmployee">
+		SELECT 
+			<include refid="cpaAssistingEmployeeColumns"/>
+		FROM cpa_assisting_employee a
+		<include refid="cpaAssistingEmployeeJoins"/>
+		WHERE a.name = #{name}
+		AND
+			a.account_id = #{accountId}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 根据No查询最大编号 -->
+	<select id="findMaxNoByInfoNo" parameterType="string" resultType="string">
+		select MAX(employee_no) employeeNo  from cpa_assisting_employee where account_id = #{accountId}
+	</select>
+	
+	<!-- 查询员工的列表 -->
+	<select id="findAllList" parameterType="java.util.Map" resultType="CpaAssistingEmployee">
+		SELECT 
+			<include refid="cpaAssistingEmployeeColumns"/>
+		FROM cpa_assisting_employee a
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.account_id = #{accountId}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					concat('%',#{name},'%')
+			</if>
+		ORDER BY a.id DESC		
+	</select>
+	
+	<!-- 查询所有的员工的列表 -->
+	<select id="findList" parameterType="CpaAssistingEmployee" resultType="CpaAssistingEmployee">
+		SELECT 
+			<include refid="cpaAssistingEmployeeColumns"/>
+		FROM cpa_assisting_employee a
+		WHERE
+			a.del_flag = '0'
+		AND
+			a.account_id = #{accountId}	
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_assisting_employee(
+			id,
+			employee_no,
+			name,
+			gender,
+			department_id,
+			position_id,
+			phone,
+			email,
+			hukou,
+			identity,
+			status,
+			on_board_data,
+			bank_id,
+			credit_card,
+			account_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{employeeNo},
+			#{name},
+			#{gender},
+			#{departmentId},
+			#{positionId},
+			#{phone},
+			#{email},
+			#{hukou},
+			#{identity},
+			#{status},
+			#{onBoardData},
+			#{bankId},
+			#{creditCard},
+			#{accountId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- 编辑员工信息 -->
+	<update id="update">
+		UPDATE cpa_assisting_employee SET 
+			<if test="null != employeeNo and employeeNo !=''">
+				employee_no = #{employeeNo},
+			</if>	
+			<if test="null != name and name !=''">
+				name = #{name},
+			</if>	
+			<if test="null != gender and gender !=''">
+				gender = #{gender},
+			</if>
+			<if test="null != departmentId and departmentId !=''">
+				department_id = #{departmentId},
+			</if>
+			<if test="null != positionId and positionId !=''">
+				position_id = #{positionId},
+			</if>
+			<if test="null != phone and phone !=''">
+				phone = #{phone},
+			</if>
+			<if test="null != email and email !=''">
+				email = #{email},
+			</if>
+			<if test="null != hukou and hukou !=''">
+				hukou = #{hukou},
+			</if>
+			<if test="null != identity and identity !=''">
+				identity = #{identity},
+			</if>
+			<if test="null != status and status !=''">
+				status = #{status},
+			</if>
+			<if test="null != onBoardData ">
+				on_board_data = #{onBoardData},
+			</if>
+			<if test="null != bankId and bankId !=''">
+				bank_id = #{bankId},
+			</if>
+			<if test="null != creditCard and creditCard !=''">
+				credit_card = #{creditCard},
+			</if>
+			<if test="null != accountId and accountId !=''">
+				account_id = #{accountId},
+			</if>
+			<if test="null != updateBy and updateBy.id !=''">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="null != updateDate">
+				update_date = #{updateDate},
+			</if>
+			<if test="null != remarks and remarks !=''">
+				remarks = #{name},
+			</if>
+			del_flag = '0'
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除员工信息 -->
+	<update id="delete">
+		UPDATE cpa_assisting_employee SET 
+			del_flag = '1'
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

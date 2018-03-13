@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.area.AreaDao">
+	<sql id="areaColumns">
+		a.id,
+		a.parent_id AS "parent.id",
+		a.parent_ids,
+		a.code,
+		a.name,
+		a.sort,
+		a.type,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag
+	</sql>
+	<select id="get" resultType="Area">
+		SELECT
+		<include refid="areaColumns" />
+		FROM sys_area a
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getAreaTreeChildrenByParentId" resultType="Area">
+	   SELECT
+		<include refid="areaColumns" />
+		FROM sys_area a
+		WHERE a.parent_id = #{parentId}
+	</select>
+</mapper>

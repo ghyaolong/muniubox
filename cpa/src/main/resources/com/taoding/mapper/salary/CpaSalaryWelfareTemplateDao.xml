@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryWelfareTemplateDao">
+    
+	<sql id="cpaSalaryWelfareTemplateColumns">
+		a.id AS "id",
+		a.city_id AS "cityId",
+		a.city_name AS "cityName",
+		a.welfare_item_type_id AS "welfareItemTypeId",
+		a.company_rate AS "companyRate",
+		a.company_addition AS "companyAddition",
+		a.company_fix AS "companyFix",
+		a.company_round_rule_id AS "companyRoundRuleId",
+		a.individual_rate AS "individualRate",
+		a.individual_addition AS "individualAddition",
+		a.individual_fix AS "individualFix",
+		a.individual_round_rule_id AS "individualRoundRuleId",
+		a.del_flag AS "delFlag",
+		a.no AS "no",
+		a.is_default AS "isDefault"
+	</sql>
+	
+	<sql id="cpaSalaryWelfareTemplateJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaSalaryWelfareTemplate">
+		SELECT 
+			<include refid="cpaSalaryWelfareTemplateColumns"/>
+		FROM cpa_salary_welfare_template a
+		<include refid="cpaSalaryWelfareTemplateJoins"/>
+		WHERE a.id = #{id}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 获取所有的默认模板 -->
+	<select id="findListByDefault" resultType="CpaSalaryWelfareTemplate">
+		SELECT 
+			<include refid="cpaSalaryWelfareTemplateColumns"/>
+		FROM cpa_salary_welfare_template a
+		<include refid="cpaSalaryWelfareTemplateJoins"/>
+		WHERE a.is_default = #{isDefault}
+		AND
+			a.del_flag = '0'
+	</select>
+	
+	<!-- 根据城市名称获取所有的社保公积金方案模板 -->
+	<select id="findListByCityName" parameterType="string" resultType="CpaSalaryWelfareTemplate">
+		SELECT 
+			<include refid="cpaSalaryWelfareTemplateColumns"/>
+		FROM cpa_salary_welfare_template a
+		<where>
+			a.del_flag = '0'
+		AND a.city_name = #{cityName}
+		<if test="cityName != null and cityName != ''">
+		AND
+			a.city_name 
+		LIKE 
+			concat('%',#{cityName},'%')
+		</if>
+		</where>
+	</select>
+	
+	<!-- 查询所有的城市名称 -->
+	<select id="findAllCityName" resultType="CpaSalaryWelfareTemplate">
+		SELECT 
+			 DISTINCT a.city_name
+		FROM cpa_salary_welfare_template a
+		<include refid="cpaSalaryWelfareTemplateJoins"/>
+		<where>
+			a.del_flag = '0'
+		</where>		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_salary_welfare_template(
+			id,
+			city_id,
+			city_name,
+			welfare_item_type_id,
+			company_rate,
+			company_addition,
+			company_fix,
+			company_round_rule_id,
+			individual_rate,
+			individual_addition,
+			individual_fix,
+			individual_round_rule_id,
+			del_flag,
+			no,
+			is_default
+		) VALUES (
+			#{id},
+			#{cityId},
+			#{cityName},
+			#{welfareItemTypeId},
+			#{companyRate},
+			#{companyAddition},
+			#{companyFix},
+			#{companyRoundRuleId},
+			#{individualRate},
+			#{individualAddition},
+			#{individualFix},
+			#{individualRoundRuleId},
+			#{delFlag},
+			#{no},
+			#{isDefault}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_salary_welfare_template SET 	
+			city_id = #{cityId},
+			city_name = #{cityName},
+			welfare_item_type_id = #{welfareItemTypeId},
+			company_rate = #{companyRate},
+			company_addition = #{companyAddition},
+			company_fix = #{companyFix},
+			company_round_rule_id = #{companyRoundRuleId},
+			individual_rate = #{individualRate},
+			individual_addition = #{individualAddition},
+			individual_fix = #{individualFix},
+			individual_round_rule_id = #{individualRoundRuleId},
+			no = #{no},
+			is_default = #{isDefault}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cpa_salary_welfare_template SET 
+			del_flag = '1'
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

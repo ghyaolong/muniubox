@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.customerTaxItem.TaxValueAddedDao">
+	 	<insert id="insert">
+		INSERT INTO cpa_tax_value_added(
+		id,
+		account_id,
+		declarant_period,
+		exemption,
+		surtax_exemptable,
+		create_by,
+		create_date,
+		update_by,
+		update_date
+		) VALUES (
+		#{id},
+		#{accountingId},
+		#{declarantPeriod},
+		#{exemption},
+		#{surtaxExemptable},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate} 
+		)
+	</insert>
+	<select id="getAccountingId" resultType="TaxValueAdded">
+	    SELECT
+	    a.account_id AS accountingId,a.declarant_period AS declarantPeriod,a.exemption,a.surtax_exemptable AS surtaxExemptable
+	    FROM cpa_tax_value_added a
+	    WHERE a.account_id=#{accountId}
+	</select>
+	<delete id="deleteAccountingId">
+	   DELETE FROM cpa_tax_value_added WHERE account_id=#{accountingId}
+	</delete>
+</mapper>

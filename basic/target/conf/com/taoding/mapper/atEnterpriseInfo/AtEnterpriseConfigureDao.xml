@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.atEnterpriseInfo.AtEnterpriseConfigureDao">
+    
+	<sql id="atEnterpriseConfigureColumns">
+		a.id AS "id",
+		a.at_enterprise_info_id AS "atEnterpriseInfoId",
+		a.url AS "url",
+		a.attribute_01 AS "attribute01",
+		a.attribute_02 AS "attribute02",
+		a.attribute_03 AS "attribute03",
+		a.attribute_04 AS "attribute04",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.enterprise_marking AS "enterpriseMarking"
+	</sql>
+	
+	<sql id="atEnterpriseConfigureJoins">
+	</sql>
+    
+	<select id="get" resultType="AtEnterpriseConfigure">
+		SELECT 
+		DISTINCT
+			<include refid="atEnterpriseConfigureColumns"/>
+		FROM at_enterprise_configure a
+		<include refid="atEnterpriseConfigureJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 根据atEnterpriseInfoId获取AtEnterpriseConfigure对象 -->
+	<select id="getConfigure" resultType="AtEnterpriseConfigure">
+		SELECT 
+		DISTINCT
+			a.id,a.at_enterprise_info_id atEnterpriseInfoId,a.url
+		FROM at_enterprise_configure a
+		WHERE a.at_enterprise_info_id = #{atEnterpriseInfoId}
+	</select>
+	
+	<select id="findList" resultType="AtEnterpriseConfigure">
+		SELECT 
+			<include refid="atEnterpriseConfigureColumns"/>
+		FROM at_enterprise_configure a
+		<include refid="atEnterpriseConfigureJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AtEnterpriseConfigure">
+		SELECT 
+			<include refid="atEnterpriseConfigureColumns"/>
+		FROM at_enterprise_configure a
+		<include refid="atEnterpriseConfigureJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO at_enterprise_configure(
+			id,
+			at_enterprise_info_id,
+			url,
+			attribute_01,
+			attribute_02,
+			attribute_03,
+			attribute_04,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			enterprise_marking
+		) VALUES (
+			#{id},
+			#{atEnterpriseInfo.id},
+			#{url},
+			#{attribute01},
+			#{attribute02},
+			#{attribute03},
+			#{attribute04},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{atEnterpriseInfo.enterpriseMarking}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE at_enterprise_configure SET 	
+			at_enterprise_info_id = #{atEnterpriseInfoId},
+			url = #{url},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			enterprise_marking = #{enterpriseMarking}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 修改企业的把配置信息 -->
+	<update id="updateConfigure">
+		UPDATE at_enterprise_configure 
+			<trim prefix="set" suffixOverrides=",">
+				<if test="atEnterpriseInfoId != null and atEnterpriseInfoId != ''">
+					at_enterprise_info_id = #{atEnterpriseInfoId},
+				</if>
+				<if test="url != null and url != ''">
+					url = #{url},
+				</if>
+				<if test="updateBy != null and updateBy.id != ''">
+					update_by = #{updateBy.id},
+				</if>
+				<if test="updateDate != null">
+					update_date = #{updateDate},
+				</if>
+				<if test="remarks != null and remarks != ''">
+					remarks = #{remarks},
+				</if>
+				<if test="enterpriseMarking != null and enterpriseMarking != ''">
+					enterprise_marking = #{enterpriseMarking},
+				</if>
+			</trim>
+		WHERE at_enterprise_info_id = #{atEnterpriseInfoId}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM at_enterprise_configure  
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findAtEnterpriseConfigureForAtEnterpriseInfoId" resultType="AtEnterpriseConfigure">
+		SELECT 
+			<include refid="atEnterpriseConfigureColumns"/>
+		FROM at_enterprise_configure a
+		<include refid="atEnterpriseConfigureJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}	
+		and
+			a.at_enterprise_info_id = #{atEnterpriseInfo.id}
+		</where>
+	</select>
+	
+</mapper>

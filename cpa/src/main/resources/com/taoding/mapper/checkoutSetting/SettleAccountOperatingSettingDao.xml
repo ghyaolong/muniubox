@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.checkoutSetting.SettleAccountOperatingSettingDao">
+ 
+   <select id="findList" resultType="SettleAccountOperatingSetting">
+		SELECT a.id AS id,
+		a.book_id AS bookId,a.customer_id AS customerId,a.sub_name AS subName,a.sub_order AS subOrder,a.start_num AS startNum, 
+		a.end_num AS endNum
+		FROM cpa_settle_account_operating_setting a
+		WHERE a.book_id =#{bookId}
+		ORDER BY a.sub_order
+	</select>
+	
+	<insert id="batchInsert">
+		INSERT INTO cpa_settle_account_operating_setting(
+		id,
+		book_id,
+		customer_id,
+		sub_name,
+		sub_order,
+		start_num,
+		end_num,
+		create_by,
+		create_date
+		) VALUES
+		<foreach collection="settleAccountOperatingSettingList" item="item" index="index"
+			separator=",">
+			(
+			#{item.id},
+			#{item.bookId},
+			#{item.customerId},
+			#{item.subName},
+			#{item.subOrder},
+			#{item.startNum},
+			#{item.endNum},
+			#{item.createBy.id},
+			#{item.createDate}
+			)
+		</foreach>
+	</insert>
+	
+</mapper>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.ticket.TicketListTemplateDao">
+	<resultMap id="BaseResultMap" type="com.taoding.domain.ticket.TicketListTemplate">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="book_id" jdbcType="VARCHAR" property="bookId" />
+		<result column="summary_blacklist" jdbcType="VARCHAR" property="summaryBlacklist" />
+		<result column="is_rest_by_tax" jdbcType="TINYINT" property="isRestByTax" />
+		<result column="deleted" jdbcType="TINYINT" property="deleted" />
+		<result column="created" jdbcType="TIMESTAMP" property="created" />
+		<result column="updated" jdbcType="TIMESTAMP" property="updated" />
+	</resultMap>
+	<resultMap extends="BaseResultMap" id="ResultMapWithBLOBs"
+		type="com.taoding.domain.ticket.TicketListTemplate">
+		<result column="template" jdbcType="LONGVARCHAR" property="template" />
+		<result column="templating" jdbcType="LONGVARCHAR" property="templating" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, book_id, summary_blacklist, is_rest_by_tax, deleted, created, updated
+	</sql>
+	<sql id="Blob_Column_List">
+		template, templating
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from cpa_ticket_list_template
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from cpa_ticket_list_template
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert" parameterType="com.taoding.domain.ticket.TicketListTemplate">
+		insert into cpa_ticket_list_template (id, book_id, summary_blacklist, is_rest_by_tax, deleted,
+		created, updated, template,
+		templating)
+		values (#{id,jdbcType=VARCHAR}, #{bookId,jdbcType=VARCHAR},
+		#{summaryBlacklist,jdbcType=VARCHAR},#{isRestByTax,jdbcType=TINYINT},#{deleted,jdbcType=TINYINT},
+		#{created,jdbcType=TIMESTAMP}, #{updated,jdbcType=TIMESTAMP}, #{template,jdbcType=LONGVARCHAR},
+		#{templating,jdbcType=LONGVARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.taoding.domain.ticket.TicketListTemplate">
+		insert into cpa_ticket_list_template
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="bookId != null">
+				book_id,
+			</if>
+			<if test="summaryBlacklist != null">
+				summary_blacklist,
+			</if>
+			<if test="isRestByTax != null">
+				is_rest_by_tax,
+			</if>
+			<if test="deleted != null">
+				deleted,
+			</if>
+			<if test="created != null">
+				created,
+			</if>
+			<if test="updated != null">
+				updated,
+			</if>
+			<if test="template != null">
+				template,
+			</if>
+			<if test="templating != null">
+				templating,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="bookId != null">
+				#{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="summaryBlacklist != null">
+				#{summaryBlacklist,jdbcType=VARCHAR},
+			</if>
+			<if test="isRestByTax != null">
+				#{isRestByTax,jdbcType=TINYINT},
+			</if>
+			<if test="deleted != null">
+				#{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				#{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				#{updated,jdbcType=TIMESTAMP},
+			</if>
+			<if test="template != null">
+				#{template,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="templating != null">
+				#{templating,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.taoding.domain.ticket.TicketListTemplate">
+		update cpa_ticket_list_template
+		<set>
+			<if test="bookId != null">
+				book_id = #{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="summaryBlacklist != null">
+				summary_blacklist = #{summaryBlacklist,jdbcType=VARCHAR},
+			</if>
+			<if test="isRestByTax != null">
+				is_rest_by_tax = #{isRestByTax,jdbcType=VARCHAR},
+			</if>
+			<if test="deleted != null">
+				deleted = #{deleted,jdbcType=VARCHAR},
+			</if>
+			<if test="created != null">
+				created = #{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				updated = #{updated,jdbcType=TIMESTAMP},
+			</if>
+			<if test="template != null">
+				template = #{template,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="templating != null">
+				templating = #{templating,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.taoding.domain.ticket.TicketListTemplate">
+		update cpa_ticket_list_template
+		set book_id = #{bookId,jdbcType=VARCHAR},
+		summary_blacklist = #{summaryBlacklist,jdbcType=VARCHAR},
+		is_rest_by_tax = #{isRestByTax,jdbcType=TINYINT},
+		deleted = #{deleted,jdbcType=TINYINT},
+		created = #{created,jdbcType=TIMESTAMP},
+		updated = #{updated,jdbcType=TIMESTAMP},
+		template = #{template,jdbcType=LONGVARCHAR},
+		templating = #{templating,jdbcType=LONGVARCHAR}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+	<!-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<自定义方法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
+	<select id="selectList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from cpa_ticket_list_template
+		<where>
+			<if test="bookId != null">
+				and book_id = #{bookId,jdbcType=VARCHAR}
+			</if>
+			<if test="summaryBlacklist != null">
+				and summary_blacklist = #{summaryBlacklist,jdbcType=VARCHAR}
+			</if>
+			<if test="isRestByTax != null">
+				and is_rest_by_tax = #{isRestByTax,jdbcType=TINYINT}
+			</if>
+			<if test="deleted != null">
+				and deleted = #{deleted,jdbcType=TINYINT}
+			</if>
+			<if test="created != null">
+				and created = #{created,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updated != null">
+				and updated = #{updated,jdbcType=TIMESTAMP}
+			</if>
+			<if test="template != null">
+				and template = #{template,jdbcType=LONGVARCHAR}
+			</if>
+			<if test="templating != null">
+				and templating = #{templating,jdbcType=LONGVARCHAR}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

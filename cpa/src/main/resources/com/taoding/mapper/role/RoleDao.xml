@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.role.RoleDao">
+    
+    <resultMap id="roleResult" type="Role">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="enname" column="enname" />
+		<result property="roleType" column="roleType" />
+		<result property="dataScope" column="dataScope" />
+		<result property="remarks" column="remarks" />
+		<result property="useable" column="useable" />
+		<result property="sysRoleGroup.id" column="sysRoleGroup.id" />
+		<result property="roleGroupId" column="roleGroupId" />
+		<result property="sysData" column="sysData" />
+		<result property="isDefault" column="isDefault" /><!-- 
+		<collection property="userList" ofType="User">
+			<id property="id" column="userList.id" />
+			<id property="loginName" column="userList.loginName" />
+			<id property="name" column="userList.name" />
+			<id property="email" column="userList.email" />
+			<id property="phone" column="userList.phone" />
+			<id property="mobile" column="userList.mobile" />
+			<id property="office.name" column="userList.office.name" />
+			<id property="company.name" column="userList.company.name" />
+		</collection> -->
+		<collection property="menuList" ofType="Menu">
+			<id property="id" column="menuList.id" />
+		</collection>
+		<collection property="officeList" ofType="Office">
+			<id property="id" column="officeList.id" />
+		</collection>
+	</resultMap>
+	
+    <sql id="roleColumns">
+    	a.id,
+    	a.office_id AS "office.id",
+    	a.name,
+    	a.enname,
+    	a.role_type AS roleType,
+		a.data_scope AS dataScope,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.enterprise_marking as enterpriseMarking,
+		a.del_flag,
+    	o.name AS "office.name",
+    	o.code,
+      a.role_group_id as "sysRoleGroup.id", 
+    	a.role_group_id AS roleGroupId,
+    	a.useable AS useable,
+    	a.is_sys AS sysData,
+    	a.is_default AS isDefault
+    </sql>
+    
+	<select id="get" resultMap="roleResult">
+		SELECT
+			<include refid="roleColumns"/>,<!-- 
+			ur.user_id AS "userList.id",
+			u.login_name AS "userList.loginName",
+			u.name AS "userList.name",
+			u.email AS "userList.email",
+			u.phone AS "userList.phone",
+			u.mobile AS "userList.mobile",
+			uc.name AS "userList.company.name",
+			uo.name AS "userList.office.name", -->
+			rm.menu_id AS "menuList.id",
+			ro.office_id AS "officeList.id"
+		FROM sys_role a
+		LEFT JOIN sys_office o ON o.id = a.office_id<!-- 
+		LEFT JOIN sys_user_role ur ON ur.role_id = a.id
+		LEFT JOIN sys_user u ON u.id = ur.user_id
+		LEFT JOIN sys_office uc ON uc.id = u.company_id
+		LEFT JOIN sys_office uo ON uo.id = u.office_id -->
+		LEFT JOIN sys_role_menu rm ON rm.role_id = a.id
+		LEFT JOIN sys_role_office ro ON ro.role_id = a.id
+		LEFT JOIN sys_role_group sg ON sg.id=a.role_group_id
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	<select id="findRoleCount" resultType="long">
+	select count(1) from sys_role  a 
+	<where>
+	a.del_flag = #{DEL_FLAG_NORMAL} 
+	<if test="sysRoleGroup !=null and sysRoleGroup.id !=null and sysRoleGroup.id !=''">
+	and a.role_group_id = #{sysRoleGroup.id}
+	</if>
+	<if test="useable !=null and useable !=''">
+	and a.useable = #{useable}
+	</if>
+	</where>
+	
+	</select>
+	
+	<select id="getByName" resultType="Role">
+		SELECT
+			<include refid="roleColumns"/>
+		FROM sys_role a
+		LEFT JOIN sys_office o ON o.id = a.office_id
+		WHERE a.name = #{name} AND a.del_flag = #{DEL_FLAG_NORMAL} and a.enterprise_marking=#{enterpriseMarking}
+	</select>
+	
+	<select id="getByEnname" resultType="Role">
+		SELECT
+			<include refid="roleColumns"/>
+		FROM sys_role a
+		Left JOIN sys_office o ON o.id = a.office_id
+		WHERE a.enname = #{enname} AND a.del_flag = #{DEL_FLAG_NORMAL} and a.enterprise_marking=#{enterpriseMarking}
+	</select>
+	
+	<select id="findList" resultMap="roleResult">
+		SELECT 
+		     DISTINCT
+			<include refid="roleColumns"/>,
+			ro.office_id AS "officeList.id"
+		FROM sys_role a
+		LEFT JOIN sys_office o ON o.id = a.office_id
+		LEFT JOIN sys_user_role ur ON ur.role_id = a.id
+		LEFT JOIN sys_user u ON u.id = ur.user_id
+		LEFT JOIN sys_user_role_group ug ON ug.role_group_id=a.role_group_id
+		LEFT JOIN sys_role_group sg ON sg.id=ug.role_group_id
+		LEFT JOIN sys_role_office ro ON ro.role_id = a.id
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND a.useable=#{useable}
+		<if test="sysRoleGroup !=null ">
+		AND sg.del_flag = #{DEL_FLAG_NORMAL} 
+		<if test="sysRoleGroup.roleGroupStatus !=null ">
+		AND sg.role_group_status=#{sysRoleGroup.roleGroupStatus}
+		</if>
+		</if>
+		<if test="enterpriseMarking != null and enterpriseMarking !=''">
+		AND a.enterprise_marking=#{enterpriseMarking}
+		</if>
+		
+		<if test="user != null and user.id != null and user.id != ''">
+			AND (u.id = #{user.id} or ug.user_id=#{user.id})
+		</if>
+		<if test="user != null and user.loginName != null and user.loginName != ''">
+			AND u.login_name = #{user.loginName}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		ORDER BY o.code, a.name
+	</select>
+	
+	<select id="findAllList" resultType="Role">
+		SELECT
+			<include refid="roleColumns"/>
+		FROM sys_role a
+		LEFT JOIN sys_office o ON o.id = a.office_id
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND a.enterprise_marking=#{enterpriseMarking}
+		<if test="null!=sysRoleGroup and null != sysRoleGroup.id">
+		and a.role_group_id =#{sysRoleGroup.id}
+		</if>
+		<if test="null!=sqlMap and null != sqlMap.queryConditionSqlR">
+		${sqlMap.queryConditionSqlR}
+		</if>
+		ORDER BY o.create_date desc 
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_role(
+			id, 
+			office_id, 
+			name, 
+			enname, 
+			role_type, 
+			data_scope, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag,
+			is_sys,
+			enterprise_marking,
+			role_group_id,
+			useable
+		) VALUES (
+			#{id}, 
+			#{office.id}, 
+			#{name}, 
+			#{enname}, 
+			#{roleType}, 
+			#{dataScope}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag},
+			#{sysData},
+			#{enterpriseMarking},
+			#{sysRoleGroup.id},
+			#{useable}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_role SET 
+			office_id = #{office.id}, 
+			name = #{name}, 
+			enname = #{enname}, 
+			role_type = #{roleType}, 
+			data_scope = #{dataScope}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			is_sys = #{sysData},
+			role_group_id = #{sysRoleGroup.id},
+			useable = #{useable}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 批量修改  add lixc -->
+	<update id="updateBatch"  parameterType="java.util.List">
+	    <foreach close=";" collection="list" index="index" item="role" open="" separator=";"> 
+	    	UPDATE sys_role   
+	    <trim prefix="set" suffixOverrides=",">
+		  <if test="null != role.sysRoleGroup and role.sysRoleGroup.id != null">role_group_id = #{role.sysRoleGroup.id},</if>
+		 </trim>
+		WHERE id = #{role.id}
+        </foreach>
+	</update>
+	
+	<delete id="deleteRoleMenu">
+		DELETE FROM sys_role_menu WHERE role_id = #{id}
+	</delete>
+	
+	<insert id="insertRoleMenu">
+		INSERT INTO sys_role_menu(role_id, menu_id)
+		<foreach collection="menuList" item="menuId" separator=" union all ">
+			SELECT #{roleId}, #{menuId}
+		</foreach>
+	</insert>
+	
+	<delete id="deleteRoleOffice">
+		DELETE FROM sys_role_office WHERE role_id = #{id}
+	</delete>
+	
+	<insert id="insertRoleOffice">
+		INSERT INTO sys_role_office(role_id, office_id)
+		<foreach collection="officeList" item="office" separator=" union all ">
+			SELECT #{id}, #{office.id}
+		</foreach>
+	</insert>
+	
+	<update id="delete">
+		UPDATE sys_role SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="findMaxRoleNo" resultType="string">
+	SELECT MAX(a.enname) from sys_role a 
+	<where>
+	a.enterprise_marking =#{enterpriseMarking} and a.del_flag=#{DEL_FLAG_NORMAL}
+	<if test="null != enname and '' !=enname">
+	and a.enname like CONCAT(#{enname},'%')
+	</if>
+	</where>
+	</select>
+	
+	<!-- 查询企业角色模板 -->
+	<select id="findEnterpriseTemplateForRole" resultType="Role">
+		SELECT
+			<include refid="enterpriseTemplateRoleColumns"/>
+			 
+		FROM sys_role a
+		 
+		WHERE a.enterprise_marking = #{enterpriseMarking} and a.del_flag=#{DEL_FLAG_NORMAL} and a.useable="1"
+	</select>
+	
+	
+	 <sql id="enterpriseTemplateRoleColumns">
+    	a.id,
+    	a.office_id AS "office.id",
+    	a.name,
+    	a.enname,
+    	a.role_type AS roleType,
+		a.data_scope AS dataScope,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.enterprise_marking as enterpriseMarking,
+		a.del_flag,
+    	a.role_group_id AS roleGroupId,
+    	a.useable AS useable,
+    	a.is_sys AS sysData,
+    	a.is_default AS isDefault
+    </sql>
+    
+    
+    <!-- 插入企业模板角色 -->
+    <insert id="insertEnterpriseTemplateSysRoleList">
+		INSERT INTO sys_role(
+			id, 
+			name, 
+			enname, 
+			role_type, 
+			data_scope, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag,
+			is_sys,
+			enterprise_marking,
+			role_group_id,
+			useable
+		) VALUES 
+			<foreach collection="roleEnterpriseTemplateList" item="item" index="index" separator="," > 
+			(
+			#{item.id},  
+			#{item.name}, 
+			#{item.enname}, 
+			#{item.roleType}, 
+			#{item.dataScope}, 
+			#{item.createBy.id}, 
+			#{item.createDate}, 
+			#{item.updateBy.id}, 
+			#{item.updateDate}, 
+			#{item.remarks}, 
+			#{item.delFlag},
+			#{item.sysData},
+			#{item.enterpriseMarking},
+			#{item.roleGroupId},
+			#{item.useable}
+		) 
+		</foreach>   
+	</insert>
+	
+	
+	<!-- 插入企业模板角色与用户的关联关系 -->
+	<insert id="insertEnterpriseTemplateSysUserRoleList">
+		INSERT INTO sys_user_role(
+			 user_id,
+			 role_id
+		) VALUES
+		<foreach collection="roleList" item="item" index="index" separator="," > 
+		(
+		    #{item.user.id},
+			#{item.id}
+		) 
+		</foreach> 
+	</insert>
+</mapper>

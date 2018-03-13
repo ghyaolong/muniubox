@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.fixedAsset.FixedAssetDao">
+
+
+	<sql id="FixedAssetColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.asset_type_id AS "assetTypeId",
+		a.asset_type_id AS "assetType.id",
+		cat.name as "assetType.name",
+		
+		a.accounted_for_date AS "accountedForDate",
+		a.current_period AS "currentPeriod",
+		a.employee_id AS "assistingEmployee.id",
+		e.name AS "assistingEmployee.name",
+		
+		a.dept_id AS "assistingBalanceDepartment.id",
+		d.department_name AS "assistingBalanceDepartment.departmentName",
+		
+		IFNULL(a.original_value,0.00) AS "originalValue",
+		IFNULL(a.original_depreciation,0.00) AS
+		"originalDepreciation",
+		a.residual_rate AS "residualRate",
+		a.lifecycle
+		AS "lifecycle",
+		IFNULL(a.depreciation_per_month,0.00) AS "depreciationPerMonth",
+		a.depreciation_type AS "depreciationType",
+		a.depreciation_start_date AS
+		"depreciationStartDate",
+		a.depreciation_fee_subject_id AS "depreciationFeeSubject.id",
+		s.subject_name AS "depreciationFeeSubject.subjectName",
+		a.depreciation_cumulation_subject_id AS "depreciationCumulationSubject.id",
+		cs.subject_name AS "depreciationCumulationSubject.subjectName",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.account_id as "accountId",
+	    a.depreciation_date as "depreciationDate",
+		a.status,
+		a.net_worth  as  netWorth,
+		IFNULL(a.this_month_depreciation,0.00) as "thisMonthDepreciation",
+		a.enter_date as "enterDate",
+		a.code,
+		a.voucher_id as "voucherId"
+	</sql>
+
+	<sql id="FixedAssetJoins">
+	join  cpa_asset_type cat on cat.id = a.asset_type_id
+	left join cpa_assisting_employee e on  e.id = a.employee_id
+	left join cpa_assisting_balance_department d on  d.id = a.dept_id
+	left join cpa_customer_subject  s on s.id  = a.depreciation_fee_subject_id
+	left join cpa_customer_subject  cs on cs.id = a.depreciation_cumulation_subject_id
+	</sql>
+
+	<select id="get" resultType="FixedAsset">
+		SELECT
+		<include refid="FixedAssetColumns" />
+		FROM cpa_fixed_asset a
+		<include refid="FixedAssetJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="FixedAsset">
+		SELECT
+		<include refid="FixedAssetColumns" />
+		FROM cpa_fixed_asset a
+		<include refid="FixedAssetJoins" />
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE concat('%',#{name},'%')
+			</if>
+		</where>
+	</select>
+
+
+		<!-- 分页查询 -->
+		<select id="findFixedAssetListByMap" resultType="FixedAsset" parameterType="java.util.Map">
+		SELECT
+		<include refid="FixedAssetColumns" />
+		FROM cpa_fixed_asset a
+		<include refid="FixedAssetJoins" />
+		<where>
+			a.del_flag='0'
+			<if test="accountId != null and '' != accountId">
+				AND a.account_id = #{accountId}
+			</if>
+			<if test="null != currentPeriod">
+				AND DATE_FORMAT(a.current_period,'%Y-%m') = DATE_FORMAT(#{currentPeriod},'%Y-%m')
+			</if>
+			
+			<if test="null != assetTypeId and '' != assetTypeId">
+			AND a.asset_type_id = #{assetTypeId}
+			</if>
+			
+			<if test="null != status">
+			AND a.status = #{status}
+			</if>
+			</where>
+			<if test="null != orderStr and '' != orderStr">
+			order by ${orderStr}
+			</if>
+	
+		</select>
+
+	<!-- 资产编码 -->
+	<sql id="codesSql">
+		<if test="codes != null">
+			and a.code in
+			<foreach collection="codes" item="code" separator="," open="("
+				close=")">
+				#{code}
+			</foreach>
+		</if>
+	</sql>
+
+
+	<select id="findAllList" resultType="FixedAsset">
+		SELECT
+		<include refid="FixedAssetColumns" />
+		FROM cpa_fixed_asset a
+		<include refid="FixedAssetJoins" />
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cpa_fixed_asset(
+		id,
+		name,
+		asset_type_id,
+		accounted_for_date,
+		current_period,
+		employee_id,
+		dept_id,
+		original_value,
+		original_depreciation,
+		residual_rate,
+		lifecycle,
+		depreciation_per_month,
+		depreciation_type,
+		depreciation_start_date,
+		depreciation_fee_subject_id,
+		depreciation_cumulation_subject_id,
+		account_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		depreciation_date,
+		status,
+		net_worth,
+		this_month_depreciation,
+		enter_date,
+		voucher_id,
+		code
+		) VALUES (
+		#{id},
+		#{name},
+		#{assetTypeId},
+		#{accountedForDate},
+		#{currentPeriod},
+		#{assistingEmployee.id},
+		#{assistingBalanceDepartment.id},
+		#{originalValue},
+		#{originalDepreciation},
+		#{residualRate},
+		#{lifecycle},
+		#{depreciationPerMonth},
+		#{depreciationType},
+		#{depreciationStartDate},
+		#{depreciationFeeSubject.id},
+		#{depreciationCumulationSubject.id},
+		#{accountId},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{depreciationDate},
+		#{status},
+		#{netWorth},
+		#{thisMonthDepreciation},
+		#{enterDate},
+		#{voucherId},
+		#{code}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cpa_fixed_asset SET
+		<trim suffixOverrides=",">
+			<if test="null != name and '' != name">
+				name= #{name},
+			</if>
+
+			<if test="null != assetTypeId">
+				asset_type_id = #{assetTypeId},
+			</if>
+
+			<if test="null != accountedForDate">
+				accounted_for_date = #{accountedForDate},
+			</if>
+
+			<if test="null != currentPeriod">
+				current_period = #{currentPeriod},
+			</if>
+
+			<if test="null != assistingEmployee and '' != assistingEmployee.id and null != assistingEmployee.id">
+				employee_id = #{assistingEmployee.id},
+			</if>
+
+			<if test="null != assistingBalanceDepartment and '' != assistingBalanceDepartment.id and null != assistingBalanceDepartment.id">
+				dept_id=#{assistingBalanceDepartment.id},
+			</if>
+
+			<if test="null != originalValue">
+				original_value = #{originalValue},
+			</if>
+
+			<if test="null != originalDepreciation">
+				original_depreciation = #{originalDepreciation},
+			</if>
+
+			<if test="null != residualRate">
+				residual_rate = #{residualRate},
+			</if>
+
+			<if test="null != lifecycle">
+				lifecycle = #{lifecycle},
+			</if>
+			<if test="null != depreciationPerMonth">
+				depreciation_per_month = #{depreciationPerMonth},
+			</if>
+
+			<if test="null != depreciationType">
+				depreciation_type = #{depreciationType},
+			</if>
+
+			<if test="null != depreciationStartDate">
+				depreciation_start_date = #{depreciationStartDate},
+			</if>
+
+			<if test="null != depreciationFeeSubject and '' != depreciationFeeSubject.id and null != depreciationFeeSubject.id ">
+				depreciation_fee_subject_id = #{depreciationFeeSubject.id},
+			</if>
+
+			<if test="null != depreciationCumulationSubject and '' != depreciationCumulationSubject.id and null != depreciationCumulationSubject.id ">
+				depreciation_cumulation_subject_id = #{depreciationCumulationSubject.id},
+			</if>
+			
+			<if test="null != updateBy and null != updateBy.id and '' != updateBy.id"> 
+			   update_by = #{updateBy.id},
+			</if>
+			
+			<if test="null != updateDate"> 
+			   update_date = #{updateDate},
+			</if>
+			
+			<if test="null != status"> 
+			   status = #{status},
+			</if>
+			
+			<if test="null != delFlag and '' != delFlag">
+				 del_flag =#{delFlag},
+			</if>
+			<if test="null != remarks and '' != remarks">
+				 remarks =#{remarks},
+			</if>
+			
+			<if test="null != accountId and '' != accountId">
+				 account_id =#{accountId},
+			</if>
+			
+			<if test="null != depreciationDate ">
+				 depreciation_Date =#{depreciationDate},
+			</if>
+			<if test="null != netWorth">
+				 net_Worth =#{netWorth},
+			</if>
+			<if test="null != thisMonthDepreciation ">
+				 this_month_depreciation =#{thisMonthDepreciation},
+			</if>
+			 
+			 <if test="null != enterDate ">
+				 enter_date =#{enterDate},
+			</if>
+			 
+			 <if test="null != voucherId and '' != voucherId ">
+				 voucher_id =#{voucherId},
+			</if>
+			<if test="null != clearDate"> 
+			   clear_date = #{clearDate},
+			</if>
+			<if test="null != code and '' != code">
+				code=#{code},
+			</if>
+			 
+		</trim>
+
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete" parameterType="String">
+		update  cpa_fixed_asset set del_flag = '1'
+		WHERE id = #{id}
+	</update>
+
+
+
+	<!-- 查询列运算-->
+	<sql id="OneFixedAssetColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.asset_type_id AS "assetTypeId",
+		
+		a.accounted_for_date AS "accountedForDate",
+		a.current_period AS "currentPeriod",
+		a.employee_id AS "assistingEmployee.id",
+		
+		a.dept_id AS "assistingBalanceDepartment.id",
+		
+		IFNULL(a.original_value,0.00) AS "originalValue",
+		IFNULL(a.original_depreciation,0.00) AS "originalDepreciation",
+		a.residual_rate AS "residualRate",
+		a.lifecycle AS "lifecycle",
+		IFNULL(a.depreciation_per_month,0.00) AS "depreciationPerMonth",
+		a.depreciation_type AS "depreciationType",
+		a.depreciation_start_date AS "depreciationStartDate",
+		a.depreciation_fee_subject_id AS "depreciationFeeSubject.id",
+		a.depreciation_cumulation_subject_id AS "depreciationCumulationSubject.id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.account_id as "accountId",
+	    a.depreciation_date as "depreciationDate",
+		a.status,
+		a.net_worth  as  netWorth,
+		IFNULL(a.this_month_depreciation,0.00) as "thisMonthDepreciation",
+		a.enter_date as "enterDate",
+		a.code,
+		a.voucher_id as "voucherId"
+	</sql>
+	
+	<select id="findSingleFixedAssetListByMap" resultType="FixedAsset">
+		SELECT
+		<include refid="OneFixedAssetColumns" />
+		FROM cpa_fixed_asset a
+		<where>
+		a.del_flag='0'
+		<if test="null != accountId and '' != accountId">
+		and a.account_id = #{accountId}
+		</if>
+		<if test="null != currentPeriod">
+		and DATE_FORMAT(a.current_period,'%Y-%m') = DATE_FORMAT(#{currentPeriod},'%Y-%m')
+		</if>
+			
+			<if test="null != periodFrom">
+				AND <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') >= DATE_FORMAT(#{periodFrom},'%Y-%m')]]>
+			</if>
+			<if test="null != periodTo">
+				AND <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') <= DATE_FORMAT(#{periodTo},'%Y-%m')]]>
+			</if>
+			
+			<if test="null != assetTypeId and '' != assetTypeId">
+			AND a.asset_type_id = #{assetTypeId}
+			</if>
+			
+			<if test="null != status">
+			AND a.status = #{status}
+			</if>
+			<!-- 资产编码 -->
+		    <include refid="codesSql"/>
+		</where>
+		 <if test="null != orderStr and '' != orderStr">
+			order by ${orderStr}
+			</if>
+	</select>
+	
+	<!--  插入资产资产类型关联表 -->
+	<insert id="insertAssetTypeAndAsset" parameterType="AssetTypeAndAsset" useGeneratedKeys="true" keyProperty="id">
+	insert into 
+	asset_type_and_asset
+	(
+	 asset_type_id,
+	 asset_name,
+	 count,
+	 account_id,
+	 last_update,
+	 type
+	 )
+     values
+     (
+     #{assetTypeId},
+     #{assetName},
+     #{count},
+     #{accountId},
+     #{lastUpdate},
+     #{type}
+     )
+	</insert>
+	
+	
+	<!--  修改资产资产类型关联表 -->
+	<update id="updateAssetTypeAndAsset" parameterType="AssetTypeAndAsset">
+	update   
+	asset_type_and_asset
+	set 
+		
+	<trim suffixOverrides=",">
+	count = count + 1,
+	<if test="null != assetName and '' != assetName">
+	   asset_name = #{assetName},
+	</if>
+	 
+	<if test="null != accountId and '' != accountId">
+	   account_id = #{accountId},
+	</if>
+	 
+	<if test="null != type">
+	   type = #{type},
+	</if>
+	
+	<if test="null != lastUpdate">
+	 last_update =  #{lastUpdate},
+	</if>
+	
+	<if test="null != assetTypeId and '' != assetTypeId">
+	   asset_type_id = #{assetTypeId},
+	</if>
+	</trim>
+	
+	 where 
+	  id = #{id}
+	</update>
+	
+	<select id="findAssetTypeAndAssetList" resultType="AssetTypeAndAsset" parameterType="String">
+	
+	select 
+	 a.id,
+	 a.asset_type_id as "assetTypeId",
+	 asset_name as "assetName",
+	 count as "count",
+	 account_id as "accountId",
+	 last_update as "lastUpdate",
+	 type as  "type"
+	 from 
+	 asset_type_and_asset a 
+	 <where>
+	 <trim prefixOverrides="and">
+	 
+	<if test="null != assetName and '' != assetName">
+	and  asset_name = #{assetName}
+	</if>
+	 
+	<if test="null != accountId and '' != accountId">
+	and  account_id = #{accountId}
+	</if>
+	 
+	<if test="null != type">
+	and  type = #{type}
+	</if>
+	 
+	<if test="null != assetTypeId and '' != assetTypeId">
+	and  asset_type_id = #{assetTypeId}
+	</if>
+	 
+	 </trim>
+	 </where>
+	 order by count desc
+	</select>
+	
+	<!-- 按条件求和 条件参考分页-->
+	<select id="sumFixedAssetListByMap" resultType="FixedAsset"
+		parameterType="java.util.Map">
+		SELECT
+		<!--groupByNameStr 与  groupBy 配合应用-->
+		<if test="null != groupByNameStr and '' != groupByNameStr">
+		${groupByNameStr}
+		</if>
+		"合计" as "name",
+		sum(IFNULL(a.original_value,0)) as "originalValue",
+		sum(IFNULL(a.original_depreciation,0)) as "originalDepreciation",
+		sum(IFNULL(a.net_worth,0)) as netWorth,
+		sum(IFNULL(a.depreciation_per_month,0)) as "depreciationPerMonth",
+		sum(IFNULL(a.this_month_depreciation,0)) as "thisMonthDepreciation"
+		FROM cpa_fixed_asset a
+		<where>
+			a.del_flag='0'
+			<if test="accountId != null and '' != accountId">
+				and a.account_id = #{accountId}
+			</if>
+			<if test="status != null">
+				and a.status = #{status}
+			</if>
+			<if test="null != currentPeriod">
+				and DATE_FORMAT(a.current_period,'%Y-%m') =
+				DATE_FORMAT(#{currentPeriod},'%Y-%m')
+			</if>
+		</where>
+		<if test="null != groupBy and '' != groupBy">
+			group by ${groupBy}
+		</if>
+	</select>
+
+	<!-- 查询资产名称列表 -->
+	<select id="findAssetNameList" parameterType="java.util.Map"
+		resultType="java.util.Map">
+        select
+		DISTINCT
+		CONCAT(a.code,'',a.name) as "assetName",
+		a.name,
+		a.code
+		from
+		<!-- 固定资产 -->
+		<if test="type == 1 and null != assetTypeId and '' != assetTypeId">
+			cpa_fixed_asset a
+		</if>
+
+		<!-- 无形资产 -->
+		<if test="type == 2 and null != assetTypeId and '' != assetTypeId">
+			cpa_intangible_asset a
+		</if>
+		<!-- 长期摊销 -->
+		<if test="type == 3">
+			cpa_long_apportioned_assets a
+		</if>
+
+		<where>
+			a.del_flag='0'
+			<if test="null != periodFrom">
+				and <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') >= DATE_FORMAT(#{periodFrom},'%Y-%m')]]>
+			</if>
+			<if test="null != periodTo">
+				and <![CDATA[DATE_FORMAT(a.current_period,'%Y-%m') <= DATE_FORMAT(#{periodTo},'%Y-%m')]]>
+			</if>
+
+			<if test="null != accountId and '' != accountId">
+				and a.account_id = #{accountId}
+			</if>
+            
+            <if test="null != status">
+				and a.status = #{status}
+			</if>
+			
+			<if test="null != assetTypeId and '' != assetTypeId and type != 3 ">
+				and a.asset_type_id = #{assetTypeId}
+			</if>
+		</where>
+	</select>
+		
+		
+	<update id="updateBatchFixedAssetByVourcherIds" parameterType="java.util.List">
+
+	<foreach close=";" collection="list" index="index" item="fixedAsset" separator=";">
+
+		UPDATE cpa_fixed_asset SET
+		<trim suffixOverrides=",">
+
+			<if test="null != fixedAsset.updateBy and null != fixedAsset.updateBy.id and '' != fixedAsset.updateBy.id">
+				update_by = #{fixedAsset.updateBy.id},
+			</if>
+
+			<if test="null != fixedAsset.updateDate">
+				update_date = #{fixedAsset.updateDate},
+			</if>
+
+			<if test="null != fixedAsset.status">
+				status = #{fixedAsset.status},
+			</if>
+
+		</trim>
+		WHERE voucher_id = #{fixedAsset.voucherId}
+	</foreach>
+</update>
+		
+		<!--  初始化列表类型 -->
+	<insert id="insertAssetTypeByAssetTypeTemplate" parameterType="AssetType">
+		INSERT INTO cpa_asset_type
+		(
+		id,
+		account_id,
+		no,
+		name,
+		type,
+		lifecycle,
+		residual_rate,
+		create_by,
+		create_date,
+		del_flag
+		)
+		SELECT
+		t.id,
+		#{accountId},
+		t.no,
+		t.name,
+		t.type,
+		t.lifecycle,
+		t.residual_rate,
+		#{createBy.id},
+		#{createDate},
+		t.del_flag
+		FROM
+		cpa_asset_type_template t
+		where t.del_flag = '0'
+	</insert>
+	<select id="findBookMaxCode" resultType="String">
+		SELECT MAX(a.code)
+		FROM cpa_fixed_asset a
+		WHERE a.account_id=#{bookId}
+		ORDER BY a.code DESC
+	</select>
+</mapper>

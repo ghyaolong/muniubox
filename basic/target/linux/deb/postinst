@@ -1,0 +1,5 @@
+#!/bin/sh
+
+chown -R muniubox: /var/log/muniubox-platform
+chown -R muniubox: /usr/share/muniubox-platform
+update-rc.d muniubox-platform defaults

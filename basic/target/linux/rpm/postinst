@@ -1,0 +1,9 @@
+#!/bin/sh
+
+chown -R muniubox: /var/log/muniubox-platform
+chown -R muniubox: /usr/share/muniubox-platform
+
+if [ $1 -eq 1 ] ; then
+        # Initial installation
+        systemctl --no-reload enable muniubox-platform.service >/dev/null 2>&1 || :
+fi

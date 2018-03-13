@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.profit.ProfitItemDao">
+	
+	<resultMap type="com.taoding.domain.report.profit.ProfitItem" id="typeMapper">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="type" property="type"/>
+		<result column="line_order" property="lineOrder"/>
+		<result column="level" property="level"/>
+		<result column="parent_id" property="parentId"/>
+		<result column="is_aggregation" property="isAggregation"/>
+		<result column="operation" property="operation"/>
+		<result column="accounting_rule_type" property="accountingRuleType"/>
+		<result column="show_rule" property="showRule"/>
+		<collection property="profileCustomerFomulaList" ofType="com.taoding.domain.report.profit.ProfileCustomerFomula">
+			<id column="fomulaId" property="id"/>
+			<result column="subject_id" property="subjectId"/>
+			<result column="account_id" property="accountId"/>
+			<result column="fomulaOperation" property="operation"/>
+			<result column="operand_source" property="operandSource"/>
+			<result column="item_id" property="itemId"/>
+		</collection>
+	</resultMap>
+	
+	
+	<sql id = "allRow">
+		pi.id,
+		pi.name,
+		pi.line_order,
+		pi.level,
+		pi.parent_id,
+		pi.is_aggregation,
+		pi.operation,
+		pi.accounting_rule_type,
+		pi.show_rule,
+		pif.id AS fomulaId,
+		pif.subject_id,
+		pif.account_id,
+		pif.operation AS fomulaOperation,
+		pif.operand_source,
+		pif.item_id
+	</sql>
+	
+	
+	
+	
+	<select id="profitItemListByRule" resultMap="typeMapper">
+	 SELECT 
+	  <include refid="allRow"/>
+	  FROM (select  * from cpa_report_profit_item WHERE accounting_rule_type = #{rule}) pi 
+ 		LEFT  JOIN  cpa_report_customer_profile_item_fomula pif ON pi.id = pif.item_id  AND  pif.account_id = #{accountId}
+ 		 ORDER BY  pi.line_order
+	</select>
+</mapper>

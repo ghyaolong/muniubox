@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.subject.CpaCustomerSubjectDao">
+	
+	<!-- 根据账簿ID查询该账簿下所有科目信息 -->
+	<select id="findAllList" parameterType="string" resultType="CpaCustomerSubject">
+		select id , book_id bookId ,customer_id customerId ,catalog_id catalogId,
+				subject_no subjectNo ,subject_name subjectName,
+				direction , parent, basic_subject basicSubject, level ,assisting ,
+				inventory, subject , beginning_balances beginningBalances,
+				current_year_debit currentYearDebit, current_year_credit currentYearCredit,
+				init_balance initBalance , profit_and_lose profitAndLose ,finish
+		from cpa_customer_subject 
+			where book_id = #{bookId} 
+			<if test="hashChild == false || hashChild == null">
+				and hash_child = 0
+			</if>
+			and del_flag = 0  order by subject_no,parent asc 
+	</select>
+	
+	<!-- 根据ID查询会计科目 -->
+	<select id="getById" parameterType="string" resultType="CpaCustomerSubject">
+		select t.id , t.book_id bookId ,t.customer_id customerId ,t.catalog_id catalogId,
+			t.subject_no subjectNo ,t.subject_name subjectName,
+			t.direction , t.parent, t. basic_subject basicSubject, t.level, t.assisting ,
+			t.inventory, t.subject , t.beginning_balances beginningBalances,
+			t.current_year_debit currentYearDebit, t.current_year_credit currentYearCredit,
+			t.init_balance initBalance ,t. profit_and_lose profitAndLose ,t.finish ,t1.subject_name parentName
+		from cpa_customer_subject t
+			 left join ( 
+			 select subject_no,book_id,subject_name from cpa_customer_subject where book_id = #{bookId} and del_flag = 0 
+			 ) t1 on t.parent = t1.subject_no
+			where t.book_id =#{bookId} and t.id = #{id} and t.del_flag = 0 
+	</select>
+	
+	<!-- 根据ID查询会计科目 -->
+	<select id="get" parameterType="string" resultType="CpaCustomerSubject">
+		select t.id , t.book_id bookId ,t.customer_id customerId ,t.catalog_id catalogId,
+			t.subject_no subjectNo ,t.subject_name subjectName,
+			t.direction , t.parent, t. basic_subject basicSubject, t.level, t.assisting ,
+			t.inventory, t.subject , t.beginning_balances beginningBalances,
+			t.current_year_debit currentYearDebit, t.current_year_credit currentYearCredit,
+			t.init_balance initBalance ,t. profit_and_lose profitAndLose ,t.finish 
+		from cpa_customer_subject t
+			where t.id = #{id} and t.del_flag = 0 
+	</select>
+	
+	<!-- 根据父No查询最大子科目编号 -->
+	<select id="findMaxNoByParentNo" resultType="string">
+		select MAX(subject_no)  from cpa_customer_subject 
+			where book_id =#{bookId} and parent = #{parentNo} and subject = 0  and del_flag = 0 order by subject_no desc
+	</select>
+	
+	<!-- 查询当前父节点下科目名称唯一性 -->
+	<select id="findByParentNoAndName" parameterType="string" resultType="CpaCustomerSubject">
+		select id , book_id bookId ,customer_id customerId ,catalog_id catalogId,
+				subject_no subjectNo ,subject_name subjectName 
+		from cpa_customer_subject  where book_id =#{bookId} 
+			and parent = #{parentNo} and (
+ 				subject_no = #{subjectName} or subject_name = #{subjectName} 
+			) and del_flag = 0 
+	</select>
+	
+	<!-- 根据父No查询 其下所有子科目信息 -->
+	<select id="findListByParentNo" parameterType="string" resultType="CpaCustomerSubject">
+		select id , book_id bookId ,customer_id customerId ,catalog_id catalogId,
+				subject_no subjectNo ,subject_name subjectName,
+				direction , parent,  basic_subject basicSubject, level, assisting ,
+				inventory , subject , beginning_balances beginningBalances,
+				current_year_debit currentYearDebit, current_year_credit currentYearCredit,
+				init_balance initBalance , profit_and_lose profitAndLose ,finish
+		from cpa_customer_subject  where book_id =#{bookId} 
+			and parent = #{parentNo} and del_flag = 0 
+	</select>
+	
+	<!-- 插入科目 -->
+	<insert id="insert">
+		insert into cpa_customer_subject(
+			id, book_id ,customer_id, catalog_id, subject_no, subject_name,
+	   		direction, parent, level, basic_subject, assisting, subject,inventory ,
+	   		beginning_balances,current_year_debit,current_year_credit,init_balance, profit_and_lose,
+	   		create_by, create_date,update_by , update_date,remarks ,
+	   		del_flag , finish ,hash_child
+		) values (
+			#{id}, #{bookId}, #{customerId}, #{catalogId} ,#{subjectNo}, #{subjectName}, 
+			#{direction}, #{parent}, #{level},#{basicSubject} ,#{assisting}, #{subject}, #{inventory},
+			#{beginningBalances}, #{currentYearDebit}, #{currentYearCredit} ,#{initBalance}, #{profitAndLose},
+			#{createBy.id}, #{createDate}, #{updateBy.id}, #{updateDate}, #{remarks}, 
+			#{delFlag}, #{finish}, #{hashChild}
+		)
+	</insert>
+	
+	<!-- 批量插入科目 -->
+	<insert id="batchInsert">
+		insert into cpa_customer_subject(
+			id, book_id,customer_id, catalog_id, subject_no, subject_name,
+	   		direction, parent, level,basic_subject, assisting, subject, inventory,
+	   		beginning_balances,current_year_debit,current_year_credit,init_balance, profit_and_lose,
+	   		create_by, create_date,update_by , update_date,remarks ,
+	   		del_flag , finish ,hash_child
+		) values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(
+				#{item.id}, #{item.bookId} ,#{item.customerId}, #{item.catalogId} ,#{item.subjectNo}, #{item.subjectName}, 
+				#{item.direction}, #{item.parent}, #{item.level} , #{item.basicSubject}, #{item.assisting}, #{item.subject},#{item.inventory},
+				#{item.beginningBalances}, #{item.currentYearDebit}, #{item.currentYearCredit} ,#{item.initBalance}, #{item.profitAndLose},
+				#{item.createBy.id}, #{item.createDate}, #{item.updateBy.id}, #{item.updateDate}, #{item.remarks}, 
+				#{item.delFlag}, #{item.finish}, #{item.hashChild}
+			)
+		</foreach>
+	</insert>
+	
+	<!-- 修改科目 -->
+	<update id="update">
+		update cpa_customer_subject set 
+			subject_name = #{subjectName},
+			assisting = #{assisting},
+			<if test="null != hashChild">
+			hash_child = #{hashChild},
+			</if>
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		where id = #{id}
+	</update>
+	
+	<!-- 根据id删除科目 -->
+	<delete id="delete">
+		delete from cpa_customer_subject where id = #{id}
+	</delete>
+	
+	<!-- 统计期初金额 -->
+	<select id="totalBeginningMoney" parameterType="string" resultType="hashmap">
+		select  IFNULL(SUM(t.beginning_balances),0) as beginning_debit ,IFNULL(t1.beginning_credit,0) as beginning_credit  from cpa_customer_subject  t
+			left join (
+				select book_id ,SUM(beginning_balances)  as beginning_credit 
+					from cpa_customer_subject where book_id = #{bookId} and level = 1 and direction = 0 and del_flag = 0 
+			) as t1 on t.book_id = t1.book_id
+		where t.book_id = #{bookId} and t.level = 1 and t.direction = 1 and t.del_flag = 0 
+		
+	</select>
+	
+	<!-- 统计累计发生额 -->
+	<select id="totalCurrentYearMoney" parameterType="string" resultType="hashmap">
+		select IFNULL(SUM(current_year_debit),0) current_debit ,IFNULL(SUM(current_year_credit),0) current_credit from cpa_customer_subject 
+			where book_id = #{bookId} and level = 1 and del_flag = 0
+	</select>
+	
+	<update id="updateFinishByBookId">
+		update cpa_customer_subject set 
+			finish = #{finish} where book_id = #{bookId}
+	</update>
+	
+	<!-- 修改科目期初金额 -->
+	<update id="updateSubjectMoney">
+		update cpa_customer_subject set 
+			beginning_balances = #{beginningBalances},
+			current_year_debit = #{currentYearDebit},
+			current_year_credit = #{currentYearCredit},
+			init_balance = #{initBalance},
+			profit_and_lose = #{profitAndLose},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		where id = #{id}
+	</update>
+	
+	<!-- 根据科目编号查询科目信息 -->
+	<select id="findBySubjectNo" parameterType="string" resultType="CpaCustomerSubject">
+		select id ,book_id bookId , customer_id customerId ,catalog_id catalogId,
+				subject_no subjectNo ,subject_name subjectName,
+				direction , parent, basic_subject basicSubject, level ,assisting ,
+				inventory , subject , beginning_balances beginningBalances,
+				current_year_debit currentYearDebit, current_year_credit currentYearCredit,
+				init_balance initBalance , profit_and_lose profitAndLose ,finish
+		 from cpa_customer_subject where book_id = #{bookId} and subject_no = #{subjectNo}
+	</select>
+	
+	<!-- 根据父节点统计金额 -->
+	<select id="totalByParentNo" parameterType="string" resultType="CpaCustomerSubject">
+		select 	SUM(beginning_balances) beginningBalances ,
+				SUM(current_year_debit) currentYearDebit ,
+				SUM(current_year_credit) currentYearCredit ,
+				SUM(init_balance) initBalance ,
+				SUM(profit_and_lose) profitAndLose 
+			from cpa_customer_subject where book_id = #{bookId} and parent = #{subjectNo}
+	</select>
+
+	<!-- 根据id 查询科目信息及科目余额 -->	
+	<select id="findInfoAndAmountById" parameterType="string" resultType="CpaCustomerSubject">
+		select t.id , t.subject_no subjectNo ,
+			t.subject_name subjectName ,t.direction ,
+			IFNULL(t.beginning_balances,0) beginningBalances , 
+			IFNULL(t1.sumDebit,0)  sumDebit,
+			IFNULL(t1.sumCredit,0) sumCredit ,t.assisting
+		from cpa_customer_subject t
+			left join (
+				select subject_id,SUM(amount_debit) sumDebit ,SUM(amount_credit) sumCredit from cpa_voucher_subject_${bookId} 
+					where subject_id = #{id}  and voucher_period &lt; #{nextPeriod}
+			) t1 on t1.subject_id = t.id
+		where t.id = #{id} and t.book_id = #{bookId}  and t.del_flag = 0 
+	</select>
+	
+	<!-- 根据ID查询科目信息，此方法只供凭证汇总模块使用 -->
+	<select id="getVoucherSummarySubjectById" parameterType="string" resultType="CpaVoucherSummary">
+		select  id , book_id bookId ,customer_id customerId ,
+				subject_no subjectNo ,subject_name subjectName,
+				direction , parent,  assisting , subject
+			from cpa_customer_subject where id = #{id} and book_id = #{bookId} and del_flag = 0 
+	</select>
+	
+	<!-- 通过科目编号查询科目信息，此方法只供凭证汇总模块使用 -->
+	<select id="getVoucherSummaryBySubjectNo" parameterType="string" resultType="CpaVoucherSummary">
+		select  id , book_id bookId ,customer_id customerId ,
+				subject_no subjectNo ,subject_name subjectName,
+				direction , parent,  assisting , subject
+			from cpa_customer_subject where subject_no = #{subjectNo} and book_id = #{bookId} and del_flag = 0  
+	</select>
+</mapper>

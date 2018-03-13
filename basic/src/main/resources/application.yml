@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.5.73:3306/muniubox?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    username: root
+    password: mysqlmuniubox
+
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,log4j,
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+mybatis:
+  config-location: "classpath:mybatis-config.xml"
+  
+#用户认证相关参数
+authentication:
+  expDate: 1800000
+  secret: 201711090001
+ 
+# 设置请求上传的文件大小        
+  http:
+    multipart:
+      max-file-size: 70MB
+      max-request-size: 70MB
+# 设置允许上传的图片格式和图片大小      
+img:
+  extension: .jpg,.jpeg,.bmp,.gif,.png
+  size: 4194304 # 单位byte   4*1024*1024 byte 
+   
+#上传图片相关路径 
+userFileLogo:
+  path: static/userfile/images/photo/logo
+#初始密码
+initPassword:
+  password: Td*123456
+
+projectPath:
+  path: D\:\\workspaceold\\platformnet
+ 

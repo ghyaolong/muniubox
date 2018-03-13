@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.atEnterpriseInfo.AtEnterpriseInfoDao">
+    
+	<sql id="atEnterpriseInfoColumns">
+		a.id AS "id",
+		a.company_code AS "companyCode",
+		a.company_name AS "companyName",
+		a.customer_num AS "customerNum",
+		a.company_account AS "companyAccount",
+		a.company_scale AS "companyScale",
+		a.is_name_autherticate AS "isNameAutherticate",
+		a.company_state AS "companyState",
+		b.legal_person_name As "atLegalPersonInfo.legalPersonName",	
+		b.legal_person_phone AS "atLegalPersonInfo.legalPersonPhone",
+		m.linkman_name AS "atLinkman.linkmanName",
+		m.linkman_phone AS "atLinkman.linkmanPhone",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.enterprise_marking AS "enterpriseMarking",
+		c.company_phone AS "AtEnterpriseInfoDetail.companyPhone",
+		c.company_fax AS "AtEnterpriseInfoDetail.companyFax",
+		c.industry_Involved AS "AtEnterpriseInfoDetail.industryInvolved",
+		c.company_address AS "AtEnterpriseInfoDetail.companyAddress",
+		c.company_mail AS "AtEnterpriseInfoDetail.companyMail",
+		c.manage_form AS "AtEnterpriseInfoDetail.manageForm",
+		c.company_type As "AtEnterpriseInfoDetail.companyType"
+	</sql>
+	
+	<sql id="atEnterpriseInfoJoins">
+		LEFT JOIN at_legal_person_info b ON b.at_enterprise_info_id = a.id 
+		LEFT JOIN at_enterprise_info_detail c ON c.at_enterprise_info_id= a.id
+		LEFT JOIN at_linkman m ON m.at_enterprise_info_id= a.id
+	</sql>
+    
+	<select id="get" resultType="AtEnterpriseInfo">
+		SELECT 
+			<include refid="atEnterpriseInfoColumns"/>
+		FROM at_enterprise_info a
+		<include refid="atEnterpriseInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 分页、模糊查询、准确查询数据 -->
+	<select id="findAllByPage" parameterType="java.util.Map" resultType="AtEnterpriseInfo">
+		SELECT 
+			<include refid="atEnterpriseInfoColumns"/>
+		FROM at_enterprise_info a
+		<include refid="atEnterpriseInfoJoins"/>
+		WHERE
+			a.del_flag = 0
+			<!-- 表头下拉准确查询 -->	
+			<if test="null !=customerNum and customerNum != ''">
+				AND a.customer_num = #{customerNum}
+			</if>	
+			<if test="null !=companyScale and companyScale != ''">
+				AND a.company_scale = #{companyScale}
+			</if>
+			<if test="null !=isNameAutherticate and isNameAutherticate != ''">
+				AND a.is_name_autherticate = #{isNameAutherticate}
+			</if>
+			<if test="null !=companyState and companyState != ''">
+				AND a.company_state = #{companyState}
+			</if>
+			<if test="atLegalPersonInfo != null and atLegalPersonInfo.id != null and atLegalPersonInfo.id != ''">
+				AND a.legal_person_id = #{atLegalPersonInfo.id}
+			</if>
+			<if test="companyCode != null and companyCode != ''">
+				AND a.company_code = #{companyCode}
+			</if>
+			<if test="companyName != null and companyName != ''">
+				AND a.company_name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{companyName},'%')</if>
+			</if>
+			<if test="null != queryConditionSql and queryConditionSql !=''">
+				${queryConditionSql}
+			</if>
+		ORDER BY a.create_date ASC
+	</select>
+	
+	<select id="findAllList" resultType="AtEnterpriseInfo">
+		SELECT 
+			<include refid="atEnterpriseInfoColumns"/>
+		FROM at_enterprise_info a
+		<include refid="atEnterpriseInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO at_enterprise_info(
+			id,
+			company_code,
+			company_name,
+			company_account,
+			customer_num,
+			company_scale,
+			is_name_autherticate,
+			company_state,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			enterprise_marking
+		) VALUES (
+			#{id},
+			#{companyCode},
+			#{companyName},
+			#{companyAccount},
+			#{customerNum},
+			#{companyScale},
+			#{isNameAutherticate},
+			#{companyState},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{enterpriseMarking}
+		)
+	</insert>
+	<update id="update">
+		UPDATE at_enterprise_info SET 	
+			company_code = #{companyCode},
+			company_name = #{companyName},
+			company_account = #{companyAccount},
+			customer_num = #{customerNum},
+			company_scale = #{companyScale},
+			is_name_autherticate = #{isNameAutherticate},
+			company_state = #{companyState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			enterprise_marking=#{enterpriseMarking}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE at_enterprise_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE legal_person_id = #{legalPerson.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<insert id="insertAtEnterpriseConfigureDao">
+		INSERT INTO at_enterprise_configure(
+			id,
+			legal_person_id,
+			company_code,
+			company_name,
+			company_account,
+			customer_num,
+			company_scale,
+			is_name_autherticate,
+			company_state,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			enterprise_marking
+		) VALUES (
+			#{id},
+			#{atLegalPersonInfo.id},
+			#{companyCode},
+			#{companyName},
+			#{companyAccount},
+			#{customerNum},
+			#{companyScale},
+			#{isNameAutherticate},
+			#{companyState},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{enterpriseMarking}
+		)
+	</insert>
+	
+	<!-- 根据用户关联公司信息 -->
+	<select id="findCompanyByUserId" resultType="AtEnterpriseInfo" parameterType="string">
+		 SELECT
+		    distinct
+			en.company_code,en.company_name
+		FROM
+			sys_user a 
+		LEFT JOIN sys_enterprise_user seu ON seu.user_id=a.id
+		LEFT JOIN at_enterprise_info en ON en.id=seu.enterprise_id
+		WHERE
+		a.id=#{userId}
+		AND
+		a.del_flag = #{delFlag}
+	</select>
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.checkoutSetting.SettleAccountOperatingBasicDao">
+ 
+  <select id="findAllList" resultType="SettleAccountOperatingBasic">
+		SELECT
+		a.sub_name AS subName,a.sub_order AS subOrder,a.start_num AS startNum,a.end_num AS endNum
+		FROM cpa_settle_account_operating_basic a
+	</select>
+	
+</mapper>

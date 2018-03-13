@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.ticket.BankStatementDao">
+	<resultMap id="BaseResultMap" type="com.taoding.domain.ticket.BankStatement">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="line_no" jdbcType="VARCHAR" property="lineNo" />
+		<result column="book_id" jdbcType="VARCHAR" property="bookId" />
+		<result column="ticket_id" jdbcType="VARCHAR" property="ticketId" />
+		<result column="bank_id" jdbcType="VARCHAR" property="bankId" />
+		<result column="account_date" jdbcType="DATE" property="accountDate" />
+		<result column="statement_date" jdbcType="DATE" property="statementDate" />
+		<result column="direction" jdbcType="TINYINT" property="direction" />
+		<result column="amount" jdbcType="DECIMAL" property="amount" />
+		<result column="deleted" jdbcType="TINYINT" property="deleted" />
+		<result column="created" jdbcType="TIMESTAMP" property="created" />
+		<result column="updated" jdbcType="TIMESTAMP" property="updated" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, line_no, book_id, ticket_id, bank_id, account_date, statement_date,
+		direction,
+		amount, deleted, created, updated
+	</sql>
+	<select id="selectByExample" parameterType="com.taoding.domain.ticket.BankStatementExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from cpa_bank_statement
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from cpa_bank_statement
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from cpa_bank_statement
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.taoding.domain.ticket.BankStatementExample">
+		delete from cpa_bank_statement
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.taoding.domain.ticket.BankStatement">
+		insert into cpa_bank_statement (id, line_no, book_id,
+		ticket_id, bank_id, account_date,
+		statement_date, direction, amount,
+		deleted, created, updated
+		)
+		values (#{id,jdbcType=VARCHAR}, #{lineNo,jdbcType=VARCHAR},
+		#{bookId,jdbcType=VARCHAR},
+		#{ticketId,jdbcType=VARCHAR}, #{bankId,jdbcType=VARCHAR}, #{accountDate,jdbcType=DATE},
+		#{statementDate,jdbcType=DATE}, #{direction,jdbcType=TINYINT},
+		#{amount,jdbcType=DECIMAL},
+		#{deleted,jdbcType=TINYINT}, #{created,jdbcType=TIMESTAMP}, #{updated,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.taoding.domain.ticket.BankStatement">
+		insert into cpa_bank_statement
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="lineNo != null">
+				line_no,
+			</if>
+			<if test="bookId != null">
+				book_id,
+			</if>
+			<if test="ticketId != null">
+				ticket_id,
+			</if>
+			<if test="bankId != null">
+				bank_id,
+			</if>
+			<if test="accountDate != null">
+				account_date,
+			</if>
+			<if test="statementDate != null">
+				statement_date,
+			</if>
+			<if test="direction != null">
+				direction,
+			</if>
+			<if test="amount != null">
+				amount,
+			</if>
+			<if test="deleted != null">
+				deleted,
+			</if>
+			<if test="created != null">
+				created,
+			</if>
+			<if test="updated != null">
+				updated,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="lineNo != null">
+				#{lineNo,jdbcType=VARCHAR},
+			</if>
+			<if test="bookId != null">
+				#{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketId != null">
+				#{ticketId,jdbcType=VARCHAR},
+			</if>
+			<if test="bankId != null">
+				#{bankId,jdbcType=VARCHAR},
+			</if>
+			<if test="accountDate != null">
+				#{accountDate,jdbcType=DATE},
+			</if>
+			<if test="statementDate != null">
+				#{statementDate,jdbcType=DATE},
+			</if>
+			<if test="direction != null">
+				#{direction,jdbcType=TINYINT},
+			</if>
+			<if test="amount != null">
+				#{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="deleted != null">
+				#{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				#{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				#{updated,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.taoding.domain.ticket.BankStatementExample"
+		resultType="java.lang.Long">
+		select count(*) from cpa_bank_statement
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update cpa_bank_statement
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=VARCHAR},
+			</if>
+			<if test="record.lineNo != null">
+				line_no = #{record.lineNo,jdbcType=VARCHAR},
+			</if>
+			<if test="record.bookId != null">
+				book_id = #{record.bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ticketId != null">
+				ticket_id = #{record.ticketId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.bankId != null">
+				bank_id = #{record.bankId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.accountDate != null">
+				account_date = #{record.accountDate,jdbcType=DATE},
+			</if>
+			<if test="record.statementDate != null">
+				statement_date = #{record.statementDate,jdbcType=DATE},
+			</if>
+			<if test="record.direction != null">
+				direction = #{record.direction,jdbcType=TINYINT},
+			</if>
+			<if test="record.amount != null">
+				amount = #{record.amount,jdbcType=DECIMAL},
+			</if>
+			<if test="record.deleted != null">
+				deleted = #{record.deleted,jdbcType=TINYINT},
+			</if>
+			<if test="record.created != null">
+				created = #{record.created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.updated != null">
+				updated = #{record.updated,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update cpa_bank_statement
+		set id = #{record.id,jdbcType=VARCHAR},
+		line_no = #{record.lineNo,jdbcType=VARCHAR},
+		book_id = #{record.bookId,jdbcType=VARCHAR},
+		ticket_id = #{record.ticketId,jdbcType=VARCHAR},
+		bank_id = #{record.bankId,jdbcType=VARCHAR},
+		account_date = #{record.accountDate,jdbcType=DATE},
+		statement_date = #{record.statementDate,jdbcType=DATE},
+		direction = #{record.direction,jdbcType=TINYINT},
+		amount = #{record.amount,jdbcType=DECIMAL},
+		deleted = #{record.deleted,jdbcType=TINYINT},
+		created = #{record.created,jdbcType=TIMESTAMP},
+		updated = #{record.updated,jdbcType=TIMESTAMP}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.taoding.domain.ticket.BankStatement">
+		update cpa_bank_statement
+		<set>
+			<if test="lineNo != null">
+				line_no = #{lineNo,jdbcType=VARCHAR},
+			</if>
+			<if test="bookId != null">
+				book_id = #{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketId != null">
+				ticket_id = #{ticketId,jdbcType=VARCHAR},
+			</if>
+			<if test="bankId != null">
+				bank_id = #{bankId,jdbcType=VARCHAR},
+			</if>
+			<if test="accountDate != null">
+				account_date = #{accountDate,jdbcType=DATE},
+			</if>
+			<if test="statementDate != null">
+				statement_date = #{statementDate,jdbcType=DATE},
+			</if>
+			<if test="direction != null">
+				direction = #{direction,jdbcType=TINYINT},
+			</if>
+			<if test="amount != null">
+				amount = #{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="deleted != null">
+				deleted = #{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				created = #{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				updated = #{updated,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.taoding.domain.ticket.BankStatement">
+		update cpa_bank_statement
+		set line_no = #{lineNo,jdbcType=VARCHAR},
+		book_id = #{bookId,jdbcType=VARCHAR},
+		ticket_id = #{ticketId,jdbcType=VARCHAR},
+		bank_id = #{bankId,jdbcType=VARCHAR},
+		account_date = #{accountDate,jdbcType=DATE},
+		statement_date = #{statementDate,jdbcType=DATE},
+		direction = #{direction,jdbcType=TINYINT},
+		amount = #{amount,jdbcType=DECIMAL},
+		deleted = #{deleted,jdbcType=TINYINT},
+		created = #{created,jdbcType=TIMESTAMP},
+		updated = #{updated,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

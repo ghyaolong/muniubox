@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.assisting.CpaAssistingProjectDao">
+    
+	<sql id="CpaAssistingProjectColumns">
+		a.id AS "id",
+		a.project_no AS "projectNo",
+		a.project_name AS "projectName",
+		a.account_id AS "accountId",
+		a.expense_type_id AS "expenseTypeId",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.project_no AS "no"
+	</sql>
+	
+	<!--根据id查找项目对象信息 -->
+	<select id="get" resultType="CpaAssistingProject">
+		SELECT 
+			a.id id,a.project_no projectNo,a.project_name projectName,a.account_id accountId,a.expense_type_id expenseTypeId,a.del_flag delFlag,
+			a.project_name name,a.project_no no
+		FROM
+			cpa_assisting_project a
+		WHERE 
+			a.id = #{id}
+		AND
+			del_flag=0
+	</select>
+	
+	<!-- 查询所有项目的列表包含有名称的模糊搜索 -->
+	<select id="findAllList" parameterType="java.util.Map"  resultType="CpaAssistingProject">
+		SELECT 
+			a.id id,a.project_no projectNo,a.project_name projectName,a.account_id accountId,a.expense_type_id expenseTypeId,a.del_flag delFlag,
+			a.project_name name,a.project_no no
+		FROM
+			cpa_assisting_project a
+		WHERE
+			del_flag=0
+		AND
+			a.account_id = #{accountId}
+			<if test="projectName != null and projectName != ''">
+				AND a.project_name LIKE 
+					concat('%',#{projectName},'%')
+			</if>
+		ORDER BY id DESC		
+	</select>
+	
+	<!-- 根据名字查找 对象-->
+	<select id="findByName" parameterType="string" resultType="CpaAssistingProject">
+		SELECT 
+			a.id id,a.project_no projectNo,a.project_name projectName,a.account_id accountId,a.expense_type_id expenseTypeId,a.del_flag delFlag
+		FROM 
+			cpa_assisting_project a
+		WHERE
+			del_flag=0
+		AND
+			a.project_name = #{projectName}
+		AND
+			a.account_id = #{accountId}
+	</select>
+	
+	<!-- 修改项目目的信息 -->
+	<update id="update">
+		UPDATE cpa_assisting_project SET 
+			<if test="projectNo != null and projectNo !=''">
+				project_no = #{projectNo},
+			</if>
+			<if test="projectName !=null and projectName !=''">
+				project_name = #{projectName},
+			</if>
+			<if test="accountId != null and accountId !=''">
+				account_id = #{accountId},
+			</if>
+			<if test="expenseTypeId != null and expenseTypeId !=''">
+				expense_type_id = #{expenseTypeId},
+			</if>
+			<if test="null != updateBy and updateBy.id !=''">
+				update_by = #{updateBy},
+			</if>
+			<if test="updateDate != null">
+				update_date = #{updateDate},
+			</if>
+			<if test="createDate != null">
+				create_date = #{createDate},
+			</if>
+			<if test="remarks != null and remarks !=''">
+				remarks = #{remarks},
+			</if>
+			del_flag = 0
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据No查询项目最大编号 -->
+	<select id="findMaxNoByInfoNo" parameterType="string" resultType="string">
+		SELECT
+			 MAX(project_no) projectNo 
+		FROM
+		     cpa_assisting_project 
+		WHERE
+			del_flag=0
+		AND
+			account_id = #{accountId}
+	</select>
+	
+	<!-- 插入新项目的信息 -->
+	<insert id="insert">
+		INSERT INTO cpa_assisting_project(
+			id,
+			project_no,
+			project_name,
+			account_id,
+			expense_type_id,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectNo},
+			#{projectName},
+			#{accountId},
+			#{expenseTypeId},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- 删除存货 -->
+	<update id="delete" >
+		UPDATE cpa_assisting_project SET 
+			del_flag = '1'
+		WHERE id = #{id}
+	</update>
+
+</mapper>

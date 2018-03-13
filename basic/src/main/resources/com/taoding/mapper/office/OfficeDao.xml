@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.office.OfficeDao">
+	<sql id="officeColumns">
+		a.id,
+		a.parent_id AS "parent.id",
+		a.parent_ids AS parentIds,
+		a.area_id AS "area.id",
+		a.code,
+		a.name,
+		a.sort,
+		a.type,
+		a.grade,
+		a.address,
+		a.zip_code AS zipCode,
+		a.master,
+		a.phone,
+		a.fax,
+		a.email,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date createDate,
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS updateDate,
+		a.del_flag AS delFlag,
+		a.useable AS useable,
+		a.primary_person AS "primaryPerson.id",
+		a.deputy_person AS "deputyPerson.id",
+		p.name AS "parent.name",
+		ar.name
+		AS "area.name",
+		ar.parent_ids AS "area.parentIds",
+		pp.name AS
+		"primaryPerson.name",
+		dp.name AS "deputyPerson.name",
+		a.enterprise_marking As "enterpriseMarking"
+	</sql>
+
+	<sql id="officeJoins">
+		LEFT JOIN sys_office p ON p.id = a.parent_id
+		LEFT JOIN
+		sys_area ar ON ar.id = a.area_id
+		LEFT JOIN SYS_USER pp ON pp.id =
+		a.primary_person
+		LEFT JOIN SYS_USER dp ON dp.id = a.deputy_person
+	</sql>
+
+	<select id="get" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		<include refid="officeJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		<include refid="officeJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != enterpriseMarking and '' !=enterpriseMarking">
+				and a.enterprise_marking =#{enterpriseMarking}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<if test="null!=currentUser and null!=currentUser.officeList">
+			<foreach collection="currentUser.officeList" item="office">
+				OR a.id =
+				#{office.id}
+			</foreach>
+		</if>
+
+		ORDER BY a.code
+	</select>
+	<!-- 11.08 -->
+	<select id="findAllList" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		<include refid="officeJoins" />
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="null != enterpriseMarking and '' !=enterpriseMarking">
+			and a.enterprise_marking =#{enterpriseMarking}
+		</if>
+		<if test="null != name and name !=''">
+			and a.name=#{name}
+		</if>
+		<if test="null != code and code !=''">
+			and a.code=#{code}
+		</if>
+		<if test="null != isDefault and isDefault !=''">
+			and a.is_default=#{isDefault}
+		</if>
+		<if test="null != id and id !=''">
+			and a.id=#{id}
+		</if>
+		ORDER BY a.code
+	</select>
+
+	<select id="findByParentIdsLike" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		<include refid="officeJoins" />
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND a.parent_ids LIKE
+		#{parentIds}
+		ORDER BY a.code
+	</select>
+
+	<insert id="insert">
+		INSERT INTO sys_office(
+		id,
+		parent_id,
+		parent_ids,
+		area_id,
+		code,
+		name,
+		sort,
+		type,
+		grade,
+		address,
+		zip_code,
+		master,
+		phone,
+		fax,
+		email,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		useable,
+		primary_person,
+		deputy_person,
+		enterprise_marking
+		) VALUES (
+		#{id},
+		#{parent.id},
+		<!-- #{parent.parentIds}, -->
+		#{parentIds},
+		#{area.id},
+		#{code},
+		#{name},
+		#{sort},
+		#{type},
+		#{grade},
+		#{address},
+		#{zipCode},
+		#{master},
+		#{phone},
+		#{fax},
+		#{email},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{useable},
+		#{primaryPerson.id},
+		#{deputyPerson.id},
+		#{enterpriseMarking}
+		)
+	</insert>
+	<!-- 11.08 -->
+	<update id="update">
+		UPDATE sys_office
+		<trim prefix="set" suffixOverrides=",">
+		<!-- <if test="parent_id != null and parent.id != ''"> parent_id = #{parent.id}, 
+			</if> -->
+		<!-- <if test="parent_ids != null and parentIds != ''"> parent_ids = #{parentIds}, 
+			</if> -->
+		<!-- <if test="area.id != null and area.id != ''"> area_id = #{area.id}, 
+			</if> -->
+		<if test="code != null and code != ''">
+			code = #{code},
+		</if>
+		<if test="name != null and name != ''">
+			name = #{name},
+		</if>
+		<if test="type != null and type != ''">
+			type = #{type},
+		</if>
+		<if test="grade != null and grade != ''">
+			grade = #{grade},
+		</if>
+		<if test="address != null and address != ''">
+			address = #{address},
+		</if>
+		<if test="zipCode != null and zipCode != ''">
+			zip_code = #{zipCode},
+		</if>
+		<if test="master != null and master != ''">
+			master = #{master},
+		</if>
+		<if test="phone != null and phone != ''">
+			phone = #{phone},
+		</if>
+		<if test="fax != null and fax != ''">
+			fax = #{fax},
+		</if>
+		<if test="email != null and email != ''">
+			email = #{email},
+		</if>
+		<!-- <if test="updateBy.id != null and updateBy.id != ''"> update_by = 
+			#{updateBy.id}, </if> <if test="updateDate != null and updateDate != ''"> 
+			update_date = #{updateDate}, </if> -->
+		<if test="remarks != null and remarks != ''">
+			remarks = #{remarks},
+		</if>
+		<if test="useable != null and useable != ''">
+			useable=#{useable},
+		</if>
+		<if test="delFlag != null and delFlag != ''">
+			del_flag=#{delFlag},
+		</if>
+		<!-- <if test="primaryPerson.id != null and primaryPerson.id != ''"> primary_person=#{primaryPerson.id}, 
+			</if> <if test="deputyPerson.id != null and deputyPerson.id != ''"> deputy_person=#{deputyPerson.id}, 
+			</if> -->
+		<if test="enterpriseMarking != null and enterpriseMarking != ''">
+			enterprise_marking=#{enterpriseMarking},
+		</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateParentIds">
+		UPDATE sys_office SET
+		parent_id = #{parent.id},
+		parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE sys_office SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR
+		parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{id}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+
+	</update>
+
+	<!-- 查询子机构 11.08 -->
+	<select id="findOfficeList" resultType="Office">
+		SELECT
+		<include refid="officeDisableColumns" />
+		FROM sys_office a
+		WHERE a.del_flag = "0"
+		<!-- 数据范围过滤 -->
+		<if test="id != null and id != ''">
+			AND a.parent_id = #{id}
+		</if>
+		<if test="useable != null and useable != ''">
+			AND a.useable = #{useable}
+		</if>
+		ORDER BY a.code
+	</select>
+	<sql id="officeDisableColumns">
+		a.id,
+		a.parent_id AS "parent.id",
+		a.parent_ids AS parentIds,
+		a.area_id AS "area.id",
+		a.code,
+		a.name,
+		a.sort,
+		a.type,
+		a.grade,
+		a.address,
+		a.zip_code zipCode,
+		a.master,
+		a.phone,
+		a.fax,
+		a.email,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date AS createDate,
+		a.update_by
+		AS "updateBy.id",
+		a.update_date AS updateDate,
+		a.del_flag AS delFlag,
+		a.useable AS useable,
+		a.primary_person AS "primaryPerson.id",
+		a.deputy_person AS "deputyPerson.id",
+		a.enterprise_marking AS
+		"enterpriseMarking"
+	</sql>
+	<!-- 查询是父级机构 -->
+	<select id="findTopOfficeList" resultType="Office">
+		SELECT
+		<include refid="officeDisableColumns" />
+		FROM sys_office a
+		WHERE a.del_flag =0
+		<!-- 数据范围过滤 -->
+		<if test="parentId != null and parentId != ''">
+			and a.id=#{parentId}
+		</if>
+		<if test="enterpriseMarking !=null">
+			and a.enterprise_marking=#{enterpriseMarking}
+		</if>
+
+	</select>
+
+
+	<sql id="enterpriseTemplateForOfficColumns">
+		a.id,
+		a.parent_id AS "parent.id",
+		a.parent_ids AS parentIds,
+		a.area_id AS
+		"area.id",
+		a.code,
+		a.name,
+		a.sort,
+		a.type,
+		a.grade,
+		a.address,
+		a.zip_code AS
+		zipCode,
+		a.master,
+		a.phone,
+		a.fax,
+		a.email,
+		a.remarks,
+		a.create_by AS
+		"createBy.id",
+		a.create_date AS createDate,
+		a.update_by
+		AS "updateBy.id",
+		a.update_date AS updateDate,
+		a.del_flag AS delFlag,
+		a.useable AS useable<!-- 
+			, a.primary_person AS "primaryPerson.id", a.deputy_person AS "deputyPerson.id", 
+			a.enterprise_marking As "enterpriseMarking" -->
+	</sql>
+
+	<!-- 查询企业模板部门 -->
+	<select id="findEnterpriseTemplateForOffice" resultType="Office">
+		SELECT
+		<include refid="enterpriseTemplateForOfficColumns" />
+		FROM sys_office a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} and
+		a.useable="1"
+		<!-- 数据范围过滤 -->
+		<if test="enterpriseMarking !=null">
+			and a.enterprise_marking=#{enterpriseMarking}
+		</if>
+		ORDER BY a.code
+
+	</select>
+	<!-- 插入模板组织 -->
+	<insert id="insertEnterpriseOfficeList">
+
+		INSERT INTO sys_office(
+		id,
+		parent_id,
+		parent_ids,
+		area_id,
+		code,
+		name,
+		sort,
+		type,
+		grade,
+		address,
+		zip_code,
+		master,
+		phone,
+		fax,
+		email,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		useable,
+		primary_person,
+		deputy_person,
+		enterprise_marking
+		) VALUES
+		<foreach collection="enterpriseOfficeList" item="item" index="index"
+			separator=",">
+
+			(
+			#{item.id},
+			#{item.parent.id},
+			#{item.parentIds},
+			#{item.area.id},
+			#{item.area.code},
+			#{item.name},
+			#{item.sort},
+			#{item.type},
+			#{item.grade},
+			#{item.address},
+			#{item.zipCode},
+			#{item.master},
+			#{item.phone},
+			#{item.fax},
+			#{item.email},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.remarks},
+			#{item.delFlag},
+			#{item.useable},
+			#{item.primaryPerson.id},
+			#{item.deputyPerson.id},
+			#{item.enterpriseMarking}
+			)
+		</foreach>
+	</insert>
+	<!-- 根据id查询组织机构 11.8 -->
+	<select id="getTreeOffice" resultType="Office">
+		SELECT
+		<include refid="enterpriseTemplateForOfficColumns" />
+		FROM sys_office a where a.id=#{id}
+		AND a.del_flag = "0"
+	</select>
+	
+	<select id="findTreeOfficeById"  parameterType="java.lang.String" resultType="Office">
+	    SELECT 
+	    <include refid="officeDisableColumns" />
+	    FROM sys_office a
+	    WHERE 1=1
+	    <if test="null!=enterpriseMarking and ''!=enterpriseMarking">
+			AND a.enterprise_marking =#{enterpriseMarking}
+		</if>
+		<if test="null!=parentId and ''!=parentId">
+			AND a.parent_id =#{parentId}
+		</if>
+	</select>
+</mapper>

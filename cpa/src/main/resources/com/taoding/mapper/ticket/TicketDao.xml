@@ -1,0 +1,1268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.ticket.TicketDao">
+	<resultMap id="BaseResultMap" type="com.taoding.domain.ticket.Ticket">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="ticket_no" jdbcType="VARCHAR" property="ticketNo" />
+		<result column="voucher_id" jdbcType="VARCHAR" property="voucherId" />
+		<result column="customer_id" jdbcType="VARCHAR" property="customerId" />
+		<result column="book_id" jdbcType="VARCHAR" property="bookId" />
+		<result column="accounting_id" jdbcType="VARCHAR" property="accountingId" />
+		<result column="list_id" jdbcType="VARCHAR" property="listId" />
+		<result column="list_ids" jdbcType="VARCHAR" property="listIds" />
+		<result column="subject_content" jdbcType="VARCHAR" property="subjectContent" />
+		<result column="type" jdbcType="TINYINT" property="type" />
+		<result column="ticket_key" jdbcType="VARCHAR" property="ticketKey" />
+		<result column="ticket_code" jdbcType="VARCHAR" property="ticketCode" />
+		<result column="ticket_check_code" jdbcType="VARCHAR" property="ticketCheckCode" />
+		<result column="password" jdbcType="VARCHAR" property="password" />
+		<result column="payer_name" jdbcType="VARCHAR" property="payerName" />
+		<result column="payer_code" jdbcType="VARCHAR" property="payerCode" />
+		<result column="payer_address" jdbcType="VARCHAR" property="payerAddress" />
+		<result column="payer_account" jdbcType="VARCHAR" property="payerAccount" />
+		<result column="payee_name" jdbcType="VARCHAR" property="payeeName" />
+		<result column="payee_code" jdbcType="VARCHAR" property="payeeCode" />
+		<result column="payee_address" jdbcType="VARCHAR" property="payeeAddress" />
+		<result column="payee_account" jdbcType="VARCHAR" property="payeeAccount" />
+		<result column="province" jdbcType="VARCHAR" property="province" />
+		<result column="city" jdbcType="VARCHAR" property="city" />
+		<result column="summary_word" jdbcType="VARCHAR" property="summaryWord" />
+		<result column="amount" jdbcType="DECIMAL" property="amount" />
+		<result column="remarks" jdbcType="VARCHAR" property="remarks" />
+		<result column="summary" jdbcType="VARCHAR" property="summary" />
+		<result column="payee" jdbcType="VARCHAR" property="payee" />
+		<result column="recheck" jdbcType="VARCHAR" property="recheck" />
+		<result column="drawer" jdbcType="VARCHAR" property="drawer" />
+		<result column="seller" jdbcType="VARCHAR" property="seller" />
+		<result column="tax" jdbcType="DECIMAL" property="tax" />
+		<result column="tax_rate" jdbcType="DECIMAL" property="taxRate" />
+		<result column="account_date" jdbcType="DATE" property="accountDate" />
+		<result column="ticket_date" jdbcType="DATE" property="ticketDate" />
+		<result column="diff_tax" jdbcType="DECIMAL" property="diffTax" />
+		<result column="total_amount" jdbcType="DECIMAL" property="totalAmount" />
+		<result column="is_lllegal" jdbcType="TINYINT" property="isLllegal" />
+		<result column="lllegal_explain" jdbcType="VARCHAR" property="lllegalExplain" />
+		<result column="ticket_url" jdbcType="VARCHAR" property="ticketUrl" />
+		<result column="is_real" jdbcType="TINYINT" property="isReal" />
+		<result column="is_behalf_of" jdbcType="TINYINT" property="isBehalfOf" />
+		<result column="is_void" jdbcType="TINYINT" property="isVoid" />
+		<result column="is_identify" jdbcType="TINYINT" property="isIdentify" />
+		<result column="completed" jdbcType="TINYINT" property="completed" />
+		<result column="deleted" jdbcType="TINYINT" property="deleted" />
+		<result column="created" jdbcType="TIMESTAMP" property="created" />
+		<result column="updated" jdbcType="TIMESTAMP" property="updated" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, ticket_no, voucher_id, customer_id, book_id, accounting_id, list_id, list_ids,
+		subject_content, type,
+		ticket_key, ticket_code, ticket_check_code,
+		password, payer_name, payer_code,
+		payer_address,
+		payer_account,
+		payee_name, payee_code, payee_address, payee_account, province, city, summary_word,
+		amount, remarks, summary, payee, recheck, drawer, seller, tax,
+		tax_rate, account_date,
+		ticket_date, diff_tax, total_amount,
+		is_lllegal, lllegal_explain, ticket_url,
+		is_real,
+		is_behalf_of, is_void, is_identify,
+		completed, deleted, created, updated
+	</sql>
+	<select id="selectByExample" parameterType="com.taoding.domain.ticket.TicketExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from cpa_${bookId}_ticket
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from cpa_${bookId}_ticket
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="map">
+		delete from
+		cpa_${bookId}_ticket
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.taoding.domain.ticket.TicketExample">
+		delete from cpa_${bookId}_ticket
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.taoding.domain.ticket.Ticket">
+		insert into cpa_${bookId}_ticket
+		(id, ticket_no, voucher_id, customer_id, book_id,
+		accounting_id, list_id, list_ids,
+		subject_content, type, ticket_key,
+		ticket_code, ticket_check_code,
+		password,
+		payer_name, payer_code, payer_address,
+		payer_account,
+		payee_name, payee_code,
+		payee_address, payee_account, province, city, summary_word,
+		amount, remarks, summary,
+		payee, recheck, drawer,
+		seller, tax, tax_rate,
+		account_date, ticket_date, diff_tax,
+		total_amount, is_lllegal,
+		lllegal_explain,
+		ticket_url, is_real, is_behalf_of,
+		is_void, is_identify, completed, deleted,
+		created,
+		updated)
+		values (#{id,jdbcType=VARCHAR},
+		#{ticketNo,jdbcType=VARCHAR},
+		#{voucherId,jdbcType=VARCHAR},
+		#{customerId,jdbcType=VARCHAR},
+		#{bookId,jdbcType=VARCHAR},
+		#{accountingId,jdbcType=VARCHAR}, #{listId,jdbcType=VARCHAR},
+		#{listIds,jdbcType=VARCHAR},
+		#{subjectContent,jdbcType=VARCHAR},
+		#{type,jdbcType=TINYINT},
+		#{ticketKey,jdbcType=VARCHAR},
+		#{ticketCode,jdbcType=VARCHAR}, #{ticketCheckCode,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{payerName,jdbcType=VARCHAR},
+		#{payerCode,jdbcType=VARCHAR},
+		#{payerAddress,jdbcType=VARCHAR},
+		#{payerAccount,jdbcType=VARCHAR}, #{payeeName,jdbcType=VARCHAR},
+		#{payeeCode,jdbcType=VARCHAR},
+		#{payeeAddress,jdbcType=VARCHAR},
+		#{payeeAccount,jdbcType=VARCHAR},
+		#{province,jdbcType=VARCHAR},
+		#{city,jdbcType=VARCHAR},
+		#{summaryWord,jdbcType=VARCHAR},
+		#{amount,jdbcType=DECIMAL}, #{remarks,jdbcType=VARCHAR},
+		#{summary,jdbcType=VARCHAR},
+		#{payee,jdbcType=VARCHAR},
+		#{recheck,jdbcType=VARCHAR},
+		#{drawer,jdbcType=VARCHAR},
+		#{seller,jdbcType=VARCHAR}, #{tax,jdbcType=DECIMAL},
+		#{taxRate,jdbcType=DECIMAL},
+		#{accountDate,jdbcType=DATE},
+		#{ticketDate,jdbcType=DATE},
+		#{diffTax,jdbcType=DECIMAL},
+		#{totalAmount,jdbcType=DECIMAL}, #{isLllegal,jdbcType=TINYINT},
+		#{lllegalExplain,jdbcType=VARCHAR},
+		#{ticketUrl,jdbcType=VARCHAR},
+		#{isReal,jdbcType=TINYINT},
+		#{isBehalfOf,jdbcType=TINYINT},
+		#{isVoid,jdbcType=TINYINT},
+		#{isIdentify,jdbcType=TINYINT}, #{completed,jdbcType=TINYINT},
+		#{deleted,jdbcType=TINYINT},
+		#{created,jdbcType=TIMESTAMP},
+		#{updated,jdbcType=TIMESTAMP})
+	</insert>
+	<insert id="insertSelective" parameterType="com.taoding.domain.ticket.Ticket">
+		insert into cpa_${bookId}_ticket
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="ticketNo != null">
+				ticket_no,
+			</if>
+			<if test="voucherId != null">
+				voucher_id,
+			</if>
+			<if test="customerId != null">
+				customer_id,
+			</if>
+			<if test="bookId != null">
+				book_id,
+			</if>
+			<if test="accountingId != null">
+				accounting_id,
+			</if>
+			<if test="listId != null">
+				list_id,
+			</if>
+			<if test="listIds != null">
+				list_ids,
+			</if>
+			<if test="subjectContent != null">
+				subject_content,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="ticketKey != null">
+				ticket_key,
+			</if>
+			<if test="ticketCode != null">
+				ticket_code,
+			</if>
+			<if test="ticketCheckCode != null">
+				ticket_check_code,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="payerName != null">
+				payer_name,
+			</if>
+			<if test="payerCode != null">
+				payer_code,
+			</if>
+			<if test="payerAddress != null">
+				payer_address,
+			</if>
+			<if test="payerAccount != null">
+				payer_account,
+			</if>
+			<if test="payeeName != null">
+				payee_name,
+			</if>
+			<if test="payeeCode != null">
+				payee_code,
+			</if>
+			<if test="payeeAddress != null">
+				payee_address,
+			</if>
+			<if test="payeeAccount != null">
+				payee_account,
+			</if>
+			<if test="province != null">
+				province,
+			</if>
+			<if test="city != null">
+				city,
+			</if>
+			<if test="summaryWord != null">
+				summary_word,
+			</if>
+			<if test="amount != null">
+				amount,
+			</if>
+			<if test="remarks != null">
+				remarks,
+			</if>
+			<if test="summary != null">
+				summary,
+			</if>
+			<if test="payee != null">
+				payee,
+			</if>
+			<if test="recheck != null">
+				recheck,
+			</if>
+			<if test="drawer != null">
+				drawer,
+			</if>
+			<if test="seller != null">
+				seller,
+			</if>
+			<if test="tax != null">
+				tax,
+			</if>
+			<if test="taxRate != null">
+				tax_rate,
+			</if>
+			<if test="accountDate != null">
+				account_date,
+			</if>
+			<if test="ticketDate != null">
+				ticket_date,
+			</if>
+			<if test="diffTax != null">
+				diff_tax,
+			</if>
+			<if test="totalAmount != null">
+				total_amount,
+			</if>
+			<if test="isLllegal != null">
+				is_lllegal,
+			</if>
+			<if test="lllegalExplain != null">
+				lllegal_explain,
+			</if>
+			<if test="ticketUrl != null">
+				ticket_url,
+			</if>
+			<if test="isReal != null">
+				is_real,
+			</if>
+			<if test="isBehalfOf != null">
+				is_behalf_of,
+			</if>
+			<if test="isVoid != null">
+				is_void,
+			</if>
+			<if test="isIdentify != null">
+				is_identify,
+			</if>
+			<if test="completed != null">
+				completed,
+			</if>
+			<if test="deleted != null">
+				deleted,
+			</if>
+			<if test="created != null">
+				created,
+			</if>
+			<if test="updated != null">
+				updated,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketNo != null">
+				#{ticketNo,jdbcType=VARCHAR},
+			</if>
+			<if test="voucherId != null">
+				#{voucherId,jdbcType=VARCHAR},
+			</if>
+			<if test="customerId != null">
+				#{customerId,jdbcType=VARCHAR},
+			</if>
+			<if test="bookId != null">
+				#{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="accountingId != null">
+				#{accountingId,jdbcType=VARCHAR},
+			</if>
+			<if test="listId != null">
+				#{listId,jdbcType=VARCHAR},
+			</if>
+			<if test="listIds != null">
+				#{listIds,jdbcType=VARCHAR},
+			</if>
+			<if test="subjectContent != null">
+				#{subjectContent,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=TINYINT},
+			</if>
+			<if test="ticketKey != null">
+				#{ticketKey,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketCode != null">
+				#{ticketCode,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketCheckCode != null">
+				#{ticketCheckCode,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="payerName != null">
+				#{payerName,jdbcType=VARCHAR},
+			</if>
+			<if test="payerCode != null">
+				#{payerCode,jdbcType=VARCHAR},
+			</if>
+			<if test="payerAddress != null">
+				#{payerAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="payerAccount != null">
+				#{payerAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeName != null">
+				#{payeeName,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeCode != null">
+				#{payeeCode,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeAddress != null">
+				#{payeeAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeAccount != null">
+				#{payeeAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="province != null">
+				#{province,jdbcType=VARCHAR},
+			</if>
+			<if test="city != null">
+				#{city,jdbcType=VARCHAR},
+			</if>
+			<if test="summaryWord != null">
+				#{summaryWord,jdbcType=VARCHAR},
+			</if>
+			<if test="amount != null">
+				#{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="remarks != null">
+				#{remarks,jdbcType=VARCHAR},
+			</if>
+			<if test="summary != null">
+				#{summary,jdbcType=VARCHAR},
+			</if>
+			<if test="payee != null">
+				#{payee,jdbcType=VARCHAR},
+			</if>
+			<if test="recheck != null">
+				#{recheck,jdbcType=VARCHAR},
+			</if>
+			<if test="drawer != null">
+				#{drawer,jdbcType=VARCHAR},
+			</if>
+			<if test="seller != null">
+				#{seller,jdbcType=VARCHAR},
+			</if>
+			<if test="tax != null">
+				#{tax,jdbcType=DECIMAL},
+			</if>
+			<if test="taxRate != null">
+				#{taxRate,jdbcType=DECIMAL},
+			</if>
+			<if test="accountDate != null">
+				#{accountDate,jdbcType=DATE},
+			</if>
+			<if test="ticketDate != null">
+				#{ticketDate,jdbcType=DATE},
+			</if>
+			<if test="diffTax != null">
+				#{diffTax,jdbcType=DECIMAL},
+			</if>
+			<if test="totalAmount != null">
+				#{totalAmount,jdbcType=DECIMAL},
+			</if>
+			<if test="isLllegal != null">
+				#{isLllegal,jdbcType=TINYINT},
+			</if>
+			<if test="lllegalExplain != null">
+				#{lllegalExplain,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketUrl != null">
+				#{ticketUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="isReal != null">
+				#{isReal,jdbcType=TINYINT},
+			</if>
+			<if test="isBehalfOf != null">
+				#{isBehalfOf,jdbcType=TINYINT},
+			</if>
+			<if test="isVoid != null">
+				#{isVoid,jdbcType=TINYINT},
+			</if>
+			<if test="isIdentify != null">
+				#{isIdentify,jdbcType=TINYINT},
+			</if>
+			<if test="completed != null">
+				#{completed,jdbcType=TINYINT},
+			</if>
+			<if test="deleted != null">
+				#{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				#{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				#{updated,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.taoding.domain.ticket.TicketExample"
+		resultType="java.lang.Long">
+		select count(*) from cpa_${bookId}_ticket
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update cpa_${record.bookId}_ticket
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ticketNo != null">
+				ticket_no = #{record.ticketNo,jdbcType=VARCHAR},
+			</if>
+			<if test="record.voucherId != null">
+				voucher_id = #{record.voucherId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.customerId != null">
+				customer_id = #{record.customerId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.bookId != null">
+				book_id = #{record.bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.accountingId != null">
+				accounting_id = #{record.accountingId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.listId != null">
+				list_id = #{record.listId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.listIds != null">
+				list_ids = #{record.listIds,jdbcType=VARCHAR},
+			</if>
+			<if test="record.subjectContent != null">
+				subject_content =
+				#{record.subjectContent,jdbcType=VARCHAR},
+			</if>
+			<if test="record.type != null">
+				type = #{record.type,jdbcType=TINYINT},
+			</if>
+			<if test="record.ticketKey != null">
+				ticket_key = #{record.ticketKey,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ticketCode != null">
+				ticket_code = #{record.ticketCode,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ticketCheckCode != null">
+				ticket_check_code =
+				#{record.ticketCheckCode,jdbcType=VARCHAR},
+			</if>
+			<if test="record.password != null">
+				password = #{record.password,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payerName != null">
+				payer_name = #{record.payerName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payerCode != null">
+				payer_code = #{record.payerCode,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payerAddress != null">
+				payer_address = #{record.payerAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payerAccount != null">
+				payer_account = #{record.payerAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payeeName != null">
+				payee_name = #{record.payeeName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payeeCode != null">
+				payee_code = #{record.payeeCode,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payeeAddress != null">
+				payee_address = #{record.payeeAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payeeAccount != null">
+				payee_account = #{record.payeeAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="record.province != null">
+				province = #{record.province,jdbcType=VARCHAR},
+			</if>
+			<if test="record.city != null">
+				province = #{record.city,jdbcType=VARCHAR},
+			</if>
+			<if test="record.summaryWord != null">
+				summary_word = #{record.summaryWord,jdbcType=VARCHAR},
+			</if>
+			<if test="record.amount != null">
+				amount = #{record.amount,jdbcType=DECIMAL},
+			</if>
+			<if test="record.remarks != null">
+				remarks = #{record.remarks,jdbcType=VARCHAR},
+			</if>
+			<if test="record.summary != null">
+				summary = #{record.summary,jdbcType=VARCHAR},
+			</if>
+			<if test="record.payee != null">
+				payee = #{record.payee,jdbcType=VARCHAR},
+			</if>
+			<if test="record.recheck != null">
+				recheck = #{record.recheck,jdbcType=VARCHAR},
+			</if>
+			<if test="record.drawer != null">
+				drawer = #{record.drawer,jdbcType=VARCHAR},
+			</if>
+			<if test="record.seller != null">
+				seller = #{record.seller,jdbcType=VARCHAR},
+			</if>
+			<if test="record.tax != null">
+				tax = #{record.tax,jdbcType=DECIMAL},
+			</if>
+			<if test="record.taxRate != null">
+				tax_rate = #{record.taxRate,jdbcType=DECIMAL},
+			</if>
+			<if test="record.accountDate != null">
+				account_date = #{record.accountDate,jdbcType=DATE},
+			</if>
+			<if test="record.ticketDate != null">
+				ticket_date = #{record.ticketDate,jdbcType=DATE},
+			</if>
+			<if test="record.diffTax != null">
+				diff_tax = #{record.diffTax,jdbcType=DECIMAL},
+			</if>
+			<if test="record.totalAmount != null">
+				total_amount = #{record.totalAmount,jdbcType=DECIMAL},
+			</if>
+			<if test="record.isLllegal != null">
+				is_lllegal = #{record.isLllegal,jdbcType=TINYINT},
+			</if>
+			<if test="record.lllegalExplain != null">
+				lllegal_explain =
+				#{record.lllegalExplain,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ticketUrl != null">
+				ticket_url = #{record.ticketUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="record.isReal != null">
+				is_real = #{record.isReal,jdbcType=TINYINT},
+			</if>
+			<if test="record.isBehalfOf != null">
+				is_behalf_of = #{record.isBehalfOf,jdbcType=TINYINT},
+			</if>
+			<if test="record.isVoid != null">
+				is_void = #{record.isVoid,jdbcType=TINYINT},
+			</if>
+			<if test="record.isIdentify != null">
+				is_identify = #{record.isIdentify,jdbcType=TINYINT},
+			</if>
+			<if test="record.completed != null">
+				completed = #{record.completed,jdbcType=TINYINT},
+			</if>
+			<if test="record.deleted != null">
+				deleted = #{record.deleted,jdbcType=TINYINT},
+			</if>
+			<if test="record.created != null">
+				created = #{record.created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.updated != null">
+				updated = #{record.updated,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update cpa_${record.bookId}_ticket
+		set id = #{record.id,jdbcType=VARCHAR},
+		ticket_no = #{record.ticketNo,jdbcType=VARCHAR},
+		voucher_id =
+		#{record.voucherId,jdbcType=VARCHAR},
+		customer_id =
+		#{record.customerId,jdbcType=VARCHAR},
+		book_id =
+		#{record.bookId,jdbcType=VARCHAR},
+		accounting_id =
+		#{record.accountingId,jdbcType=VARCHAR},
+		list_id =
+		#{record.listId,jdbcType=VARCHAR},
+		list_ids =
+		#{record.listIds,jdbcType=VARCHAR},
+		subject_content =
+		#{record.subjectContent,jdbcType=VARCHAR},
+		type =
+		#{record.type,jdbcType=TINYINT},
+		ticket_key =
+		#{record.ticketKey,jdbcType=VARCHAR},
+		ticket_code =
+		#{record.ticketCode,jdbcType=VARCHAR},
+		ticket_check_code =
+		#{record.ticketCheckCode,jdbcType=VARCHAR},
+		password =
+		#{record.password,jdbcType=VARCHAR},
+		payer_name =
+		#{record.payerName,jdbcType=VARCHAR},
+		payer_code =
+		#{record.payerCode,jdbcType=VARCHAR},
+		payer_address =
+		#{record.payerAddress,jdbcType=VARCHAR},
+		payer_account =
+		#{record.payerAccount,jdbcType=VARCHAR},
+		payee_name =
+		#{record.payeeName,jdbcType=VARCHAR},
+		payee_code =
+		#{record.payeeCode,jdbcType=VARCHAR},
+		payee_address =
+		#{record.payeeAddress,jdbcType=VARCHAR},
+		payee_account =
+		#{record.payeeAccount,jdbcType=VARCHAR},
+		province =
+		#{record.province,jdbcType=VARCHAR},
+		city =
+		#{record.city,jdbcType=VARCHAR},
+		summary_word =
+		#{record.summaryWord,jdbcType=VARCHAR},
+		amount =
+		#{record.amount,jdbcType=DECIMAL},
+		remarks =
+		#{record.remarks,jdbcType=VARCHAR},
+		summary =
+		#{record.summary,jdbcType=VARCHAR},
+		payee =
+		#{record.payee,jdbcType=VARCHAR},
+		recheck =
+		#{record.recheck,jdbcType=VARCHAR},
+		drawer =
+		#{record.drawer,jdbcType=VARCHAR},
+		seller =
+		#{record.seller,jdbcType=VARCHAR},
+		tax =
+		#{record.tax,jdbcType=DECIMAL},
+		tax_rate =
+		#{record.taxRate,jdbcType=DECIMAL},
+		account_date =
+		#{record.accountDate,jdbcType=DATE},
+		ticket_date =
+		#{record.ticketDate,jdbcType=DATE},
+		diff_tax =
+		#{record.diffTax,jdbcType=DECIMAL},
+		total_amount =
+		#{record.totalAmount,jdbcType=DECIMAL},
+		is_lllegal =
+		#{record.isLllegal,jdbcType=TINYINT},
+		lllegal_explain =
+		#{record.lllegalExplain,jdbcType=VARCHAR},
+		ticket_url =
+		#{record.ticketUrl,jdbcType=VARCHAR},
+		is_real =
+		#{record.isReal,jdbcType=TINYINT},
+		is_behalf_of =
+		#{record.isBehalfOf,jdbcType=TINYINT},
+		is_void =
+		#{record.isVoid,jdbcType=TINYINT},
+		is_identify =
+		#{record.isIdentify,jdbcType=TINYINT},
+		completed =
+		#{record.completed,jdbcType=TINYINT},
+		deleted =
+		#{record.deleted,jdbcType=TINYINT},
+		created =
+		#{record.created,jdbcType=TIMESTAMP},
+		updated =
+		#{record.updated,jdbcType=TIMESTAMP}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.taoding.domain.ticket.Ticket">
+		update cpa_${bookId}_ticket
+		<set>
+			<if test="ticketNo != null">
+				ticket_no = #{ticketNo,jdbcType=VARCHAR},
+			</if>
+			<if test="voucherId != null">
+				voucher_id = #{voucherId,jdbcType=VARCHAR},
+			</if>
+			<if test="customerId != null">
+				customer_id = #{customerId,jdbcType=VARCHAR},
+			</if>
+			<if test="bookId != null">
+				book_id = #{bookId,jdbcType=VARCHAR},
+			</if>
+			<if test="accountingId != null">
+				accounting_id = #{accountingId,jdbcType=VARCHAR},
+			</if>
+			<if test="listId != null">
+				list_id = #{listId,jdbcType=VARCHAR},
+			</if>
+			<if test="listIds != null">
+				list_ids = #{listIds,jdbcType=VARCHAR},
+			</if>
+			<if test="subjectContent != null">
+				subject_content = #{subjectContent,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=TINYINT},
+			</if>
+			<if test="ticketKey != null">
+				ticket_key = #{ticketKey,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketCode != null">
+				ticket_code = #{ticketCode,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketCheckCode != null">
+				ticket_check_code = #{ticketCheckCode,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="payerName != null">
+				payer_name = #{payerName,jdbcType=VARCHAR},
+			</if>
+			<if test="payerCode != null">
+				payer_code = #{payerCode,jdbcType=VARCHAR},
+			</if>
+			<if test="payerAddress != null">
+				payer_address = #{payerAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="payerAccount != null">
+				payer_account = #{payerAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeName != null">
+				payee_name = #{payeeName,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeCode != null">
+				payee_code = #{payeeCode,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeAddress != null">
+				payee_address = #{payeeAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="payeeAccount != null">
+				payee_account = #{payeeAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="province != null">
+				province = #{province,jdbcType=VARCHAR},
+			</if>
+			<if test="city != null">
+				city = #{city,jdbcType=VARCHAR},
+			</if>
+			<if test="summaryWord != null">
+				summary_word = #{summaryWord,jdbcType=VARCHAR},
+			</if>
+			<if test="amount != null">
+				amount = #{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks,jdbcType=VARCHAR},
+			</if>
+			<if test="summary != null">
+				summary = #{summary,jdbcType=VARCHAR},
+			</if>
+			<if test="payee != null">
+				payee = #{payee,jdbcType=VARCHAR},
+			</if>
+			<if test="recheck != null">
+				recheck = #{recheck,jdbcType=VARCHAR},
+			</if>
+			<if test="drawer != null">
+				drawer = #{drawer,jdbcType=VARCHAR},
+			</if>
+			<if test="seller != null">
+				seller = #{seller,jdbcType=VARCHAR},
+			</if>
+			<if test="tax != null">
+				tax = #{tax,jdbcType=DECIMAL},
+			</if>
+			<if test="taxRate != null">
+				tax_rate = #{taxRate,jdbcType=DECIMAL},
+			</if>
+			<if test="accountDate != null">
+				account_date = #{accountDate,jdbcType=DATE},
+			</if>
+			<if test="ticketDate != null">
+				ticket_date = #{ticketDate,jdbcType=DATE},
+			</if>
+			<if test="diffTax != null">
+				diff_tax = #{diffTax,jdbcType=DECIMAL},
+			</if>
+			<if test="totalAmount != null">
+				total_amount = #{totalAmount,jdbcType=DECIMAL},
+			</if>
+			<if test="isLllegal != null">
+				is_lllegal = #{isLllegal,jdbcType=TINYINT},
+			</if>
+			<if test="lllegalExplain != null">
+				lllegal_explain = #{lllegalExplain,jdbcType=VARCHAR},
+			</if>
+			<if test="ticketUrl != null">
+				ticket_url = #{ticketUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="isReal != null">
+				is_real = #{isReal,jdbcType=TINYINT},
+			</if>
+			<if test="isBehalfOf != null">
+				is_behalf_of = #{isBehalfOf,jdbcType=TINYINT},
+			</if>
+			<if test="isVoid != null">
+				is_void = #{isVoid,jdbcType=TINYINT},
+			</if>
+			<if test="isIdentify != null">
+				is_identify = #{isIdentify,jdbcType=TINYINT},
+			</if>
+			<if test="completed != null">
+				completed = #{completed,jdbcType=TINYINT},
+			</if>
+			<if test="deleted != null">
+				deleted = #{deleted,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				created = #{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				updated = #{updated,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.taoding.domain.ticket.Ticket">
+		update
+		cpa_${bookId}_ticket
+		set ticket_no = #{ticketNo,jdbcType=VARCHAR},
+		voucher_id
+		= #{voucherId,jdbcType=VARCHAR},
+		customer_id
+		= #{customerId,jdbcType=VARCHAR},
+		book_id
+		= #{bookId,jdbcType=VARCHAR},
+		accounting_id =
+		#{accountingId,jdbcType=VARCHAR},
+		list_id = #{listId,jdbcType=VARCHAR},
+		list_ids = #{listIds,jdbcType=VARCHAR},
+		subject_content =
+		#{subjectContent,jdbcType=VARCHAR},
+		type = #{type,jdbcType=TINYINT},
+		ticket_key = #{ticketKey,jdbcType=VARCHAR},
+		ticket_code =
+		#{ticketCode,jdbcType=VARCHAR},
+		ticket_check_code =
+		#{ticketCheckCode,jdbcType=VARCHAR},
+		password =
+		#{password,jdbcType=VARCHAR},
+		payer_name =
+		#{payerName,jdbcType=VARCHAR},
+		payer_code =
+		#{payerCode,jdbcType=VARCHAR},
+		payer_address =
+		#{payerAddress,jdbcType=VARCHAR},
+		payer_account =
+		#{payerAccount,jdbcType=VARCHAR},
+		payee_name =
+		#{payeeName,jdbcType=VARCHAR},
+		payee_code =
+		#{payeeCode,jdbcType=VARCHAR},
+		payee_address =
+		#{payeeAddress,jdbcType=VARCHAR},
+		payee_account =
+		#{payeeAccount,jdbcType=VARCHAR},
+		province =
+		#{province,jdbcType=VARCHAR},
+		city =
+		#{city,jdbcType=VARCHAR},
+		summary_word =
+		#{summaryWord,jdbcType=VARCHAR},
+		amount = #{amount,jdbcType=DECIMAL},
+		remarks = #{remarks,jdbcType=VARCHAR},
+		summary =
+		#{summary,jdbcType=VARCHAR},
+		payee = #{payee,jdbcType=VARCHAR},
+		recheck
+		= #{recheck,jdbcType=VARCHAR},
+		drawer = #{drawer,jdbcType=VARCHAR},
+		seller = #{seller,jdbcType=VARCHAR},
+		tax = #{tax,jdbcType=DECIMAL},
+		tax_rate = #{taxRate,jdbcType=DECIMAL},
+		account_date =
+		#{accountDate,jdbcType=DATE},
+		ticket_date =
+		#{ticketDate,jdbcType=DATE},
+		diff_tax =
+		#{diffTax,jdbcType=DECIMAL},
+		total_amount =
+		#{totalAmount,jdbcType=DECIMAL},
+		is_lllegal =
+		#{isLllegal,jdbcType=TINYINT},
+		lllegal_explain =
+		#{lllegalExplain,jdbcType=VARCHAR},
+		ticket_url =
+		#{ticketUrl,jdbcType=VARCHAR},
+		is_real = #{isReal,jdbcType=TINYINT},
+		is_behalf_of = #{isBehalfOf,jdbcType=TINYINT},
+		is_void =
+		#{isVoid,jdbcType=TINYINT},
+		is_identify =
+		#{isIdentify,jdbcType=TINYINT},
+		completed = #{completed,jdbcType=TINYINT},
+		deleted = #{deleted,jdbcType=TINYINT},
+		created = #{created,jdbcType=TIMESTAMP},
+		updated =
+		#{updated,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+	<!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>分割线下为自定义方法<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
+
+	<!-- 为一个账簿初始化一张新表 -->
+	<update id="init" parameterType="java.lang.String">
+		CREATE TABLE
+		IF NOT EXISTS cpa_${bookId}_ticket
+		(
+		   id                   varchar(64) not null comment '主键',
+		   ticket_no            varchar(10) not null comment '票据编号',
+		   voucher_id           varchar(64) comment '凭证ID',
+		   customer_id          varchar(64) not null comment '客户ID',
+		   book_id              varchar(64) not null comment '账簿ID',
+		   accounting_id        varchar(64) not null comment '财会ID',
+		   list_id              varchar(64) comment '所属目录ID',
+		   list_ids             varchar(200) comment '所属目录ID组',
+		   subject_content      varchar(500) comment '关联科目内容',
+		   type                 tinyint comment '0.银行票据 1.增值税普通发票 2.增值税专用发票 3.银行对账单 4.普通发票 5.证明',
+		   ticket_key           varchar(12) comment '发票号码',
+		   ticket_code          varchar(12) comment '发票代码',
+		   ticket_check_code    varchar(30) comment '发票校验码',
+		   password             varchar(200) comment '密码',
+		   payer_name           varchar(50) comment '付款方名称',
+		   payer_code           varchar(20) comment '付款方纳税人识别号',
+		   payer_address        varchar(100) comment '付款方地址、电话',
+		   payer_account        varchar(100) comment '付款方开户行及账号',
+		   payee_name           varchar(50) comment '收款方名称',
+		   payee_code           varchar(20) comment '收款方纳税人识别号',
+		   payee_address        varchar(100) comment '收款方地址、电话',
+		   payee_account        varchar(100) comment '收款方开户行及账号',
+		   province             varchar(6) comment '所属省份',
+		   city                 varchar(8) comment '所属城市',
+		   summary_word         varchar(10) comment '摘要关键字',
+		   amount               decimal(50, 8) comment '金额',
+		   remarks              varchar(200) comment '备注',
+		   summary              varchar(500) comment '摘要详情',
+		   payee                varchar(10) comment '收款人',
+		   recheck              varchar(10) comment '复核',
+		   drawer               varchar(10) comment '开票人',
+		   seller               varchar(50) comment '销售方',
+		   tax                  decimal(50, 8) comment '税额',
+		   tax_rate             decimal(50, 8) comment '税率',
+		   account_date         date not null comment '所属账期',
+		   ticket_date          date comment '开票日期',
+		   diff_tax             decimal(50, 8) comment '差额征税',
+		   total_amount         decimal(50, 8) comment '合计金额',
+		   is_lllegal           tinyint default 0 comment '是否属于问题票据(0. 否 1.是)',
+		   lllegal_explain      varchar(20) comment '问题票据说明',
+		   ticket_url           varchar(200) comment '票据的扫描图片URL',
+		   is_real              tinyint not null default 1 comment '发票真伪',
+		   is_behalf_of         tinyint not null default 0 comment '代开发票',
+		   is_void              tinyint not null default 0 comment '是否作废(0. 否 1.是)',
+		   is_identify          tinyint not null default 1 comment '票据是否被识别(0. 否 1.是)',
+		   completed            tinyint not null default 0 comment '是否已做账',
+		   deleted              tinyint not null default 0 comment '逻辑删除，提供重置时使用',
+		   created              datetime not null comment '创建时间',
+		   updated              datetime not null comment '更新时间',
+		   primary key (id)
+		);
+		
+	</update>
+		<!--   ALTER TABLE cpa_${bookId}_ticket COMMENT '票据表'; -->
+
+	<select id="selectList" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from cpa_${bookId}_ticket
+		<where>
+			<if test="ids != null">
+				and id in 
+				<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+ 					#{item}  
+				</foreach>  
+			</if>
+			<if test="ticketNo != null">
+				and ticket_no = #{ticketNo,jdbcType=VARCHAR}
+			</if>
+			<if test="voucherId != null">
+				and voucher_id = #{voucherId,jdbcType=VARCHAR}
+			</if>
+			<if test="customerId != null">
+				and customer_id = #{customerId,jdbcType=VARCHAR}
+			</if>
+			<if test="bookId != null">
+				and book_id = #{bookId,jdbcType=VARCHAR}
+			</if>
+			<if test="accountingId != null">
+				and accounting_id = #{accountingId,jdbcType=VARCHAR}
+			</if>
+			<if test="listId != null">
+				and list_id = #{listId,jdbcType=VARCHAR}
+			</if>
+			<if test="listIds != null">
+				and list_ids = #{listIds,jdbcType=VARCHAR}
+			</if>
+			<if test="subjectContent != null">
+				and subject_content = #{subjectContent,jdbcType=VARCHAR}
+			</if>
+			<if test="type != null">
+				and type = #{type,jdbcType=TINYINT}
+			</if>
+			<if test="ticketKey != null">
+				and ticket_key = #{ticketKey,jdbcType=VARCHAR}
+			</if>
+			<if test="ticketCode != null">
+				and ticket_code = #{ticketCode,jdbcType=VARCHAR}
+			</if>
+			<if test="ticketCheckCode != null">
+				and ticket_check_code = #{ticketCheckCode,jdbcType=VARCHAR}
+			</if>
+			<if test="password != null">
+				and password = #{password,jdbcType=VARCHAR}
+			</if>
+			<if test="payerName != null">
+				and payer_name like '%${payerName,jdbcType=VARCHAR}%'
+			</if>
+			<if test="payerCode != null">
+				and payer_code = #{payerCode,jdbcType=VARCHAR}
+			</if>
+			<if test="payerAddress != null">
+				and payer_address = #{payerAddress,jdbcType=VARCHAR}
+			</if>
+			<if test="payerAccount != null">
+				and payer_account = #{payerAccount,jdbcType=VARCHAR}
+			</if>
+			<if test="payeeName != null">
+				and payee_name like '%${payeeName,jdbcType=VARCHAR}%'
+			</if>
+			<if test="payeeCode != null">
+				and payee_code = #{payeeCode,jdbcType=VARCHAR}
+			</if>
+			<if test="payeeAddress != null">
+				and payee_address = #{payeeAddress,jdbcType=VARCHAR}
+			</if>
+			<if test="payeeAccount != null">
+				and payee_account = #{payeeAccount,jdbcType=VARCHAR}
+			</if>
+			<if test="province != null and province != ''">
+				and province = #{province,jdbcType=VARCHAR}
+			</if>
+			<if test="city != null and city != ''">
+				and city = #{city,jdbcType=VARCHAR}
+			</if>
+			<if test="summaryWord != null">
+				and summary_word = #{summaryWord,jdbcType=VARCHAR}
+			</if>
+			<if test="amount != null">
+				and amount = #{amount,jdbcType=DECIMAL}
+			</if>
+			<if test="remarks != null">
+				and remarks = #{remarks,jdbcType=VARCHAR}
+			</if>
+			<if test="summary != null">
+				and summary = #{summary,jdbcType=VARCHAR}
+			</if>
+			<if test="payee != null">
+				and payee = #{payee,jdbcType=VARCHAR}
+			</if>
+			<if test="recheck != null">
+				and recheck = #{recheck,jdbcType=VARCHAR}
+			</if>
+			<if test="drawer != null">
+				and drawer = #{drawer,jdbcType=VARCHAR}
+			</if>
+			<if test="seller != null">
+				and seller = #{seller,jdbcType=VARCHAR}
+			</if>
+			<if test="tax != null">
+				and tax = #{tax,jdbcType=DECIMAL}
+			</if>
+			<if test="taxRate != null">
+				and tax_rate = #{taxRate,jdbcType=DECIMAL}
+			</if>
+			<if test="accountDate != null">
+				and account_date = #{accountDate,jdbcType=DATE}
+			</if>
+			<if test="ticketDateStart != null">
+				and ticket_date <![CDATA[>=]]> #{ticketDate,jdbcType=DATE}
+			</if>
+			<if test="ticketDate != null">
+				and ticket_date = #{ticketDate,jdbcType=DATE}
+			</if>
+			<if test="ticketDateEnd != null">
+				and ticket_date <![CDATA[<=]]> #{ticketDate,jdbcType=DATE}
+			</if>
+			<if test="diffTax != null">
+				and diff_tax = #{diffTax,jdbcType=DECIMAL}
+			</if>
+			<if test="totalAmountMin != null">
+				and total_amount <![CDATA[>=]]> #{totalAmount,jdbcType=DECIMAL}
+			</if>
+			<if test="totalAmount != null">
+				and total_amount = #{totalAmount,jdbcType=DECIMAL}
+			</if>
+			<if test="totalAmountMax != null">
+				and total_amount <![CDATA[<=]]> #{totalAmount,jdbcType=DECIMAL}
+			</if>
+			<if test="isLllegal != null">
+				and is_lllegal = #{isLllegal,jdbcType=TINYINT}
+			</if>
+			<if test="lllegalExplain != null">
+				and lllegal_explain = #{lllegalExplain,jdbcType=VARCHAR}
+			</if>
+			<if test="ticketUrl != null">
+				and ticket_url = #{ticketUrl,jdbcType=VARCHAR}
+			</if>
+			<if test="isReal != null">
+				and is_real = #{isReal,jdbcType=TINYINT}
+			</if>
+			<if test="isBehalfOf != null">
+				and is_behalf_of = #{isBehalfOf,jdbcType=TINYINT}
+			</if>
+			<if test="isVoid != null">
+				and is_void = #{isVoid,jdbcType=TINYINT}
+			</if>
+			<if test="isIdentify != null">
+				and is_identify = #{isIdentify,jdbcType=TINYINT}
+			</if>
+			<if test="completed != null">
+				and completed = #{completed,jdbcType=TINYINT}
+			</if>
+			<if test="deleted != null">
+				and deleted = #{deleted,jdbcType=TINYINT}
+			</if>
+			<if test="created != null">
+				and created = #{created,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updated != null">
+				and updated = #{updated,jdbcType=DATE}
+			</if>
+		</where>
+	</select>
+
+</mapper>

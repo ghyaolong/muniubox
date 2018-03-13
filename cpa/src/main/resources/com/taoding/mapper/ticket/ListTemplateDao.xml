@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.ticket.ListTemplateDao">
+	<resultMap id="BaseResultMap" type="com.taoding.domain.ticket.ListTemplate">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="table_name" jdbcType="VARCHAR" property="tableName" />
+		<result column="version" jdbcType="VARCHAR" property="version" />
+		<result column="recommend_update" jdbcType="TINYINT" property="recommendUpdate" />
+		<result column="expired_version" jdbcType="TINYINT" property="expiredVersion" />
+		<result column="created" jdbcType="TIMESTAMP" property="created" />
+		<result column="updated" jdbcType="TIMESTAMP" property="updated" />
+	</resultMap>
+	<resultMap extends="BaseResultMap" id="ResultMapWithBLOBs"
+		type="com.taoding.domain.ticket.ListTemplate">
+		<result column="template_list" jdbcType="LONGVARCHAR" property="templateList" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, table_name, version, recommend_update, expired_version,
+		created,
+		updated
+	</sql>
+	<sql id="Blob_Column_List">
+		template_list
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from cpa_list_template
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from
+		cpa_list_template
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert" parameterType="com.taoding.domain.ticket.ListTemplate">
+		insert into cpa_list_template
+		(id, table_name, version,
+		recommend_update, expired_version, created,
+		updated, template_list)
+		values (#{id,jdbcType=VARCHAR},
+		#{tableName,jdbcType=VARCHAR},
+		#{version,jdbcType=VARCHAR},
+		#{recommendUpdate,jdbcType=TINYINT},
+		#{expiredVersion,jdbcType=TINYINT}, #{created,jdbcType=TIMESTAMP},
+		#{updated,jdbcType=TIMESTAMP}, #{templateList,jdbcType=LONGVARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.taoding.domain.ticket.ListTemplate">
+		insert into cpa_list_template
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="tableName != null">
+				table_name,
+			</if>
+			<if test="version != null">
+				version,
+			</if>
+			<if test="recommendUpdate != null">
+				recommend_update,
+			</if>
+			<if test="expiredVersion != null">
+				expired_version,
+			</if>
+			<if test="created != null">
+				created,
+			</if>
+			<if test="updated != null">
+				updated,
+			</if>
+			<if test="templateList != null">
+				template_list,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="tableName != null">
+				#{tableName,jdbcType=VARCHAR},
+			</if>
+			<if test="version != null">
+				#{version,jdbcType=VARCHAR},
+			</if>
+			<if test="recommendUpdate != null">
+				#{recommendUpdate,jdbcType=TINYINT},
+			</if>
+			<if test="expiredVersion != null">
+				#{expiredVersion,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				#{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				#{updated,jdbcType=TIMESTAMP},
+			</if>
+			<if test="templateList != null">
+				#{templateList,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.taoding.domain.ticket.ListTemplate">
+		update cpa_list_template
+		<set>
+			<if test="tableName != null">
+				table_name = #{tableName,jdbcType=VARCHAR},
+			</if>
+			<if test="version != null">
+				version = #{version,jdbcType=VARCHAR},
+			</if>
+			<if test="recommendUpdate != null">
+				recommend_update = #{recommendUpdate,jdbcType=TINYINT},
+			</if>
+			<if test="expiredVersion != null">
+				expired_version = #{expiredVersion,jdbcType=TINYINT},
+			</if>
+			<if test="created != null">
+				created = #{created,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updated != null">
+				updated = #{updated,jdbcType=TIMESTAMP},
+			</if>
+			<if test="templateList != null">
+				template_list = #{templateList,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.taoding.domain.ticket.ListTemplate">
+		update
+		cpa_list_template
+		set table_name = #{tableName,jdbcType=VARCHAR},
+		version = #{version,jdbcType=VARCHAR},
+		recommend_update =
+		#{recommendUpdate,jdbcType=TINYINT},
+		expired_version =
+		#{expiredVersion,jdbcType=TINYINT},
+		created =
+		#{created,jdbcType=TIMESTAMP},
+		updated = #{updated,jdbcType=TIMESTAMP},
+		template_list = #{templateList,jdbcType=LONGVARCHAR}
+		where id =
+		#{id,jdbcType=VARCHAR}
+	</update>
+
+
+	<select id="selectList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from cpa_list_template
+		<where>
+			<if test="tableName != null">
+				and table_name = #{tableName,jdbcType=VARCHAR}
+			</if>
+			<if test="version != null">
+				and version = #{version,jdbcType=VARCHAR}
+			</if>
+			<if test="recommendUpdate != null">
+				and recommend_update = #{recommendUpdate,jdbcType=TINYINT}
+			</if>
+			<if test="expiredVersion != null">
+				and expired_version = #{expiredVersion,jdbcType=TINYINT}
+			</if>
+			<if test="created != null">
+				and created = #{created,jdbcType=TIMESTAMP}
+			</if>
+			<if test="updated != null">
+				and updated = #{updated,jdbcType=TIMESTAMP}
+			</if>
+			<if test="templateList != null">
+				and template_list = #{templateList,jdbcType=LONGVARCHAR}
+			</if>
+		</where>
+	</select>
+
+</mapper>

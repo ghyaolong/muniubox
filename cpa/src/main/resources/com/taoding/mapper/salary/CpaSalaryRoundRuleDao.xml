@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.salary.CpaSalaryRoundRuleDao">
+    
+	<sql id="cpaSalaryRoundRuleColumns">
+		a.id AS "id",
+		a.rule_name AS "ruleName",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="cpaSalaryRoundRuleJoins">
+	</sql>
+    
+	<select id="get" resultType="CpaSalaryRoundRule">
+		SELECT 
+			<include refid="cpaSalaryRoundRuleColumns"/>
+		FROM cpa_salary_round_rule a
+		<include refid="cpaSalaryRoundRuleJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 查询所有的取整规则 -->
+	<select id="findAllList" resultType="CpaSalaryRoundRule">
+		SELECT 
+			<include refid="cpaSalaryRoundRuleColumns"/>
+		FROM cpa_salary_round_rule a
+		<include refid="cpaSalaryRoundRuleJoins"/>
+		<where>
+			a.del_flag = '0'
+		</where>		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cpa_salary_round_rule(
+			id,
+			rule_name,
+			del_flag
+		) VALUES (
+			#{id},
+			#{ruleName},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cpa_salary_round_rule SET 	
+			rule_name = #{ruleName}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cpa_salary_round_rule SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

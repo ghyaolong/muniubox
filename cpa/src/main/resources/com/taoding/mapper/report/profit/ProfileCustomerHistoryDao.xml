@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.report.profit.ProfileCustomerHistoryDao">
+	<insert id="saveHistory">
+	INSERT INTO cpa_report_profile_history 
+	 (id, accounting_id, account_period, last_money, current_money, year_money, item_id)
+	 VALUES (#{id}, #{accountId}, #{account_period}, #{lastMoney}, #{currentMoney}, #{yearMoney}, #{itemId});
+	</insert>
+</mapper>

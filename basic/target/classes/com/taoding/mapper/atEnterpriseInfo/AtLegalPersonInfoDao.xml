@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.atEnterpriseInfo.AtLegalPersonInfoDao">
+    
+	<sql id="atLegalPersonInfoColumns">
+		a.id AS "id",
+		a.at_enterprise_info_id AS "atEnterpriseInfoId",
+		a.legal_person_name AS "legalPersonName",
+		a.legal_person_phone AS "legalPersonPhone",
+		a.attribute2 AS "attribute2",
+		a.attribute3 AS "attribute3",
+		a.attribute4 AS "attribute4",
+		a.attribute5 AS "attribute5",
+		a.attribute6 AS "attribute6",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="atLegalPersonInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="AtLegalPersonInfo">
+		SELECT 
+			<include refid="atLegalPersonInfoColumns"/>
+		FROM at_legal_person_info a
+		<include refid="atLegalPersonInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 根据AtEnterpriseInfoId查找AtLegalPersonInfo对象 -->
+	<select id="getByAtEnterpriseInfoId" resultType="AtLegalPersonInfo">
+		SELECT 
+		DISTINCT
+			<include refid="atLegalPersonInfoColumns"/>
+		FROM at_legal_person_info a
+		<include refid="atLegalPersonInfoJoins"/>
+		WHERE a.at_enterprise_info_id = #{atEnterpriseInfoId}
+	</select>
+	
+	<select id="findList" resultType="AtLegalPersonInfo">
+		SELECT 
+			<include refid="atLegalPersonInfoColumns"/>
+		FROM at_legal_person_info a
+		<include refid="atLegalPersonInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="legalPersonName != null and legalPersonName != ''">
+				AND a.legal_person_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{legalPersonName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{legalPersonName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{legalPersonName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AtLegalPersonInfo">
+		SELECT 
+			<include refid="atLegalPersonInfoColumns"/>
+		FROM at_legal_person_info a
+		<include refid="atLegalPersonInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO at_legal_person_info(
+			id,
+			at_enterprise_info_id,
+			legal_person_name,
+			legal_person_phone,
+			attribute2,
+			attribute3,
+			attribute4,
+			attribute5,
+			attribute6,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{atEnterpriseInfoId},
+			#{legalPersonName},
+			#{legalPersonPhone},
+			#{attribute2},
+			#{attribute3},
+			#{attribute4},
+			#{attribute5},
+			#{attribute6},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<!-- 更新AtLegalPersonInfo类的信息 -->
+	<update id="update">
+		UPDATE at_legal_person_info 
+			<trim prefix="set" suffixOverrides=",">
+				<if test="atEnterpriseInfoId != null and atEnterpriseInfoId != ''">
+					at_enterprise_info_id = #{atEnterpriseInfoId},
+				</if>	
+				<if test="legalPersonName != null and legalPersonName != ''">
+					legal_person_name = #{legalPersonName},
+				</if>
+				<if test="legalPersonPhone != null and legalPersonPhone != ''">
+					legal_person_phone = #{legalPersonPhone},
+				</if>
+				<if test="updateBy != null and updateBy.id != ''">
+					update_by = #{updateBy.id},
+				</if>
+				<if test="updateDate != null ">
+					update_date = #{updateDate},
+				</if>
+				<if test="remarks != null and remarks != ''">
+					remarks = #{remarks},
+				</if>
+			</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE at_legal_person_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

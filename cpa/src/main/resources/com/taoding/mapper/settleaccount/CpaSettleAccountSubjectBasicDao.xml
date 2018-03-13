@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.settleaccount.CpaSettleAccountSubjectBasicDao">
+
+	<!-- 根据企业类型和 subKey 获取科目 id -->
+	<select id="getByEnterpriseTypeAndSubKey" parameterType="string" resultType="CpaSettleAccountSubjectBasic">
+		select 
+			id , enterprise_type enterpriseType, sub_key subKey, subject_id subjectId, 
+			subject_no subjectNo, subject_name subjectName, create_by createBy, create_date createDate 
+		from cpa_settle_account_subject_basic
+		where enterprise_type = #{enterpriseType}
+		and sub_key = #{subKey}
+	</select>
+	
+	<!-- 根据科目 id 查期初，返回 年初余额 -->
+	<select id="getCpaCustomerSubjectById" parameterType="string" resultType="CpaCustomerSubject">
+		select 
+			ifnull(init_balance, 0) initBalance
+		from cpa_customer_subject
+		where id = #{subjectId} 
+		and book_id = #{bookId}
+	</select>
+	
+	
+	
+</mapper>

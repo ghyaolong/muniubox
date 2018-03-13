@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.voucher.CpaVoucherTempleteSubjectDao">
+   	
+	<!-- 新增凭证模板科目 -->
+	<insert id="insert">
+		insert into cpa_voucher_templete_subject(
+			id ,book_id, customer_id,templete_id , abstracts , subject_id , 
+			amount_debit , amount_credit , sort , create_by , create_date
+		) values (
+			#{id}, #{bookId}, #{customerId}, #{templeteId}, #{abstracts}, #{subjectId}, 
+			#{amountDebit}, #{amountCredit}, #{sort}, #{createBy.id}, #{createDate}
+		)
+	</insert>
+
+	<!-- 批量新增凭证模板科目 -->
+	<insert id="batchInsert">
+		insert into cpa_voucher_templete_subject(
+			id , book_id,customer_id,templete_id , abstracts , subject_id , 
+			amount_debit , amount_credit , sort , create_by , create_date
+		) values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(
+				#{item.id}, #{item.bookId}, #{item.customerId}, #{item.templeteId}, #{item.abstracts}, #{item.subjectId}, 
+				#{item.amountDebit}, #{item.amountCredit}, #{item.sort}, #{item.createBy.id},#{item.createDate}
+			)
+		</foreach>
+	</insert>
+	
+	<!-- 根据凭证模板ID删除模板科目  -->
+	<delete id="deleteByTempleteId">
+		delete from cpa_voucher_templete_subject where templete_id = #{templeteId}
+	</delete>
+	
+	<!-- 通过模板id查询模板科目 -->
+	<select id="findByTempleteId" parameterType="string" resultType="CpaVoucherTempleteSubject">
+		select t.id, t.book_id bookId ,t.subject_id subjectId ,t.abstracts,IFNULL(t.amount_debit,0) amountDebit,IFNULL(t.amount_credit,0) amountCredit,t.sort,
+				IFNULL(t1.sumDebit,0) sumDebit ,IFNULL(t1.sumCredit,0) sumCredit,
+				t2.subject_no subjectNo,t2.subject_name subjectName,t2.direction,IFNULL(t2.beginning_balances,0) beginningBalances
+			from cpa_voucher_templete_subject t 
+				left join 
+				(
+					select subject_id , IFNULL(SUM(amount_debit),0) sumDebit ,IFNULL(SUM(amount_credit),0) sumCredit from cpa_voucher_subject_${bookId} group by subject_id
+				) t1 on t1.subject_id = t.subject_id
+			 	left join cpa_customer_subject t2 on t.subject_id = t2.id
+			where t.templete_id = #{templeteId} order by t.sort asc 
+	</select>
+	
+		<!-- 通过科目id查询所有记账凭证所有科目信息 -->
+	<select id="findBySubjectId" parameterType="string" resultType="CpaVoucherTempleteSubject">
+		select  
+				id , abstracts ,book_id bookId ,subject_id subjectId, 
+				amount_debit amountDebit , amount_credit amountCredit, sort
+ 			from 
+ 				cpa_voucher_templete_subject 
+ 			where book_id = #{bookId} and subject_id = #{subjectId} 
+	</select>
+</mapper>

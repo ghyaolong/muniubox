@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taoding.mapper.checkoutSetting.SettleAccountCustomerDao">
+	<select id="findList" resultType="SettleAccountCustomer">
+		SELECT a.id AS id,a.book_id AS bookId,a.customer_id AS customerId,a.sub_name AS
+		subName,a.sub_order
+		AS subOrder,a.basic_type AS basicType,a.enable
+		FROM
+		cpa_settle_account_customer a
+		WHERE a.book_id=#{bookId}
+		<if test="basicType!=null and ''!=basicType">
+			AND a.basic_type=#{basicType}
+		</if>
+		order by a.sub_order
+	</select>
+	<insert id="batchInsert">
+		INSERT INTO cpa_settle_account_customer(
+		id,
+		book_id,
+		customer_id,
+		sub_name,
+		sub_order,
+		basic_type,
+		enable,
+		create_by,
+		create_date
+		) VALUES
+		<foreach collection="settleAccountCustomerList" item="item"
+			index="index" separator=",">
+			(
+			#{item.id},
+			#{item.bookId},
+			#{item.customerId},
+			#{item.subName},
+			#{item.subOrder},
+			#{item.basicType},
+			#{item.enable},
+			#{item.createBy.id},
+			#{item.createDate}
+			)
+		</foreach>
+	</insert>
+	<select id="get" resultType="SettleAccountCustomer">
+		SELECT a.book_id AS
+		bookId,a.customer_id AS customerId, a.sub_name AS subName,
+		a.sub_order AS subOrder,a.basic_type AS basicType,a.enable
+		FROM
+		cpa_settle_account_customer a
+		WHERE id=#{id}
+	</select>
+	<update id="updateEnabled">
+		UPDATE cpa_settle_account_customer SET
+		enable=#{enable} WHERE id=#{id}
+	</update>
+
+</mapper>

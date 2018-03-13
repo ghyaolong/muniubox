@@ -1,0 +1,6 @@
+#!/bin/sh
+
+getent group muniubox >/dev/null || groupadd -r muniubox
+getent passwd muniubox >/dev/null || \
+useradd -d /usr/share/muniubox-platform -g muniubox -M -r muniubox -s /sbin/nologin \
+-c "myFramework application"
